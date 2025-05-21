@@ -1,5 +1,5 @@
 import { IButton } from "./IButton.js";
-import { RectangleCollision } from "../../Collisions/RectangleCollision.js";
+import { CircleCollision } from './../../Collisions/CircleCollision';
 
 export class CircleButton extends IButton{
     constructor(p,width,height,onClick){
@@ -8,7 +8,7 @@ export class CircleButton extends IButton{
 
 
     apply_collision(){
-        this.collider = new RectangleCollision(this.p,this.width,this.height)
+        this.collider = new CircleCollision(this.p,this.width)
         this.collider.position = this.position
     }
 }
