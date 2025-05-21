@@ -29,8 +29,6 @@ const main_sketch = (p)=>{
         
         p.window_width = WIDTH
         p.window_height = HEIGHT
-
-        pose_tracker.init()
     }
     
     p.draw = () =>{

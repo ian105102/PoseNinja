@@ -12,11 +12,7 @@ export class PoseTracker {
   #pose;
 
   constructor(p) {
-    //debug
     this.p = p
-    this.is_video_setup = false
-    this.is_pose_ready = false
-
     if (PoseTracker.#instance) {
       return PoseTracker.#instance;
     }
@@ -37,10 +33,41 @@ export class PoseTracker {
 
     this.detections_pose = [];
     this.#pose.onResults((results) => this.gotPose(results));
-    
-    this.OnGetPose = function (results) {
+    this.OnGetPose = function (results) {};
+
+    this._init()
+  }
+
+  _init(){
+    this.video = this.p.createCapture(this.p.VIDEO)
+      .size(WIDTH, HEIGHT)
+      .hide();
+      // this.flippedGraphics = this.p.createGraphics(WIDTH, HEIGHT);
+      this.myCamera = new Camera(this.video.elt, {
+          onFrame: async () => {
+              // 一開始鏡向有點太卡了，先不加
+              // 將翻轉後的影像畫到離屏畫布
+              // this.flippedGraphics.push();
+              // this.flippedGraphics.translate(WIDTH, 0);   // 移動到畫布右邊
+              // this.flippedGraphics.scale(-1, 1);          // 水平翻轉
+              // this.flippedGraphics.image(this.video, 0, 0, WIDTH, HEIGHT);
+              // this.flippedGraphics.pop();
       
-    };
+              // 把鏡像後的畫面傳送給 PoseTracker
+              console.log("send video to pose tracker")
+              await PoseTracker.send(this.video.elt);
+          },
+          width: 1080,
+          height: 720
+      }).start();
+
+  }
+
+  update(){
+    console.log(WIDTH,HEIGHT)
+    this.p.image(this.video, 0, 0, WIDTH, HEIGHT);
+    this.send(this.video.elt);
+    this.drawSkeleton(this.getFullSkeleton());
   }
 
   setOptions(options) {
@@ -48,16 +75,12 @@ export class PoseTracker {
   }
 
   async send(image) {
-    console.log("call send image")
     await this.#pose.send({ image });
-    console.log("image sent")
   }
 
   gotPose(results) {
-    
     this.detections_pose = results.poseLandmarks || [];
     this.OnGetPose(results);
-    this.is_pose_ready = true
   }
   
   getFullSkeleton() {
@@ -65,33 +88,7 @@ export class PoseTracker {
   }
 
 
-  init(){
-    this.video = this.p.createCapture(this.p.VIDEO)
-      .size(WIDTH, HEIGHT)
-      .hide();
-      // this.flippedGraphics = this.p.createGraphics(WIDTH, HEIGHT);
-      this.myCamera = new Camera(this.video.elt, {
-          onFrame: async () => {
-              console.log("send video to pose tracker")
-              await this.send(this.video.elt);
-          },
-          width: 1080,
-          height: 720
-      }).start();
-             
-  }
-
-
-    update(){
-        this.p.image(this.video, 0, 0, WIDTH, HEIGHT);
-        this.send(this.video.elt);
-        this.drawSkeleton(this.getFullSkeleton());
-        
-        //this.flag = false
-    }
-//call send -> update -> draw skeleton ->
-
-    drawSkeleton(landmarks) {
+  drawSkeleton(landmarks) {
         if (!landmarks || landmarks.length === 0) return;
 
         this.p.stroke(0, 255, 0);
@@ -122,7 +119,7 @@ export class PoseTracker {
         this.p.fill(255, 0, 0);
         this.p.noStroke();
         for (const pt of landmarks) {
-            this.p.ellipse(pt.x * WIDTH, pt.y * HEIGHT, 6, 6);
+            this.p.ellipse(pt.x *WIDTH, pt.y *HEIGHT, 6, 6);
         }
     }
 }
