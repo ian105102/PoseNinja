@@ -65,70 +65,29 @@ export class PoseTracker {
   }
 
 
-
-  async init_camera(){
-    this.myCamera = new Camera(this.video.elt, {
-        onFrame: async () => {
-            console.log("send video to pose tracker")
-            if(this.is_pose_ready){
+  init(){
+    this.video = this.p.createCapture(this.p.VIDEO)
+      .size(WIDTH, HEIGHT)
+      .hide();
+      // this.flippedGraphics = this.p.createGraphics(WIDTH, HEIGHT);
+      this.myCamera = new Camera(this.video.elt, {
+          onFrame: async () => {
+              console.log("send video to pose tracker")
               await this.send(this.video.elt);
-
-            }
-            
-        },
-        width : WIDTH,
-        height: HEIGHT
-        /*
-        width: 1080,
-        height: 720
-        */
-    });
-
-    await this.myCamera.start()
+          },
+          width: 1080,
+          height: 720
+      }).start();
+             
   }
 
-
-
-  async init(){
-    if(!this.is_video_setup){
-      console.log("initing video called")
-      this.video = await this.init_video()
-      console.log("initing Camera called")
-      await this.init_camera()
-
-      console.log("Camera init done")
-      this.is_video_setup = true
-    }
-
-    // this.flippedGraphics = this.p.createGraphics(WIDTH, HEIGHT);
-  }
-
-
-  init_video() {
-    let called = false;
-    return new Promise((resolve) => {
-        const vid = this.p.createCapture(this.p.VIDEO, () => {
-          if(called){
-            return
-          }
-            console.log("video loaded");
-            called = true
-            resolve(vid);
-        });
-        vid.size(WIDTH, HEIGHT);
-        vid.hide();
-    });
-    }
 
     update(){
-      if(!this.is_video_setup){return;}
-      if(true){
+        this.p.image(this.video, 0, 0, WIDTH, HEIGHT);
         this.send(this.video.elt);
-        console.log("PoseTracker update")
         this.drawSkeleton(this.getFullSkeleton());
-        console.log("PoseTracker draw skeleton")
+        
         //this.flag = false
-      }
     }
 //call send -> update -> draw skeleton ->
 
