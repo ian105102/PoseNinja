@@ -7,6 +7,7 @@ import { SceneManager } from "../SceneManager.js";
 import { WIDTH } from "../G.js"
 import { HEIGHT } from "../G.js"
 import { DrawableText } from "../Objects/DrawableObj/Text/DrawableText.js";
+import { PoseHandler } from "../Objects/APIs/PoseHandler.js";
 export class ScoreScene extends IScene{
     static instance = null
 
@@ -41,5 +42,18 @@ export class ScoreScene extends IScene{
         text.position.y = HEIGHT / 8
         ScoreScene.instance.add(text)
 
+
+        this.pose_handler = new PoseHandler(this.p)
+                
+        this.func_to_menu = ()=>{
+            SceneManager.instance.changeScene(SceneEnum.MENU)
+        } 
+    }
+
+     _on_update(_delta){
+        this.pose_handler.update(_delta)
+        if(this.pose_handler.is_left_counter_reached()){
+            this.func_to_menu()
+        }
     }
 }

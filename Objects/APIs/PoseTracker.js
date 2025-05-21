@@ -2,7 +2,10 @@
   import poseTracker from '../PoseTracker.js';
 
 
-
+  註：
+    在此一開始就初始化，要保證兩個東西載入才能進行偵測
+    - 一個是Camera(createCaputre)
+    - 另一個是Mediapipe首次的gotPose
 
 */ 
 import { WIDTH } from "../../G.js";
@@ -11,6 +14,15 @@ export class PoseTracker {
   static #instance;
   #pose;
 
+
+  static get_instance(p){
+    if(PoseTracker.#instance){
+      return PoseTracker.#instance
+    }else{
+      //will assign to singlton
+      return new PoseTracker(p)
+    }
+  }
   constructor(p) {
     this.flag = true
     this.p = p
@@ -34,9 +46,29 @@ export class PoseTracker {
 
     this.detections_pose = [];
     this.#pose.onResults((results) => this.gotPose(results));
-    this.OnGetPose = function (results) {};
+    this.OnGetPose = function (results) {
 
+
+    };
+    
     this._init()
+    
+    this.is_left_hand_up = false
+    this.is_righ_hand_up = false
+    this.is_doub_hand_up = false
+
+  }
+
+  get_is_left_hand_up(){
+    return this.is_left_hand_up
+  }
+
+  get_is_righ_hand_up(){
+   return this.is_righ_hand_up
+  }
+
+  get_is_doub_hand_up(){
+    return this.is_doub_hand_up
   }
 
   _init(){
@@ -46,17 +78,8 @@ export class PoseTracker {
       // this.flippedGraphics = this.p.createGraphics(WIDTH, HEIGHT);
       this.myCamera = new Camera(this.video.elt, {
           onFrame: async () => {
-              // 一開始鏡向有點太卡了，先不加
-              // 將翻轉後的影像畫到離屏畫布
-              // this.flippedGraphics.push();
-              // this.flippedGraphics.translate(WIDTH, 0);   // 移動到畫布右邊
-              // this.flippedGraphics.scale(-1, 1);          // 水平翻轉
-              // this.flippedGraphics.image(this.video, 0, 0, WIDTH, HEIGHT);
-              // this.flippedGraphics.pop();
-      
-              // 把鏡像後的畫面傳送給 PoseTracker
-              console.log("send video to pose tracker")
-              await PoseTracker.send(this.video.elt);
+              //console.log("send video to pose tracker")
+              await this.send(this.video.elt);
           },
           width: 1080,
           height: 720
@@ -65,9 +88,10 @@ export class PoseTracker {
   }
 
   update(){
-    console.log(this.video.loadedmetadata)
-    if(this.video.loadedmetadata){
-      this.p.image(this.video, 0, 0, WIDTH, HEIGHT);
+    //console.log(this.video.loadedmetadata)
+    //console.log(this.video.elt.readyState)
+    if(this.video.loadedmetadata && this.poseReady){
+      //this.p.image(this.video, 0, 0, WIDTH, HEIGHT);
       this.send(this.video.elt);
       this.drawSkeleton(this.getFullSkeleton());
     }
@@ -83,7 +107,11 @@ export class PoseTracker {
 
   gotPose(results) {
     this.detections_pose = results.poseLandmarks || [];
-    this.OnGetPose(results);
+
+    if (!this.poseReady) {
+      this.poseReady = true;
+      //console.log("Pose is ready!");
+    }
   }
   
   getFullSkeleton() {
@@ -114,8 +142,53 @@ export class PoseTracker {
             const a = landmarks[start];
             const b = landmarks[end];
             if (a && b) {
-            this.p.line(a.x *WIDTH , a.y *HEIGHT , b.x *WIDTH, b.y *HEIGHT);
+              this.p.line(a.x *WIDTH , a.y *HEIGHT , b.x *WIDTH, b.y *HEIGHT);
             }
+
+            //舉左手
+            let left_shou = landmarks[11]
+            let left_hand = landmarks[15]
+            this.is_left_hand_up = false
+            if(left_shou.y > left_hand.y){  //舉左手
+                this.is_left_hand_up = true
+            }
+
+            
+            let righ_shou = landmarks[12]
+            let righ_hand = landmarks[16]
+            this.is_righ_hand_up = false
+            if(righ_shou.y > righ_hand.y){  //舉右手
+                this.is_righ_hand_up = true
+            }
+
+
+
+            
+            this.is_doub_hand_up = false
+            if(this.is_left_hand_up && this.is_righ_hand_up){
+              console.log("double hand up!")
+              this.is_doub_hand_up = true
+              this.is_left_hand_up = false
+              this.is_righ_hand_up = false
+              
+            }
+
+            
+            else if(this.is_left_hand_up){
+              console.log("left hand up!")
+            }
+
+            else if(this.is_righ_hand_up){
+              console.log("right hand up!")
+            }
+
+            
+
+
+            //舉雙手
+
+
+
         }
 
         // 畫出每個關鍵點
@@ -124,5 +197,6 @@ export class PoseTracker {
         for (const pt of landmarks) {
             this.p.ellipse(pt.x *WIDTH, pt.y *HEIGHT, 6, 6);
         }
+        this.p.fill(0, 0, 0);
     }
 }
