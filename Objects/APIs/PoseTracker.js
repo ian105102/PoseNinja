@@ -12,6 +12,7 @@ export class PoseTracker {
   #pose;
 
   constructor(p) {
+    this.flag = true
     this.p = p
     if (PoseTracker.#instance) {
       return PoseTracker.#instance;
@@ -64,10 +65,12 @@ export class PoseTracker {
   }
 
   update(){
-    console.log(WIDTH,HEIGHT)
-    this.p.image(this.video, 0, 0, WIDTH, HEIGHT);
-    this.send(this.video.elt);
-    this.drawSkeleton(this.getFullSkeleton());
+    console.log(this.video.loadedmetadata)
+    if(this.video.loadedmetadata){
+      this.p.image(this.video, 0, 0, WIDTH, HEIGHT);
+      this.send(this.video.elt);
+      this.drawSkeleton(this.getFullSkeleton());
+    }
   }
 
   setOptions(options) {
