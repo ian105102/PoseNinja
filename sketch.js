@@ -9,8 +9,13 @@ const main_sketch = (p)=>{
     /// <reference types="p5" />
     //const game_scene = new GameScene(p)
     const scene_manager = new SceneManager(p)
-    p.setup = () =>{
 
+    p.preload = () =>{
+        
+    }
+
+
+    p.setup = () =>{
         p.is_left_pressing = false
         p.is_right_pressing = false
 
@@ -27,7 +32,6 @@ const main_sketch = (p)=>{
     
     p.draw = () =>{
         p.background(220);
-        
 
         SceneManager.instance.update(0.1)
         SceneManager.instance.draw()
