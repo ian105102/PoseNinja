@@ -4,12 +4,13 @@
 import { SceneManager } from "./SceneManager.js"
 import { WIDTH } from "./G.js"
 import { HEIGHT } from "./G.js"
+import { PoseTracker } from "./Objects/APIs/PoseTracker.js"
 
 const main_sketch = (p)=>{
     /// <reference types="p5" />
     //const game_scene = new GameScene(p)
     const scene_manager = new SceneManager(p)
-
+    const pose_tracker = new PoseTracker(p)
     p.preload = () =>{
         
     }
@@ -28,6 +29,8 @@ const main_sketch = (p)=>{
         
         p.window_width = WIDTH
         p.window_height = HEIGHT
+
+        pose_tracker.init()
     }
     
     p.draw = () =>{
@@ -35,6 +38,7 @@ const main_sketch = (p)=>{
 
         SceneManager.instance.update(0.1)
         SceneManager.instance.draw()
+        pose_tracker.update()
 
         p.handleInput()
         
