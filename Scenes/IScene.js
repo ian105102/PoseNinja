@@ -25,7 +25,6 @@ export class IScene{
     init(){
         throw new Error('Abstract method _init() must be implemented in derived class');
 
-
     }
 
     add(object) {

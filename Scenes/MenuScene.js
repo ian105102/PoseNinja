@@ -4,10 +4,13 @@ import { RectButton } from "../Objects/DrawableObj/Button/RectButton.js"
 import { SceneEnum } from "../SceneEnum.js";
 import { SceneManager } from "../SceneManager.js";
 
+import { PoseTracker } from "../Objects/APIs/PoseTracker.js";
+
 import { WIDTH } from "../G.js"
 import { HEIGHT } from "../G.js"
 import { DrawableText } from "../Objects/DrawableObj/Text/DrawableText.js";
 import { PoseHandler } from "../Objects/APIs/PoseHandler.js";
+import { DrawableImage } from "../Objects/DrawableObj/Game/DrawableImage.js";
 export class MenuScene extends IScene{
     static instance = null
 
@@ -84,10 +87,19 @@ export class MenuScene extends IScene{
         tuto_game_text.position.y = height
         MenuScene.instance.add(tuto_game_text)
 
+        this.pose_image = new DrawableImage(this.p);
+        this.pose_image.position.x = WIDTH - WIDTH/4 - 20;
+        this.pose_image.position.y = HEIGHT - HEIGHT/4 - 20;
+        this.pose_image.width = WIDTH/4;
+        this.pose_image.height = HEIGHT/4;
+
+        MenuScene.instance.add(this.pose_image);
 
     }
 
     _on_update(_delta){
+       
+        this.pose_image.src = PoseTracker.get_instance(this.p).getVideo();
         this.pose_handler.update(_delta)
         if(this.pose_handler.is_left_counter_reached()){
             this.func_to_easy()
