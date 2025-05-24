@@ -13,6 +13,7 @@ export class DrawableText extends IObject{
     }
 
     _on_draw(){
+        this.p.fill(0);
         this.p.strokeWeight(1)
         this.p.textAlign(this.p.CENTER);
         this.p.textSize(this.text_size);
