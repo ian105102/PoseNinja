@@ -76,18 +76,53 @@ export class EasyGameScene extends IScene{
         // 更新與繪製所有板子
         this.boardList = this.boardList.filter(board => {
             board.update();
-            board.display();
-            // console.log(board.y);
 
-            if((board.baseY >= 672) && board.judgePose){
+            if ((board.baseY >= 672) && board.judgePose) {
             console.log("Debug1: 判斷姿勢!!");
-            board.changeColor(true);
+
+            // 1. 計算偏移（假設 centered）
+            let offsetX = (1080 - board.pg.width) / 2;
+            let offsetY = (720 - board.pg.height) / 2;
+
+            // 2. 計算相對於 board.pg 的滑鼠位置
+            let localX = this.p.mouseX - offsetX;
+            let localY = this.p.mouseY - offsetY;
+
+            console.log("Local Mouse:", localX, localY);
+
+            // 3. 檢查是否在 pg 範圍內
+            if (localX >= 0 && localX < board.pg.width && localY >= 0 && localY < board.pg.height) {
+                let cellW = board.pg.width / board.cols;
+                let cellH = board.pg.height / board.rows;
+
+                let gridX = this.p.floor(localX / cellW);
+                let gridY = this.p.floor(localY / cellH)-1;
+
+                console.log("Mouse Grid:", gridX, gridY);
+
+                let isInPose = board.points.some(([x, y]) => x === gridX && y === gridY);
+                console.log("Is in pose:", isInPose);
+
+                if (isInPose) {
+                board.changeColor(true);  // 命中
+                } else {
+                board.changeColor(false); // 沒命中
+                }
+            } else {
+                console.log("滑鼠不在板子上");
+                board.changeColor(false);
+            }
+
             board.judgePose = false;
             }
 
-            return board.baseY < 720; // 只保留還沒滿版的板子
+            return board.baseY < 720;
         });
 
+        // 顯示（倒序繪製）
+        for (let i = this.boardList.length - 1; i >= 0; i--) {
+            this.boardList[i].display();
+        }
     }
     
     initSence(){
@@ -122,5 +157,7 @@ export class EasyGameScene extends IScene{
         this.p.line(921.6, 0, 921.6, HEIGHT);
         this.p.line(964.8, 0, 964.8, HEIGHT);
     }
+
+    
 }
 
