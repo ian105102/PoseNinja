@@ -7,6 +7,8 @@ import { WIDTH } from "../G.js"
 import { HEIGHT } from "../G.js"
 import { RectButton } from "../Objects/DrawableObj/Button/RectButton.js";
 import { DrawableText } from "../Objects/DrawableObj/Text/DrawableText.js";
+
+import { PoseHandler } from './../Objects/APIs/PoseHandler.js';
 export class TutorialScene extends IScene{
     static instance = null
 
@@ -26,7 +28,7 @@ export class TutorialScene extends IScene{
     //call after constructor
     init(){
         let func =()=>{
-            SceneManager.instance.changeScene(SceneEnum.GAME)
+            SceneManager.instance.changeScene(SceneEnum.MENU)
         }
 
         let go_game_button = new RectButton(this.p,200,100,func)
@@ -37,6 +39,23 @@ export class TutorialScene extends IScene{
         text.position.x = WIDTH / 2
         text.position.y = HEIGHT / 9
         TutorialScene.instance.add(text)
+
+        this.pose_handler = new PoseHandler(this.p)
+        
+        this.func_to_menu = ()=>{
+            SceneManager.instance.changeScene(SceneEnum.MENU)
+        }
+    }
+
+    _on_update(_delta){
+        this.pose_handler.update(_delta)
+        if(this.pose_handler.is_left_counter_reached()){
+            this.func_to_menu()
+        }
+    }
+
+    _on_exit(){
+        this.pose_handler.reset_all_counter()
 
     }
 }

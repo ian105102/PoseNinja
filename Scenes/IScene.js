@@ -46,4 +46,14 @@ export class IScene{
 
 
     }
+
+
+    _on_enter(){
+
+
+    }
+    _on_exit(){
+
+
+    }
 }

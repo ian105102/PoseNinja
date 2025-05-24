@@ -1,6 +1,7 @@
 export const SceneEnum = Object.freeze({
     MENU: 'MENU',
     TUTORIAL: 'TUTORIAL',
-    GAME: 'GAME',
+    EASY_GAME: 'EASY_GAME',
+    HARD_GAME: 'HARD_GAME',
     SCORE: 'SCORE'
 });
