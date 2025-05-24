@@ -14,6 +14,9 @@ const main_sketch = (p)=>{
     p.preload = () =>{
         
     }
+    let delta =0;
+    let last_time = 0;
+    
 
 
     p.setup = () =>{
@@ -32,9 +35,11 @@ const main_sketch = (p)=>{
     }
     
     p.draw = () =>{
+        let current_time = p.millis();
+        delta = (current_time - last_time) / 1000; // Convert milliseconds to seconds
         p.background(220);
 
-        SceneManager.instance.update(0.1)
+        SceneManager.instance.update(delta)
         SceneManager.instance.draw()
         pose_tracker.update()
 
