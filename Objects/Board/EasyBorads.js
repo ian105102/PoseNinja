@@ -17,10 +17,14 @@ export class EasyBorads extends IObject{
         this.easyBoardList = [];
         this.reusableStack = [];
 
+        this.isLoop = false;
+
+
         this.generatorManaer = new GeneratorManager();
         this.boardGenerator = new BoardGenerator();
     }
-    add_board(){
+    add_board(onLine){
+     
         let board;
         if (this.reusableStack.length > 0) {
             board = this.reusableStack.pop(); 
@@ -29,21 +33,26 @@ export class EasyBorads extends IObject{
             this.easyBoardList.push(board); 
         }
         this.boardGenerator.generateTestBoard();
-        this.generatorManaer.start(board.startRise( 
-        this.boardGenerator.getBoard(),
-        ()=>{
-            this.reusableStack.push(board); 
-            this.add_board();
-        }));    
+        this.generatorManaer.start(
+            board.startRise( 
+                this.boardGenerator.getBoard(),
+                ()=>{
+                    if(this.isLoop) {
+                        this.add_board(onLine);
+                    }
+                    this.reusableStack.push(board);
+                } ,
+                onLine
+            )
+        );    
     }
+    
 
     _on_update(delta){
         this.generatorManaer.update();
         this.easyBoardList.forEach(board => {
             board.update(delta);
         });
-        console.log(this.generatorManaer.generators.size);
-        console.log(this.easyBoardList.length);
     }
 
     

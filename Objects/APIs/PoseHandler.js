@@ -17,7 +17,7 @@ export class PoseHandler{
         this.righ_hand_sustain_counter.update(_delta,this.tracker.get_is_righ_hand_up())
         this.doub_hand_sustain_counter.update(_delta,this.tracker.get_is_doub_hand_up())
 
-        console.log("val_time ",this.doub_hand_sustain_counter.val_time)
+       // console.log("val_time ",this.doub_hand_sustain_counter.val_time)
     }
     reset_all_counter(){
         this.left_hand_sustain_counter.reset()

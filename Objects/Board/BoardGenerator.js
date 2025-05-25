@@ -49,7 +49,7 @@ export class BoardGenerator {
     generateTestBoard() {
         for (let i = 0; i < this.cols; i++) {
             for (let j = 0; j < this.rows; j++) {
-                if( i < this.cols/2) {
+                if( i < this.cols*4/5) {
                     this.Boards[i][j].type = 1;
                 }else{
                     this.Boards[i][j].type = 0;
