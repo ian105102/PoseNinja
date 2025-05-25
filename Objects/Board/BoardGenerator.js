@@ -44,9 +44,15 @@ export class BoardGenerator {
     generateTestBoard() {
         for (let i = 0; i < this.cols; i++) {
             for (let j = 0; j < this.rows; j++) {
-                this.Boards[i][j].type = 1;
+                if( i < this.cols/2) {
+                    this.Boards[i][j].type = 1;
+                }else{
+                    this.Boards[i][j].type = 0;
+                }
+              
             }
         }
+
     }
 
     // 在棋盤上畫圓形（預設 type = 1）

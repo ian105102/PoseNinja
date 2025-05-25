@@ -24,7 +24,7 @@ export class EasyBorads extends IObject{
             board = new EasyBoard(this.p); 
             this.easyBoardList.push(board); 
         }
-        this.boardGenerator.generateBoard();
+        this.boardGenerator.generateTestBoard();
         this.generatorManaer.start(board.startRise( 
         this.boardGenerator.getBoard(),
         ()=>{
