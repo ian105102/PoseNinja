@@ -7,7 +7,7 @@ import { Board } from './Board.js';
     type: 1 = 正常, 0 = 障礙物
     負責渲染一塊板，並且處理移動動畫
 */
-export class EasyBoard extends IObject {
+export class HardBoard extends IObject {
     constructor(p) {
         super(p);
 
@@ -80,7 +80,7 @@ export class EasyBoard extends IObject {
     }
 
     _on_update(delta) {
-        console.log("HardBoard update", this.isActive);
+        console.log("EasyBoard update", this.isActive);
         if (this.move) {
             console.log(delta);
             this.position.y = this.position.y + (30* delta);

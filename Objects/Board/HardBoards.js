@@ -1,7 +1,7 @@
 import { IObject } from "../../Objects/IObject.js"
 import { GeneratorManager } from "../Utils/GeneratorManager.js";
 import {BoardGenerator } from "./BoardGenerator.js";
-import { EasyBoard } from "./EasyBoard.js";
+import { HardBoard } from "./HardBoard.js";
 /*
     處理多個 EasyBoard 的管理
     負責生成 EasyBoard 並管理它們的生命周期
@@ -9,7 +9,7 @@ import { EasyBoard } from "./EasyBoard.js";
 */
 
 
-export class EasyBorads extends IObject{
+export class HardBorads extends IObject{
     constructor(p, keypointDataList){
         super(p);
         this.position.x = 0;
@@ -28,7 +28,7 @@ export class EasyBorads extends IObject{
         if (this.reusableStack.length > 0) {
             board = this.reusableStack.pop(); 
         } else {
-            board = new EasyBoard(this.p); 
+            board = new HardBoard(this.p); 
             this.easyBoardList.push(board); 
         }
         this.boardGenerator.generateBoard();

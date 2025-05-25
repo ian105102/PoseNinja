@@ -14,14 +14,18 @@ import { EasyBorads } from "../Objects/Board/EasyBorads.js"
 export class EasyGameScene extends IScene{
     static instance = null
 
-    constructor(p) {
+    constructor(p, easykeypointDataList) {
         if (EasyGameScene.instance) {
             return EasyGameScene.instance
         }
         super(p);
+        
+        this.keypointDataList = easykeypointDataList;
         EasyGameScene.instance = this;
-        EasyGameScene.instance.init()
+        EasyGameScene.instance.init();
+        console.log("keypointDataList: ", this.keypointDataList);
     } 
+    
     
 
     
@@ -51,8 +55,7 @@ export class EasyGameScene extends IScene{
         this.genInterval = 120; // 每60幀生成一個板子
         this.genTimer = 0;
 
-
-        this.easyBoard = new EasyBorads(this.p);
+        this.easyBoard = new EasyBorads(this.p, this.keypointDataList);
         instance.add(this.easyBoard);
         this.easyBoard.add_board();
 
