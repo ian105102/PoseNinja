@@ -24,7 +24,7 @@ export class EasyBoard extends IObject {
         this.waitTimer = new WaitTimer();
 
         this.color = this.p.color(242, 133, 0, 60);
-
+        this.passBoard = [];
         // 建立板子遮擋邏輯
         this.Boards = [];
         this.cols = 10;
@@ -32,7 +32,7 @@ export class EasyBoard extends IObject {
         for (let i = 0; i < this.cols; i++) {
             let row = [];
             for (let j = 0; j < this.rows; j++) {
-                row.push(new Board());
+                row.push(new Board(i,j));
             }
             this.Boards.push(row);
         }
@@ -110,17 +110,17 @@ export class EasyBoard extends IObject {
     }
 
     getPassBoard() {
-        let passBoard = [];
+        this.passBoard = [];
         for (let i = 0; i < this.cols; i++) {
             let row = [];
             for (let j = 0; j < this.rows; j++) {
+                console.log(this.Boards[i][j].type);
                 if(this.Boards[i][j].type != 0){
-                    row.push(this.Boards[i][j].type);
+                    this.passBoard.push(this.Boards[i][j]);
                 }
             }
-            passBoard.push(row);
         }
-        return passBoard;
+        return this.passBoard;
     }
 
     *startRise(board,  OnEnd, OnLine) {
