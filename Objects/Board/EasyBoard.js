@@ -5,7 +5,7 @@ import { GeneratorManager, WaitTimer } from "../Utils/GeneratorManager.js";
 import { Board } from './Board.js';
 /*
     type: 1 = 正常, 0 = 障礙物
-
+    負責渲染一塊板，並且處理移動動畫
 */
 export class EasyBoard extends IObject {
     constructor(p) {

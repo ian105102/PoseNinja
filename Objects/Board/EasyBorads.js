@@ -2,7 +2,11 @@ import { IObject } from "../../Objects/IObject.js"
 import { GeneratorManager } from "../Utils/GeneratorManager.js";
 import {BoardGenerator } from "./BoardGenerator.js";
 import { EasyBoard } from "./EasyBoard.js";
-
+/*
+    處理多個 EasyBoard 的管理
+    負責生成 EasyBoard 並管理它們的生命周期
+    
+*/
 
 
 export class EasyBorads extends IObject{

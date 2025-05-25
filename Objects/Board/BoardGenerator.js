@@ -1,5 +1,10 @@
 import { Board } from './Board.js';
+/*
+    type: 1 = 正常, 0 = 障礙物
+    BoardGenerator 負責生成棋盤格子，並隨機產生一塊板
+    generateTestBoard 用於測試，產生半個完整的棋盤
 
+*/
 export class BoardGenerator {
     constructor() {
         this.Boards = [];
