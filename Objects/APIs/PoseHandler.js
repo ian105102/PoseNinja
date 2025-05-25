@@ -7,7 +7,6 @@ export class PoseHandler{
         this.left_hand_sustain_counter = new SustainCounter(3.0)
         this.righ_hand_sustain_counter = new SustainCounter(3.0)
         this.doub_hand_sustain_counter = new SustainCounter(3.0)
-
     }
 
 

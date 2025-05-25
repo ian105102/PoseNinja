@@ -6,6 +6,10 @@ import { SceneEnum } from "../SceneEnum.js"
 import { WIDTH } from "../G.js"
 import { HEIGHT } from "../G.js"
 import { DrawableText } from "../Objects/DrawableObj/Text/DrawableText.js"
+import { PoseHandler } from "../Objects/APIs/PoseHandler.js"
+import { PoseTracker } from "../Objects/APIs/PoseTracker.js"
+import { PoseDrawer } from "../Objects/DrawableObj/Game/PoseDrawer.js"
+
 
 
 export class HardGameScene extends IScene{
@@ -19,6 +23,8 @@ export class HardGameScene extends IScene{
         super(p);
         HardGameScene.instance = this;
         HardGameScene.instance.init()
+      
+
         
     } 
     
@@ -30,9 +36,20 @@ export class HardGameScene extends IScene{
         let func_to_scor =()=>{
             SceneManager.instance.changeScene(SceneEnum.SCORE)
         }
-        
+
 
         let instance = HardGameScene.instance
+
+
+        this.poseTracker = PoseTracker.get_instance(this.p);
+   
+        this.poseDrawer =new PoseDrawer(this.p); 
+        this.poseDrawer.posePoint = this.poseTracker.getFullSkeleton();
+    
+        this.poseDrawer.position.x =0;
+        this.poseDrawer.position.y = 0;
+        instance.add(this.poseDrawer);
+
 
         let go_score_button = new RectButton(this.p,300,100,func_to_scor)
         go_score_button.position.x = 800
@@ -47,7 +64,8 @@ export class HardGameScene extends IScene{
 
     }
 
-    _on_update(delta){
 
+    _on_update(delta){
+        this.poseDrawer.posePoint = this.poseTracker.getFullSkeleton();
     }
 }

@@ -1,185 +1,144 @@
-
 import { WIDTH } from "../../G.js"
 import { HEIGHT } from "../../G.js"
-
-
-export class EasyBoard{
+import { IObject } from "../IObject.js";
+import { GeneratorManager, WaitTimer } from "../Utils/GeneratorManager.js";
+import { Board } from './Board.js';
+/*
+    type: 1 = 正常, 0 = 障礙物
+    負責渲染一塊板，並且處理移動動畫
+*/
+export class EasyBoard extends IObject {
     constructor(p) {
-        this.p = p;
-        this.x = (WIDTH/2)-36;  // 504
-        this.y = 192;
+        super(p);
+
         this.width = 72;
-        this.height = 0;
-        // this.color = this.color(229, 229, 229, 80);
-        this.color = this.p.color(242, 133,0, 60);
-        this.baseY = this.y + 48;
+        this.height = 48;
+        this.riseStep = 48;
 
-        this.riseSpeed = 1.2;
-        this.moveSpeed = 1;
-        
-        this.judgePose = true;
+        this.scale.x = 1;
+        this.scale.y = 1;
 
-        // 向量方向：P1 → P2
-        let dx = 72 - 504;
-        let dy = 720 - 240;
-        let len = Math.sqrt(dx * dx + dy * dy);
+        this.position.x = WIDTH / 2;
+        this.position.y = 192 + 48;
 
-        this.dirX = dx / len;
-        this.dirY = dy / len;
+        this.waitTimer = new WaitTimer();
+
+        this.color = this.p.color(242, 133, 0, 60);
 
         // 建立板子遮擋邏輯
-        this.easyBoard = [];
-        this.points = [];
-        this.cols = 30;
-        this.rows = 20;
-
-        this.generateBoard();
-
-        // 離屏畫布
-        this.pg = this.p.createGraphics(849.6, 566.4);
-        this.drawToCanvas(this.color); // 初始化畫面內容
-    }
-
-    generateBoard(){
-        // 初始化矩陣
+        this.Boards = [];
+        this.cols = 10;
+        this.rows = 10;
         for (let i = 0; i < this.cols; i++) {
             let row = [];
             for (let j = 0; j < this.rows; j++) {
-                row.push(0);
+                row.push(new Board());
             }
-            this.easyBoard.push(row);
+            this.Boards.push(row);
         }
 
-        let headX = this.p.floor(this.p.random(8, this.cols - 8)); // 避免邊緣
-        let headY = this.p.floor(this.p.random(3, 13));             // 限制高度在前半段
-        console.log("headX: ", headX, ", headY: ", headY);
-
-        // 安全性邊界檢查
-        const isValid = (x, y) => x >= 0 && x < this.cols && y >= 0 && y < this.rows;
-
-        console.log("head is valid: ", isValid(headX, headY));
-        if(isValid(headX, headY)){
-        let headSize = 7;
-        let halfHeadSize = this.p.floor(headSize / 2);
-        for (let dx = -halfHeadSize; dx <= halfHeadSize; dx++) {
-            for (let dy = -halfHeadSize; dy <= halfHeadSize; dy++) {
-                if (dx * dx + dy * dy <= halfHeadSize * halfHeadSize + 1) {
-                    let x = headX + dx;
-                    let y = headY + dy;
-                    if (x >= 0 && x < this.cols && y >= 0 && y < this.rows) {
-                        // this.easyBoard[x][y] = 1;
-                        this.points.push([x, y]);
-                    }
-                }
-            }
-        }
-        } 
-
-        if (isValid(headX+8, headY+7) && isValid(headX-8, headY+7)){
-            console.log("OK");
-            let shoulderRightX = headX+5;
-            let shoulderRightY = headY+7+this.p.floor(this.p.random(-2, 2));
-            let shoulderLeftX = headX-5;
-            let shoulderLeftY = headY+7+this.p.floor(this.p.random(-2, 2));
-            this.drawLineOnBoard(shoulderLeftX, shoulderLeftY, shoulderRightX, shoulderRightY);
-        }
-
-
-        for (let [x, y] of this.points) {
-            if (x >= 0 && x < this.cols && y >= 0 && y < this.rows) {
-                this.easyBoard[x][y] = 1;
-            }
-        }
-
-
+        // 離屏畫布
+        this.pg = this.p.createGraphics(849.6, 566.4);
+        this.drawToCanvas(this.color);
     }
 
-    // 畫線用在 easyBoard 上
-    drawLineOnBoard(x0, y0, x1, y1) {
-        let dx = this.p.abs(x1 - x0);
-        let dy = this.p.abs(y1 - y0);
-        let sx = x0 < x1 ? 1 : -1;
-        let sy = y0 < y1 ? 1 : -1;
-        let err = dx - dy;
+    _setBoard(boards) {
+    
+        this.cols = boards.length;
+        this.rows = boards[0].length;
 
-        while (true) {
-            this.add9Grid(x0, y0); // 擴展為9宮格
+        this.scale.x = 1;
+        this.scale.y = 1;
 
-            if (x0 === x1 && y0 === y1) break;
-            let e2 = 2 * err;
-            if (e2 > -dy) {
-                err -= dy;
-                x0 += sx;
-            }
-            if (e2 < dx) {
-                err += dx;
-                y0 += sy;
-            }
-        }
+        this.position.x = WIDTH / 2;
+        this.position.y = 192 + 48;
+        this.move = false;
+        this.color = this.p.color(242, 133, 0, 60);
+        this.riseStep = 48;
+
+        this.Boards = boards;
+
+
+        // 重新繪製到 buffer 畫布
+        this.pg.clear();
+        this.drawToCanvas(this.color);
+
+        this.isActive = true; // 啟用狀態（方便物件池控制）
     }
 
-    add9Grid(x, y) {
-        for (let dx = -1; dx <= 1; dx++) {
-            for (let dy = -1; dy <= 1; dy++) {
-                let nx = x + dx;
-                let ny = y + dy;
-                if (nx >= 0 && nx < this.cols && ny >= 0 && ny < this.rows) {
-                    this.points.push([nx, ny]);
-                }
-            }
+    changeColor(poseCorrectWrong) {
+        if (poseCorrectWrong) {
+            this.color = this.p.color(42, 157, 143, 60);
+        } else {
+            this.color = this.p.color(255, 0, 0, 60);
         }
+        this.drawToCanvas(this.color);
     }
 
+    _on_draw() {
+        this.p.image(this.pg, -this.width / 2, (-this.height + this.riseStep), this.width, (this.height - this.riseStep));
+    }
+
+    _on_update(delta) {
+        console.log("EasyBoard update", this.isActive);
+        if (this.move) {
+            console.log(delta);
+            this.position.y = this.position.y + (30* delta);
+            this.scale.x = (this.position.y - 192 - 48) * 0.025 + 1;
+            this.scale.y = (this.position.y - 192 - 48) * 0.025 + 1;
+        }
+    }
 
     // 可自訂的離屏繪圖內容
     drawToCanvas(c) {
         this.pg.clear();
-        // this.pg.noStroke();
-        this.pg.stroke(0);
+        this.pg.noStroke();
 
-        // 範例：畫格子（可自行改畫其他內容）
         let cellW = this.pg.width / this.cols;
         let cellH = this.pg.height / this.rows;
 
         for (let i = 0; i < this.cols; i++) {
-        for (let j = 0; j < this.rows; j++) {
-            if(this.easyBoard[i][j] == 0){
-            this.pg.fill(c); // 遮擋區域
-            this.pg.rect(i * cellW, j * cellH, cellW, cellH);
-            } else {
-            this.pg.fill(229, 229, 229, 80); // 非遮擋格線
-            this.pg.rect(i * cellW, j * cellH, cellW, cellH);
+            for (let j = 0; j < this.rows; j++) {
+                if (this.Boards[i][j].type === 0) {
+                    this.pg.fill(c);
+                } else {
+                    this.pg.fill(229, 229, 229, 80);
+                }
+                this.pg.rect(i * cellW, j * cellH, cellW, cellH);
             }
         }
-        }
     }
 
-    changeColor(poseCorrectWrong){
-        if(poseCorrectWrong){
-        this.color = this.p.color(42, 157, 143, 60);
-        } else {
-        this.color = this.p.color(255, 0, 0, 60);
+    getPassBoard() {
+        let passBoard = [];
+        for (let i = 0; i < this.cols; i++) {
+            let row = [];
+            for (let j = 0; j < this.rows; j++) {
+                if(this.Boards[i][j].type != 0){
+                    row.push(this.Boards[i][j].type);
+                }
+            }
+            passBoard.push(row);
         }
-        this.drawToCanvas(this.color); // 更新顏色後重畫
+        return passBoard;
     }
 
-    update(){
-        if(this.height < 48){
-            this.height += this.riseSpeed;
-        }else {
-            // 沿著方向移動
-            this.x += this.dirX * this.moveSpeed;
-            this.y += this.dirY * this.moveSpeed;
-            this.width += 72 * 0.01855 * this.moveSpeed;
-            this.height += 48 * 0.01855 * this.moveSpeed;
+    *startRise(board,  OnEnd, OnLine) {
+        this._setBoard(board );
+        for (let i = this.riseStep; i > 0; i--) {
+            this.riseStep -= 1;
+            yield this.waitTimer.delay(10);
         }
+
+        while (this.position.y < 720) {
+            this.move = true;
+            yield;
+        }
+        console.log(this.getPassBoard());
+        this.isActive = false;
+        OnEnd(this);
+     
     }
 
-    display() {
-        // 把畫布畫出來，按照當前位置與尺寸縮放
-        this.p.image(this.pg, this.x, this.baseY - this.height, this.width, this.height);
-        this.baseY = this.y + 48;
-    }
+
 }
-
-

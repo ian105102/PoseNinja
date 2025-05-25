@@ -26,6 +26,7 @@ export class PoseTracker {
   constructor(p) {
     this.flag = true
     this.p = p
+    this.buffer = null
     if (PoseTracker.#instance) {
       return PoseTracker.#instance;
     }
@@ -57,6 +58,8 @@ export class PoseTracker {
     this.is_righ_hand_up = false
     this.is_doub_hand_up = false
 
+    this.PoseImage =this.p.createGraphics(WIDTH, HEIGHT);
+
   }
 
   get_is_left_hand_up(){
@@ -86,14 +89,28 @@ export class PoseTracker {
       }).start();
 
   }
-
+  getVideo() {
+      this.buffer = this.p.createGraphics(WIDTH, HEIGHT);
+      this.buffer.push();
+      this.buffer.translate(WIDTH, 0);
+      this.buffer.scale(-1, 1); // 水平翻轉
+      this.buffer.image(this.video, 0, 0, WIDTH, HEIGHT);
+      this.drawSkeleton(this.buffer,this.getFullSkeleton());
+      this.buffer.pop();
+      return this.buffer;
+    
+  }
   update(){
     //console.log(this.video.loadedmetadata)
     //console.log(this.video.elt.readyState)
     if(this.video.loadedmetadata && this.poseReady){
       //this.p.image(this.video, 0, 0, WIDTH, HEIGHT);
+      
+      //this.drawSkeleton(this.getFullSkeleton());
       this.send(this.video.elt);
-      this.drawSkeleton(this.getFullSkeleton());
+
+   
+   
     }
   }
 
@@ -119,12 +136,12 @@ export class PoseTracker {
   }
 
 
-  drawSkeleton(landmarks) {
+  drawSkeleton(p , landmarks) {
         if (!landmarks || landmarks.length === 0) return;
 
-        this.p.stroke(0, 255, 0);
-        this.p.strokeWeight(2);
-        this.p.noFill();
+        p.stroke(0, 255, 0);
+        p.strokeWeight(2);
+        p.noFill();
 
         // 🔗 可連接的骨架關係（骨頭連線），根據 MediaPipe Pose 定義
         const connections = [
@@ -142,7 +159,7 @@ export class PoseTracker {
             const a = landmarks[start];
             const b = landmarks[end];
             if (a && b) {
-              this.p.line(a.x *WIDTH , a.y *HEIGHT , b.x *WIDTH, b.y *HEIGHT);
+              p.line(a.x *WIDTH , a.y *HEIGHT , b.x *WIDTH, b.y *HEIGHT);
             }
 
             //舉左手
@@ -181,22 +198,14 @@ export class PoseTracker {
             else if(this.is_righ_hand_up){
               console.log("right hand up!")
             }
-
-            
-
-
             //舉雙手
-
-
-
         }
-
         // 畫出每個關鍵點
-        this.p.fill(255, 0, 0);
-        this.p.noStroke();
+        p.fill(255, 0, 0);
+        p.noStroke();
         for (const pt of landmarks) {
-            this.p.ellipse(pt.x *WIDTH, pt.y *HEIGHT, 6, 6);
+            p.ellipse(pt.x *WIDTH, pt.y *HEIGHT, 6, 6);
         }
-        this.p.fill(0, 0, 0);
+        p.fill(0, 0, 0);
     }
 }

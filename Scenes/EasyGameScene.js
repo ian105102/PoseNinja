@@ -6,8 +6,9 @@ import { SceneEnum } from "../SceneEnum.js"
 import { WIDTH } from "../G.js"
 import { HEIGHT } from "../G.js"
 import { DrawableText } from "../Objects/DrawableObj/Text/DrawableText.js"
+import { EasyBoard } from "../Objects/Board/EasyBoard.js";
+import { EasyBorads } from "../Objects/Board/EasyBorads.js"
 
-import { EasyBoard } from "../Objects/Board/EasyBoard.js"
 
 
 export class EasyGameScene extends IScene{
@@ -15,7 +16,6 @@ export class EasyGameScene extends IScene{
 
     constructor(p) {
         if (EasyGameScene.instance) {
-            
             return EasyGameScene.instance
         }
         super(p);
@@ -44,11 +44,19 @@ export class EasyGameScene extends IScene{
         text.position.x = WIDTH / 2
         text.position.y = HEIGHT / 8
         instance.add(text)
+
         
         this.boardList = [];
         this.canGenerate = true;
         this.genInterval = 120; // 每60幀生成一個板子
         this.genTimer = 0;
+
+
+        this.easyBoard = new EasyBorads(this.p);
+        instance.add(this.easyBoard);
+        this.easyBoard.add_board();
+
+        
     }
 
     _on_update(delta){
@@ -57,15 +65,17 @@ export class EasyGameScene extends IScene{
             this.p.line(0, i*(HEIGHT/15), WIDTH, i*(HEIGHT/15));      // (起始x, 起始y, 終點x, 終點y)
             this.p.line(i*(WIDTH/15), 0, i*(WIDTH/15), HEIGHT);      // (起始x, 起始y, 終點x, 終點y)
         }
-
+        
+        this.easyBoard.update(delta);
         
         this.initSence();
 
-        if(this.canGenerate){
-            this.boardList.push(new EasyBoard(this.p));
-            this.canGenerate = false;
-        }
 
+        // this.boardList = this.boardList.filter(board => {
+    
+        // });
+
+        
         // // 控制板子生成節奏
         // this.genTimer++;
         // if (this.genTimer >= this.genInterval) {
@@ -74,55 +84,50 @@ export class EasyGameScene extends IScene{
         // }
 
         // 更新與繪製所有板子
-        this.boardList = this.boardList.filter(board => {
-            board.update();
 
-            if ((board.baseY >= 672) && board.judgePose) {
-            console.log("Debug1: 判斷姿勢!!");
 
-            // 1. 計算偏移（假設 centered）
-            let offsetX = (1080 - board.pg.width) / 2;
-            let offsetY = (720 - board.pg.height) / 2;
+        //     if ((board.baseY >= 672) && board.judgePose) {
+        //     console.log("Debug1: 判斷姿勢!!");
 
-            // 2. 計算相對於 board.pg 的滑鼠位置
-            let localX = this.p.mouseX - offsetX;
-            let localY = this.p.mouseY - offsetY;
+        //     // 1. 計算偏移（假設 centered）
+        //     let offsetX = (1080 - board.pg.width) / 2;
+        //     let offsetY = (720 - board.pg.height) / 2;
 
-            console.log("Local Mouse:", localX, localY);
+        //     // 2. 計算相對於 board.pg 的滑鼠位置
+        //     let localX = this.p.mouseX - offsetX;
+        //     let localY = this.p.mouseY - offsetY;
 
-            // 3. 檢查是否在 pg 範圍內
-            if (localX >= 0 && localX < board.pg.width && localY >= 0 && localY < board.pg.height) {
-                let cellW = board.pg.width / board.cols;
-                let cellH = board.pg.height / board.rows;
+            
 
-                let gridX = this.p.floor(localX / cellW);
-                let gridY = this.p.floor(localY / cellH)-1;
+        //     // 3. 檢查是否在 pg 範圍內
+        //     if (localX >= 0 && localX < board.pg.width && localY >= 0 && localY < board.pg.height) {
+        //         let cellW = board.pg.width / board.cols;
+        //         let cellH = board.pg.height / board.rows;
 
-                console.log("Mouse Grid:", gridX, gridY);
+        //         let gridX = this.p.floor(localX / cellW);
+        //         let gridY = this.p.floor(localY / cellH)-1;
 
-                let isInPose = board.points.some(([x, y]) => x === gridX && y === gridY);
-                console.log("Is in pose:", isInPose);
+        //         console.log("Mouse Grid:", gridX, gridY);
 
-                if (isInPose) {
-                board.changeColor(true);  // 命中
-                } else {
-                board.changeColor(false); // 沒命中
-                }
-            } else {
-                console.log("滑鼠不在板子上");
-                board.changeColor(false);
-            }
+        //         let isInPose = board.points.some(([x, y]) => x === gridX && y === gridY);
+        //         console.log("Is in pose:", isInPose);
 
-            board.judgePose = false;
-            }
+        //         if (isInPose) {
+        //         board.changeColor(true);  // 命中
+        //         } else {
+        //         board.changeColor(false); // 沒命中
+        //         }
+        //     } else {
+        //         console.log("滑鼠不在板子上");
+        //         board.changeColor(false);
+        //     }
 
-            return board.baseY < 720;
-        });
+        //     board.judgePose = false;
+        //     }
 
-        // 顯示（倒序繪製）
-        for (let i = this.boardList.length - 1; i >= 0; i--) {
-            this.boardList[i].display();
-        }
+        //     return board.baseY < 720;
+        // });
+
     }
     
     initSence(){
@@ -160,4 +165,5 @@ export class EasyGameScene extends IScene{
 
     
 }
+
 
