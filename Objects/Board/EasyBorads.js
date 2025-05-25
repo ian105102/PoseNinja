@@ -1,5 +1,8 @@
 import { IObject } from "../../Objects/IObject.js"
+import { GeneratorManager } from "../Utils/GeneratorManager.js";
+import {BoardGenerator } from "./BoardGenerator.js";
 import { EasyBoard } from "./EasyBoard.js";
+
 
 
 export class EasyBorads extends IObject{
@@ -10,6 +13,8 @@ export class EasyBorads extends IObject{
         this.easyBoardList = [];
         this.reusableStack = [];
 
+        this.generatorManaer = new GeneratorManager();
+        this.boardGenerator = new BoardGenerator();
     }
     add_board(){
         let board;
@@ -19,26 +24,22 @@ export class EasyBorads extends IObject{
             board = new EasyBoard(this.p); 
             this.easyBoardList.push(board); 
         }
-
+        this.boardGenerator.generateBoard();
+        this.generatorManaer.start(board.startRise( 
+        this.boardGenerator.getBoard(),
+        ()=>{
+            this.reusableStack.push(board); 
+            this.add_board();
+        }));    
     }
 
-
     _on_update(delta){
-
+        this.generatorManaer.update();
         this.easyBoardList.forEach(board => {
-            console.log(delta);
-            board.position.y = board.position.y + 0.05 *delta;
-            board.scale.x =(board.position.y -192-48) *0.025+1;
-            board.scale.y =(board.position.y -192-48) *0.025+1;
-
-            if(board.position.y > 720){
-                board.isActive = false; 
-                this.reusableStack.push(board);
-            }
-
-
             board.update(delta);
         });
+        console.log(this.generatorManaer.generators.size);
+        console.log(this.easyBoardList.length);
     }
 
     
@@ -46,6 +47,7 @@ export class EasyBorads extends IObject{
         this.easyBoardList.forEach(board => {
             board.draw();
         });
+        
     }
 
 

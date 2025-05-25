@@ -32,12 +32,12 @@ export class GeneratorManager {
         this.generators.delete(generator);
     }
 
-    update() {
+    update( ) {
         for (const gen of this.generators) {
             if(!gen) {
                 continue;
             }
-            if (gen.next().done) {
+            if (gen.next( ).done) {
                 this.generators.delete(gen);
             }
         }

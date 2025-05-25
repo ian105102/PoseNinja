@@ -53,10 +53,8 @@ export class EasyGameScene extends IScene{
 
 
         this.easyBoard = new EasyBorads(this.p);
-        this.easyBoard.add_board();
         instance.add(this.easyBoard);
-
-        
+        this.easyBoard.add_board();
 
         
     }
