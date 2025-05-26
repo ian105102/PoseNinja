@@ -162,8 +162,6 @@ export class EasyGameScene extends IScene{
         this.poseDrawer.posePoint = this.poseTracker.getFullSkeleton();
         this.BoardList.update(delta);
         this.generatorManager.update(delta);
-
-
     }
     
     CreateBackground(bg){

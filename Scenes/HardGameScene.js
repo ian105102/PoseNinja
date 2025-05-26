@@ -12,6 +12,7 @@ import { PoseDrawer } from "../Objects/DrawableObj/Game/PoseDrawer.js"
 
 import { BoardList  } from "../Objects/Board/BoardList.js";
 import { GeneratorManager, WaitTimer } from "../Objects/Utils/GeneratorManager.js"
+import { DrawableImage } from "../Objects/DrawableObj/Game/DrawableImage.js"
 
 
 
@@ -29,8 +30,6 @@ export class HardGameScene extends IScene{
         HardGameScene.instance.init()
         
     } 
-    
-
     
     //call after constructor
     init(){
@@ -58,13 +57,16 @@ export class HardGameScene extends IScene{
         text.position.y = HEIGHT / 8
         instance.add(text)
 
-        
+        this.Background = new DrawableImage(this.p);
+        this.Background.width = WIDTH;
+        this.Background.height = HEIGHT;
+        this.bg =  this.p.createGraphics(WIDTH, HEIGHT);
+        this.Background.src = this.CreateBackground(this.bg) ;
+        instance.add(this.Background);
 
 
         this.boardList = new BoardList(this.p, this.keypointDataList);
         instance.add(this.boardList);
-        
-
 
         this.poseTracker = PoseTracker.get_instance(this.p);
         this.poseDrawer =new PoseDrawer(this.p); 
@@ -130,29 +132,36 @@ export class HardGameScene extends IScene{
             this.p.line(0, i*(HEIGHT/15), WIDTH, i*(HEIGHT/15));      // (起始x, 起始y, 終點x, 終點y)
             this.p.line(i*(WIDTH/15), 0, i*(WIDTH/15), HEIGHT);      // (起始x, 起始y, 終點x, 終點y)
         }
-        
         this.poseDrawer.posePoint = this.poseTracker.getFullSkeleton();
         this.boardList.update(delta);
         this.generatorManager.update(delta);
-        this.initSence();
     }
 
-    initSence(){
-        this.p.noStroke();
-        this.p.fill(189, 224, 254);
-        this.p.quad((WIDTH/2)-36, 192+48, (WIDTH/2)+36, 192+48, 921.6, 624, 158.4, 624); //(x1, y1, x2, y2, x3, y3, x4, y4);
-        
-        this.p.noStroke(0);
-        this.p.fill(69, 123, 157);
-        this.p.quad(921.6, 624, 158.4, 624, 72, 720, 1008, 720); //(x1, y1, x2, y2, x3, y3, x4, y4);
+    _on_enter(){
+        this.generatorManager.start(this.GameFlow());
+        this.generatorManager.start(this.TimerCount());
+    }
+    _on_exit(){
+        this.generatorManager.clearAll();
+        this.judgePoseState.clear();
+        this.boardList.clear();
+    }
 
-        this.p.stroke(0);
-        this.p.fill(205, 180, 219);
-        this.p.quad((WIDTH/2)-36, 192+48, (WIDTH/2)-36, 192+48, 0, HEIGHT, 72, HEIGHT);            // 左邊緣(x1, y1, x2, y2, x3, y3, x4, y4);
-        this.p.quad((WIDTH/2)+36, 192+48, (WIDTH/2)+36, 192+48, WIDTH, HEIGHT, WIDTH-72, HEIGHT);  // 右邊緣(x1, y1, x2, y2, x3, y3, x4, y4);
+    CreateBackground(bg){
+        bg.noStroke();
+        bg.fill(189, 224, 254);
+        bg.quad((WIDTH/2)-36, 192+48, (WIDTH/2)+36, 192+48, 921.6, 624, 158.4, 624); //(x1, y1, x2, y2, x3, y3, x4, y4);
         
-        this.p.stroke(0, 0, 0, 50);
-        this.p.line(115.2, 672, 964.8, 672);                  // (起始x, 起始y, 終點x, 終點y)
+        bg.noStroke(0);
+        bg.fill(69, 123, 157);
+        bg.quad(921.6, 624, 158.4, 624, 72, 720, 1008, 720); //(x1, y1, x2, y2, x3, y3, x4, 
+        bg.stroke(0);
+        bg.fill(205, 180, 219);
+        bg.quad((WIDTH/2)-36, 192+48, (WIDTH/2)-36, 192+48, 0, HEIGHT, 72, HEIGHT);            // 左邊緣(x1, y1, x2, y2, x3, y3, x4, y4);
+        bg.quad((WIDTH/2)+36, 192+48, (WIDTH/2)+36, 192+48, WIDTH, HEIGHT, WIDTH-72, HEIGHT);  // 右邊緣(x1, y1, x2, y2, x3, y3, x4, y4);
+        
+        bg.stroke(0, 0, 0, 50);
+        bg.line(115.2, 672, 964.8, 672);                  // (起始x, 起始y, 終點x, 終點y)
 
         /* 
         Line1: (x1, y1) = (504, 240), (x2, y2) = (72, 720)
@@ -163,22 +172,11 @@ export class HardGameScene extends IScene{
         
         */
         // test line
-        this.p.stroke(0, 0, 0, 20);
-        this.p.line(115.2, 0, 115.2, HEIGHT);
-        this.p.line(158.4, 0, 158.4, HEIGHT);
-        this.p.line(921.6, 0, 921.6, HEIGHT);
-        this.p.line(964.8, 0, 964.8, HEIGHT);
-    }
-    _on_enter(){
-        console.log("HardGameScene enter");
-        this.generatorManager.start(this.GameFlow());
-        this.generatorManager.start(this.TimerCount());
-        
-        
-    }
-    _on_exit(){
-        this.generatorManager.clearAll();
-        this.judgePoseState.clear();
-        this.boardList.clear();
+        bg.stroke(0, 0, 0, 20);
+        bg.line(115.2, 0, 115.2, HEIGHT);
+        bg.line(158.4, 0, 158.4, HEIGHT);
+        bg.line(921.6, 0, 921.6, HEIGHT);
+        bg.line(964.8, 0, 964.8, HEIGHT);
+        return bg;
     }
 }
