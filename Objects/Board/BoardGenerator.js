@@ -45,7 +45,7 @@ export class BoardGenerator {
             for (let j = 0; j < this.rows; j++) {
                 row.push(new Cell(i,j));
             }
-            this.Board.push(row);
+            this.Boards.push(row);
         }
 
         // 隨機從資料中拿取一個
@@ -314,6 +314,8 @@ export class BoardGenerator {
 
     // 取得完整的棋盤物件
     getBoard() {
-        return this.Board;
+        
+        console.log("生成的 Board:", this.Boards);
+        return this.Boards;
     }
 }

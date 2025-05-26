@@ -7,7 +7,7 @@ import { WIDTH } from "../G.js"
 import { HEIGHT } from "../G.js"
 import { DrawableText } from "../Objects/DrawableObj/Text/DrawableText.js"
 import { EasyBoard } from "../Objects/Board/EasyBoard.js";
-import { EasyBoradList } from "../Objects/Board/EasyBoradList.js"
+import { EasyBoardList } from "../Objects/Board/EasyBoardList.js"
 import { DrawableImage } from "../Objects/DrawableObj/Game/DrawableImage.js"
 import { PoseDrawer } from "../Objects/DrawableObj/Game/PoseDrawer.js"
 import { PoseTracker } from "../Objects/APIs/PoseTracker.js"
@@ -65,7 +65,7 @@ export class EasyGameScene extends IScene{
         text.position.y = HEIGHT / 8
         instance.add(text)
 
-        this.easyBoard = new EasyBoradList(this.p);
+        this.easyBoard = new EasyBoardList(this.p, this.keypointDataList);
         instance.add(this.easyBoard);
 
 
@@ -74,9 +74,9 @@ export class EasyGameScene extends IScene{
         this.genInterval = 120; // 每60幀生成一個板子
         this.genTimer = 0;
 
-        this.easyBoard = new EasyBorads(this.p, this.keypointDataList);
-        instance.add(this.easyBoard);
-        this.easyBoard.add_board();
+        // this.easyBoard = new EasyBoards(this.p, this.keypointDataList);
+        // instance.add(this.easyBoard);
+        // this.easyBoard.add_board();
 
         this.poseTracker = PoseTracker.get_instance(this.p);
         this.poseDrawer =new PoseDrawer(this.p); 
@@ -134,6 +134,8 @@ export class EasyGameScene extends IScene{
     JudgePose(board) {
 
         if( !this.judgePoseState.has(board) || this.judgePoseState.get(board) === true){
+            
+            board.changeColor(true);  // 命中
             return;
         }
         const landmarks = this.poseTracker.getFullSkeleton();

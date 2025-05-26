@@ -2,7 +2,7 @@ import { WIDTH } from "../../G.js"
 import { HEIGHT } from "../../G.js"
 import { IObject } from "../IObject.js";
 import { GeneratorManager, WaitTimer } from "../Utils/GeneratorManager.js";
-import { Board } from './Board.js';
+// import { Board } from './Board.js';
 /*
     type: 1 = 正常, 0 = 障礙物
     負責渲染一塊板，並且處理移動動畫
@@ -80,7 +80,7 @@ export class HardBoard extends IObject {
     }
 
     _on_update(delta) {
-        console.log("EasyBoard update", this.isActive);
+        // console.log("EasyBoard update", this.isActive);
         if (this.move) {
             console.log(delta);
             this.position.y = this.position.y + (30* delta);
