@@ -112,6 +112,7 @@ export class EasyBoard extends IObject {
     drawToCanvas(c) {
         this.pg.clear();
         this.pg.noStroke();
+        console.log("draw to canvas");
         // this.pg.stroke(1);
         let cellW = this.pg.width / this.cols;
         let cellH = this.pg.height / this.rows;

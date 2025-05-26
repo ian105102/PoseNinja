@@ -129,6 +129,7 @@ export class EasyGameScene extends IScene{
     JudgePose(board) {
 
         if( !this.judgePoseState.has(board) || this.judgePoseState.get(board) === true){
+            board.changeColor(255, 0, 0);
             return;
         }
         const landmarks = this.poseTracker.getFullSkeleton();
