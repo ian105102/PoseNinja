@@ -1,4 +1,4 @@
-export class Board{
+export class Cell{
     constructor(x = 0, y = 0 , type = 1){ 
         this.type =0;
         this.color = "rgba(255, 245, 245, 0.57)";

@@ -7,7 +7,7 @@ import { WIDTH } from "../G.js"
 import { HEIGHT } from "../G.js"
 import { DrawableText } from "../Objects/DrawableObj/Text/DrawableText.js"
 import { EasyBoard } from "../Objects/Board/EasyBoard.js";
-import { EasyBorads } from "../Objects/Board/EasyBorads.js"
+import { EasyBoradList } from "../Objects/Board/EasyBoradList.js"
 import { DrawableImage } from "../Objects/DrawableObj/Game/DrawableImage.js"
 import { PoseDrawer } from "../Objects/DrawableObj/Game/PoseDrawer.js"
 import { PoseTracker } from "../Objects/APIs/PoseTracker.js"
@@ -63,7 +63,7 @@ export class EasyGameScene extends IScene{
         text.position.y = HEIGHT / 8
         instance.add(text)
 
-        this.easyBoard = new EasyBorads(this.p);
+        this.easyBoard = new EasyBoradList(this.p);
         instance.add(this.easyBoard);
 
 

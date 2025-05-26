@@ -2,7 +2,7 @@ import { WIDTH } from "../../G.js"
 import { HEIGHT } from "../../G.js"
 import { IObject } from "../IObject.js";
 import { GeneratorManager, WaitTimer } from "../Utils/GeneratorManager.js";
-import { Board } from './Board.js';
+import { Cell } from './Cell.js';
 import { PoseDrawer } from "../DrawableObj/Game/PoseDrawer.js";
 /*
     type: 1 = 正常, 0 = 障礙物
@@ -25,7 +25,7 @@ export class EasyBoard extends IObject {
         this.waitTimer = new WaitTimer();
 
         this.color = this.p.color(242, 133, 0, 60);
-        this.WallBoard = [];
+        this.WallCell = [];
         // 建立板子遮擋邏輯
         this.Boards = [];
         this.cols = 10;
@@ -33,7 +33,7 @@ export class EasyBoard extends IObject {
         for (let i = 0; i < this.cols; i++) {
             let row = [];
             for (let j = 0; j < this.rows; j++) {
-                row.push(new Board(i,j));
+                row.push(new Cell(i,j));
             }
             this.Boards.push(row);
         }
@@ -59,11 +59,11 @@ export class EasyBoard extends IObject {
 
         this.Boards = boards;
 
-        this.WallBoard = [];
+        this.WallCell = [];
         for (let i = 0; i < this.cols; i++) {
             for (let j = 0; j < this.rows; j++) {
                 if(this.Boards[i][j].type == 0){
-                    this.WallBoard.push(this.Boards[i][j]);
+                    this.WallCell.push(this.Boards[i][j]);
                 }
             }
         }
@@ -127,10 +127,8 @@ export class EasyBoard extends IObject {
         }
     }
 
-
-    getWallBoard() {
-
-        return this.WallBoard;
+    getWallCell() {
+        return this.WallCell;
     }
 
     *startRise(board,  OnEnd , OnLine ) {
@@ -140,72 +138,65 @@ export class EasyBoard extends IObject {
             this.riseStep -= 1;
             yield *this.waitTimer.delay(10);
         }
-    
-
         while (this.position.y < 720) {
-            if(this.position.y < 672+20 && this.position.y > 672-30){
+            if(this.position.y < 672+20 && this.position.y > 672-20){
                 OnLine(this);
             }
             this.move = true;
             yield;
         }
-        
         this.isActive = false;
         OnEnd(this);
      
     }
-JudgePose(FullSkeleton) {
-    console.log("start JudgePose");
-    const wallBoards = this.getWallBoard();
-    const landmarks = FullSkeleton;
-    if (!landmarks || landmarks.length === 0) return;
+    JudgePose(FullSkeleton) {
+        const wallCells = this.getWallCell();
+        const landmarks = FullSkeleton;
+        if (!landmarks || landmarks.length === 0) return;
 
-    const boxSize = this.getBoardWorldSize();
-    const boxWidth = boxSize.x;
-    const boxHeight = boxSize.y;
+        const boxSize = this.getBoardWorldSize();
+        const boxWidth = boxSize.x;
+        const boxHeight = boxSize.y;
 
-    // === 限制區域 ===
-    const offsetX = 115.2;
-    const offsetY = 105.6;
-    const areaWidth = 849.6;
-    const areaHeight = 566.4;
+        // === 限制區域 ===
+        const offsetX = 115.2;
+        const offsetY = 105.6;
+        const areaWidth = 849.6;
+        const areaHeight = 566.4;
 
-    for (const board of wallBoards) {
-        const nose = landmarks[0];
-        const leftShoulder = landmarks[11];
-        const rightShoulder = landmarks[12];
+        for (const board of wallCells) {
+            const nose = landmarks[0];
+            const leftShoulder = landmarks[11];
+            const rightShoulder = landmarks[12];
+            if (nose && leftShoulder && rightShoulder) {
+                const headX = offsetX + (1 - nose.x) * areaWidth;
+                const headY = offsetY + nose.y * areaHeight;
+                const neckX = offsetX + (1 - (leftShoulder.x + rightShoulder.x) / 2) * areaWidth;
+                const neckY = offsetY + ((leftShoulder.y + rightShoulder.y) / 2) * areaHeight;
 
-        // === 頭部到脖子的碰撞判定 ===
-        if (nose && leftShoulder && rightShoulder) {
-            const headX = offsetX + (1 - nose.x) * areaWidth;
-            const headY = offsetY + nose.y * areaHeight;
-            const neckX = offsetX + (1 - (leftShoulder.x + rightShoulder.x) / 2) * areaWidth;
-            const neckY = offsetY + ((leftShoulder.y + rightShoulder.y) / 2) * areaHeight;
+                const boxPosition = this.tileToWorld(board.x, board.y);
+                if (this.p.collideLineRect(headX, headY, neckX, neckY, boxPosition.x, boxPosition.y, boxWidth, boxHeight)) {
+                    return true;
+                }
+            }
 
-            const boxPosition = this.tileToWorld(board.x, board.y);
-            if (this.p.collideLineRect(headX, headY, neckX, neckY, boxPosition.x, boxPosition.y, boxWidth, boxHeight)) {
-                return true;
+            for (const [start, end] of PoseDrawer.connections) {
+                const a = landmarks[start];
+                const b = landmarks[end];
+                if (!a || !b) continue;
+
+                const x1 = offsetX + (1 - a.x) * areaWidth;
+                const y1 = offsetY + a.y * areaHeight;
+                const x2 = offsetX + (1 - b.x) * areaWidth;
+                const y2 = offsetY + b.y * areaHeight;
+
+                const boxPosition = this.tileToWorld(board.x, board.y);
+                if (this.p.collideLineRect(x1, y1, x2, y2, boxPosition.x, boxPosition.y, boxWidth, boxHeight)) {
+                    return true;
+                }
             }
         }
-
-        // === 其他骨架連線的碰撞判定 ===
-        for (const [start, end] of PoseDrawer.connections) {
-            const a = landmarks[start];
-            const b = landmarks[end];
-            if (!a || !b) continue;
-
-            const x1 = offsetX + (1 - a.x) * areaWidth;
-            const y1 = offsetY + a.y * areaHeight;
-            const x2 = offsetX + (1 - b.x) * areaWidth;
-            const y2 = offsetY + b.y * areaHeight;
-
-            const boxPosition = this.tileToWorld(board.x, board.y);
-            if (this.p.collideLineRect(x1, y1, x2, y2, boxPosition.x, boxPosition.y, boxWidth, boxHeight)) {
-                return true;
-            }
-        }
+        return false;
     }
-    return false;
-}
 
 }

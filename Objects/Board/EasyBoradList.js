@@ -1,4 +1,4 @@
-import { IObject } from "../../Objects/IObject.js"
+import { IObject } from "../IObject.js"
 import { GeneratorManager } from "../Utils/GeneratorManager.js";
 import {BoardGenerator } from "./BoardGenerator.js";
 import { EasyBoard } from "./EasyBoard.js";
@@ -9,7 +9,7 @@ import { EasyBoard } from "./EasyBoard.js";
 */
 
 
-export class EasyBorads extends IObject{
+export class EasyBoradList extends IObject{
     constructor(p){
         super(p);
         this.position.x = 0;

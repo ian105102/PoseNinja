@@ -1,4 +1,4 @@
-import { Board } from './Board.js';
+import { Cell } from './Cell.js';
 /*
     type: 1 = 正常, 0 = 障礙物
     BoardGenerator 負責生成棋盤格子，並隨機產生一塊板
@@ -7,7 +7,7 @@ import { Board } from './Board.js';
 */
 export class BoardGenerator {
     constructor() {
-        this.Boards = [];
+        this.Board = [];
         this.cols = 30;
         this.rows = 20;
 
@@ -15,9 +15,9 @@ export class BoardGenerator {
         for (let i = 0; i < this.cols; i++) {
             let row = [];
             for (let j = 0; j < this.rows; j++) {
-                row.push(new Board(i,j));
+                row.push(new Cell(i,j));
             }
-            this.Boards.push(row);
+            this.Board.push(row);
         }
     }
 
@@ -27,7 +27,7 @@ export class BoardGenerator {
         let headY = Math.floor(Math.random() * (13 - 3)) + 3;
         for (let i = 0; i < this.cols; i++) {
             for (let j = 0; j < this.rows; j++) {
-                this.Boards[i][j].type = 0; 
+                this.Board[i][j].type = 0; 
             }
         }
         const isValid = (x, y) => x >= 0 && x < this.cols && y >= 0 && y < this.rows;
@@ -50,9 +50,9 @@ export class BoardGenerator {
         for (let i = 0; i < this.cols; i++) {
             for (let j = 0; j < this.rows; j++) {
                 if( i < this.cols*4/5) {
-                    this.Boards[i][j].type = 1;
+                    this.Board[i][j].type = 1;
                 }else{
-                    this.Boards[i][j].type = 0;
+                    this.Board[i][j].type = 0;
                 }
               
             }
@@ -69,7 +69,7 @@ export class BoardGenerator {
                     let x = centerX + dx;
                     let y = centerY + dy;
                     if (x >= 0 && x < this.cols && y >= 0 && y < this.rows) {
-                        this.Boards[x][y].type = type;
+                        this.Board[x][y].type = type;
                     }
                 }
             }
@@ -106,7 +106,7 @@ export class BoardGenerator {
                 let nx = x + dx;
                 let ny = y + dy;
                 if (nx >= 0 && nx < this.cols && ny >= 0 && ny < this.rows) {
-                    this.Boards[nx][ny].type = type;
+                    this.Board[nx][ny].type = type;
                 }
             }
         }
@@ -119,6 +119,6 @@ export class BoardGenerator {
 
     // 取得完整的棋盤物件
     getBoard() {
-        return this.Boards;
+        return this.Board;
     }
 }
