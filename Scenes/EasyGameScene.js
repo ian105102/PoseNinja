@@ -99,24 +99,48 @@ export class EasyGameScene extends IScene{
     }
 
     *GameFlow(){
+        for(let i =0; i < 3; i++){
+            console.log(3-i);
+            yield  *this.timer.delay(1000);
+        }
         while (true) {
             console.log("生成一個板子");
-            this.easyBoard.add_board(this.JudgePose.bind(this));
+
+            let board = this.easyBoard.add_board(this.JudgePose.bind(this) , this.boardEnd.bind(this));
+            this.judgePoseState.set(board, false); 
             yield  *this.timer.delay(3000); 
         }
         
     }
-
-    JudgePose(boards) {
-        const landmarks = this.poseTracker.getFullSkeleton();
-        boards.JudgePose(landmarks);
+    boardEnd(board) {
+        if(!this.judgePoseState.has(board) || !board){
+            console.log("板子已經被刪除或不存在");
+            return;
+        }
+        console.log(this.judgePoseState);
+        if(this.judgePoseState.get(board)){
+            console.log("判斷成功");
+        }else{
+            console.log("判斷失敗");
+        }
+        this.judgePoseState.delete(board);
     }
-    
+
+    JudgePose(board) {
+
+        if( !this.judgePoseState.has(board) || this.judgePoseState.get(board) === true){
+            return;
+        }
+        const landmarks = this.poseTracker.getFullSkeleton();
+        if(!board.JudgePose(landmarks)){
+            this.judgePoseState.set(board, true);
+            return ;
+        }
+    }
+
+
     TestDraw(){
-        this.p.fill(255, 0, 0);
-        this.p.ellipse(this.testx, this.testy, 5, 5); // 在指定位置畫一個紅色圓點
-        this.p.fill(0);
-        this.p.text("Test", this.testx + 10, this.testy + 10); // 在圓點旁邊顯示文字
+
     }
 
     _on_update(delta){

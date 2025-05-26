@@ -143,7 +143,7 @@ export class EasyBoard extends IObject {
     
 
         while (this.position.y < 720) {
-            if(this.position.y < 672+10 && this.position.y > 672-10){
+            if(this.position.y < 672+20 && this.position.y > 672-30){
                 OnLine(this);
             }
             this.move = true;
@@ -154,54 +154,58 @@ export class EasyBoard extends IObject {
         OnEnd(this);
      
     }
-    JudgePose(FullSkeleton) {
-        let wallBoards = this.getWallBoard();
-        const landmarks = FullSkeleton;
-        if (!landmarks || landmarks.length === 0) return;
+JudgePose(FullSkeleton) {
+    console.log("start JudgePose");
+    const wallBoards = this.getWallBoard();
+    const landmarks = FullSkeleton;
+    if (!landmarks || landmarks.length === 0) return;
 
-        let boxSize = this.getBoardWorldSize();
-        let boxWidth = boxSize.x;
-        let boxHeight = boxSize.y;
+    const boxSize = this.getBoardWorldSize();
+    const boxWidth = boxSize.x;
+    const boxHeight = boxSize.y;
 
-        // === 限制區域 ===
-        const offsetX = 115.2;
-        const offsetY = 105.6;
-        const areaWidth = 849.6;
-        const areaHeight = 566.4;
+    // === 限制區域 ===
+    const offsetX = 115.2;
+    const offsetY = 105.6;
+    const areaWidth = 849.6;
+    const areaHeight = 566.4;
 
-        wallBoards.forEach(board => {
-            const nose = landmarks[0];
-            const leftShoulder = landmarks[11];
-            const rightShoulder = landmarks[12];
-            // === 頭部到脖子的碰撞判定 ===
-            if (nose && leftShoulder && rightShoulder) {
-                const headX = offsetX + (1 - nose.x) * areaWidth;
-                const headY = offsetY + nose.y * areaHeight;
-                const neckX = offsetX + (1 - (leftShoulder.x + rightShoulder.x) / 2) * areaWidth;
-                const neckY = offsetY + ((leftShoulder.y + rightShoulder.y) / 2) * areaHeight;
+    for (const board of wallBoards) {
+        const nose = landmarks[0];
+        const leftShoulder = landmarks[11];
+        const rightShoulder = landmarks[12];
 
-                let boxPosition = this.tileToWorld(board.x, board.y);
-                if (this.p.collideLineRect(headX, headY, neckX, neckY, boxPosition.x, boxPosition.y, boxWidth, boxHeight)) {
-                    console.log("頭部脖子骨架碰撞到板子: ", board);
-                }
+        // === 頭部到脖子的碰撞判定 ===
+        if (nose && leftShoulder && rightShoulder) {
+            const headX = offsetX + (1 - nose.x) * areaWidth;
+            const headY = offsetY + nose.y * areaHeight;
+            const neckX = offsetX + (1 - (leftShoulder.x + rightShoulder.x) / 2) * areaWidth;
+            const neckY = offsetY + ((leftShoulder.y + rightShoulder.y) / 2) * areaHeight;
+
+            const boxPosition = this.tileToWorld(board.x, board.y);
+            if (this.p.collideLineRect(headX, headY, neckX, neckY, boxPosition.x, boxPosition.y, boxWidth, boxHeight)) {
+                return true;
             }
-            // === 其他骨架連線的碰撞判定 ===
-            for (const [start, end] of PoseDrawer.connections) {
-                const a = landmarks[start];
-                const b = landmarks[end];
-                if (!a || !b) continue;
+        }
 
-                const x1 = offsetX + (1 - a.x) * areaWidth;
-                const y1 = offsetY + a.y * areaHeight;
-                const x2 = offsetX + (1 - b.x) * areaWidth;
-                const y2 = offsetY + b.y * areaHeight;
+        // === 其他骨架連線的碰撞判定 ===
+        for (const [start, end] of PoseDrawer.connections) {
+            const a = landmarks[start];
+            const b = landmarks[end];
+            if (!a || !b) continue;
 
-                let boxPosition = this.tileToWorld(board.x, board.y);
-                if (this.p.collideLineRect(x1, y1, x2, y2, boxPosition.x, boxPosition.y, boxWidth, boxHeight)) {
-                    console.log("碰撞到板子: ", board);
-                }
+            const x1 = offsetX + (1 - a.x) * areaWidth;
+            const y1 = offsetY + a.y * areaHeight;
+            const x2 = offsetX + (1 - b.x) * areaWidth;
+            const y2 = offsetY + b.y * areaHeight;
+
+            const boxPosition = this.tileToWorld(board.x, board.y);
+            if (this.p.collideLineRect(x1, y1, x2, y2, boxPosition.x, boxPosition.y, boxWidth, boxHeight)) {
+                return true;
             }
-        });
+        }
     }
+    return false;
+}
 
 }

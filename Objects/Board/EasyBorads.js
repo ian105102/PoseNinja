@@ -23,7 +23,7 @@ export class EasyBorads extends IObject{
         this.generatorManaer = new GeneratorManager();
         this.boardGenerator = new BoardGenerator();
     }
-    add_board(onLine){
+    add_board(onLine , onEnd){
      
         let board;
         if (this.reusableStack.length > 0) {
@@ -36,15 +36,21 @@ export class EasyBorads extends IObject{
         this.generatorManaer.start(
             board.startRise( 
                 this.boardGenerator.getBoard(),
-                ()=>{
+                (board)=>{
                     if(this.isLoop) {
                         this.add_board(onLine);
                     }
                     this.reusableStack.push(board);
+                    if(onEnd) {
+                        onEnd(board);
+                    }
                 } ,
-                onLine
+                (board)=>{
+                    onLine(board);
+                }
             )
         );    
+        return board;
     }
     
 
