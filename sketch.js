@@ -13,14 +13,7 @@ const main_sketch = (p)=>{
     let easyKeypointDataList = [];
     let hardKeypointDataList = [];
     p.preload = () =>{
-        for (let i = 1; i <= 8; i++) {
-            let data = p.loadJSON(`Data/easyPoseJson/pose_snapshot-${i}.json`);
-            easyKeypointDataList.push(data);
-        }
-        for (let i = 1; i <= 19; i++) {
-            let data = p.loadJSON(`Data/hardPoseJson/pose_snapshot-${i}.json`);
-            hardKeypointDataList.push(data);
-        }
+
     }
 
     let scene_manager;
@@ -32,6 +25,14 @@ const main_sketch = (p)=>{
 
 
     p.setup = () =>{
+        for (let i = 1; i <= 8; i++) {
+            let data = p.loadJSON(`Data/easyPoseJson/pose_snapshot-${i}.json`);
+            easyKeypointDataList.push(data);
+        }
+        for (let i = 1; i <= 19; i++) {
+            let data = p.loadJSON(`Data/hardPoseJson/pose_snapshot-${i}.json`);
+            hardKeypointDataList.push(data);
+        }
         scene_manager = new SceneManager(p, easyKeypointDataList, hardKeypointDataList)
         pose_tracker = new PoseTracker(p)
         p.is_left_pressing = false

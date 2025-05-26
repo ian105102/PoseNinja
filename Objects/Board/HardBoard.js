@@ -42,7 +42,7 @@ export class HardBoard extends IObject {
         this.drawToCanvas(this.color);
     }
 
-    _setBoard(boards) {
+    _set_Board(boards) {
     
         this.cols = boards.length;
         this.rows = boards[0].length;
@@ -147,7 +147,7 @@ export class HardBoard extends IObject {
     }
 
     *startRise(board,  OnEnd, OnLine) {
-        this._setBoard(board);
+        this._set_Board(board);
         for (let i = this.riseStep; i > 0; i--) {
             this.riseStep -= 1;
             yield this.waitTimer.delay(10);

@@ -11,6 +11,7 @@ import { DrawableImage } from "../Objects/DrawableObj/Game/DrawableImage.js"
 import { PoseDrawer } from "../Objects/DrawableObj/Game/PoseDrawer.js"
 import { PoseTracker } from "../Objects/APIs/PoseTracker.js"
 import { GeneratorManager, WaitTimer } from "../Objects/Utils/GeneratorManager.js"
+import { EasyBoardList } from "../Objects/Board/EasyBoardList.js";
 
 
 
@@ -65,7 +66,7 @@ export class EasyGameScene extends IScene{
 
 
 
-        this.easyBoardList = new EasyBoradList(this.p , this.keypointDataList);
+        this.easyBoardList = new EasyBoardList(this.p , this.keypointDataList);
         instance.add(this.easyBoardList);
 
 

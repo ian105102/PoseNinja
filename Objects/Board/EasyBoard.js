@@ -44,7 +44,7 @@ export class EasyBoard extends IObject {
     }
 
 
-    _setBoard(boards) {
+    _set_Board(boards) {
         // console.log("設定進來的 board:", boards);
         this.cols = boards.length;
         this.rows = boards[0].length;
