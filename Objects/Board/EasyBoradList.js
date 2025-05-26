@@ -23,11 +23,21 @@ export class EasyBoradList extends IObject{
         this.generatorManaer = new GeneratorManager();
         this.boardGenerator = new BoardGenerator();
     }
+    clear(){
+    
+        this.easyBoardList.forEach(board => {
+            board.isActive = false; 
+            this.reusableStack.push(board);
+        });
+        this.easyBoardList = [];
+        this.generatorManaer.clearAll();
+    }
     add_board(onLine , onEnd){
-     
         let board;
         if (this.reusableStack.length > 0) {
             board = this.reusableStack.pop(); 
+            this.easyBoardList.push(board); 
+          
         } else {
             board = new EasyBoard(this.p); 
             this.easyBoardList.push(board); 
@@ -41,6 +51,7 @@ export class EasyBoradList extends IObject{
                         this.add_board(onLine);
                     }
                     this.reusableStack.push(board);
+                    this.easyBoardList = this.easyBoardList.filter(b => b !== board);
                     if(onEnd) {
                         onEnd(board);
                     }

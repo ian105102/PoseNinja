@@ -26,7 +26,7 @@ export class EasyGameScene extends IScene{
         EasyGameScene.instance = this;
         EasyGameScene.instance.init()
 
-  
+        
     } 
     
 
@@ -41,9 +41,8 @@ export class EasyGameScene extends IScene{
 
         let instance = EasyGameScene.instance
 
-        this.testx = 0;
-        this.testy = 0;
 
+        this.time = 0;
 
         this.Background = new DrawableImage(this.p);
         this.Background.width = WIDTH;
@@ -63,11 +62,10 @@ export class EasyGameScene extends IScene{
         text.position.y = HEIGHT / 8
         instance.add(text)
 
-        this.easyBoard = new EasyBoradList(this.p);
-        instance.add(this.easyBoard);
+        this.easyBoardList = new EasyBoradList(this.p);
+        instance.add(this.easyBoardList);
 
 
-        this.boardList = [];
         this.canGenerate = true;
         this.genInterval = 120; // 每60幀生成一個板子
         this.genTimer = 0;
@@ -82,17 +80,11 @@ export class EasyGameScene extends IScene{
         this.poseDrawer.position.y = 0;
         instance.add(this.poseDrawer);
 
-
-
-        
-
-
-
         this.judgePoseState = new Map();
         this.generatorManager = new GeneratorManager();
         this.timer = new WaitTimer();
 
-        this.generatorManager.start(this.GameFlow());
+
 
 
 
@@ -104,14 +96,22 @@ export class EasyGameScene extends IScene{
             yield  *this.timer.delay(1000);
         }
         while (true) {
-            console.log("生成一個板子");
-
-            let board = this.easyBoard.add_board(this.JudgePose.bind(this) , this.boardEnd.bind(this));
+            console.log("生成板子");
+            let board = this.easyBoardList.add_board(this.JudgePose.bind(this) , this.boardEnd.bind(this));
             this.judgePoseState.set(board, false); 
             yield  *this.timer.delay(3000); 
         }
         
     }
+    *TimerCount() {
+        while (true) {
+            this.time++;
+            console.log("時間:", this.time);
+            yield *this.timer.delay(1000); // 每秒更新一次
+        }
+    }
+
+
     boardEnd(board) {
         if(!this.judgePoseState.has(board) || !board){
             console.log("板子已經被刪除或不存在");
@@ -150,7 +150,7 @@ export class EasyGameScene extends IScene{
             this.p.line(i*(WIDTH/15), 0, i*(WIDTH/15), HEIGHT);      // (起始x, 起始y, 終點x, 終點y)
         }
         this.poseDrawer.posePoint = this.poseTracker.getFullSkeleton();
-        this.easyBoard.update(delta);
+        this.easyBoardList.update(delta);
         this.generatorManager.update(delta);
 
 
@@ -187,6 +187,17 @@ export class EasyGameScene extends IScene{
         bg.line(921.6, 0, 921.6, HEIGHT);
         bg.line(964.8, 0, 964.8, HEIGHT);
         return bg;
+    }
+    _on_enter(){
+        this.generatorManager.start(this.GameFlow());
+        this.generatorManager.start(this.TimerCount());
+        
+        
+    }
+    _on_exit(){
+        this.generatorManager.clearAll();
+        this.judgePoseState.clear();
+        this.easyBoardList.clear();
     }
 
 }

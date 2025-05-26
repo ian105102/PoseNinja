@@ -43,7 +43,7 @@ export class EasyBoard extends IObject {
         this.drawToCanvas(this.color);
     }
 
-    _setBoard(boards) {
+    _set_Board(boards) {
     
         this.cols = boards.length;
         this.rows = boards[0].length;
@@ -53,6 +53,8 @@ export class EasyBoard extends IObject {
 
         this.position.x = WIDTH / 2;
         this.position.y = 192 + 48;
+
+
         this.move = false;
         this.color = this.p.color(242, 133, 0, 60);
         this.riseStep = 48;
@@ -71,7 +73,7 @@ export class EasyBoard extends IObject {
         this.pg.clear();
         this.drawToCanvas(this.color);
 
-        this.isActive = true; // 啟用狀態（方便物件池控制）
+
     }
 
     changeColor(poseCorrectWrong) {
@@ -111,7 +113,6 @@ export class EasyBoard extends IObject {
         this.pg.clear();
         this.pg.noStroke();
         // this.pg.stroke(1);
-
         let cellW = this.pg.width / this.cols;
         let cellH = this.pg.height / this.rows;
 
@@ -132,8 +133,8 @@ export class EasyBoard extends IObject {
     }
 
     *startRise(board,  OnEnd , OnLine ) {
-        this._setBoard(board );
-       
+        this.isActive = true;
+        this._set_Board(board);
         for (let i = this.riseStep; i > 0; i--) {
             this.riseStep -= 1;
             yield *this.waitTimer.delay(10);
@@ -142,6 +143,7 @@ export class EasyBoard extends IObject {
             if(this.position.y < 672+20 && this.position.y > 672-20){
                 OnLine(this);
             }
+        
             this.move = true;
             yield;
         }
