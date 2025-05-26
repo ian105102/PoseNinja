@@ -117,7 +117,7 @@ export class BoardGenerator {
         this.drawFor(this.torso, 2);
 
         // 頭部為 3
-        this.drawCircleMaskFromPoint(head, 9, 3); // 畫出頭部，直徑為9，值為 3
+        this.drawCircleMaskFromPoint(head, 13, 3); // 畫出頭部，直徑為9，值為 3
 
         // 左手臂為4
         this.drawFor(this.leftHand, 4);
@@ -141,9 +141,9 @@ export class BoardGenerator {
         const leftPalmCenter = getPalmCenter([17, 19, 21]);
         const rightPalmCenter = getPalmCenter([18, 20, 22]);
         // 左手掌為6
-        this.drawCircleMaskFromPoint(leftPalmCenter, 5, 6); // 畫出左手掌，大小5，值為 6
+        this.drawCircleMaskFromPoint(leftPalmCenter, 8, 6); // 畫出左手掌，大小5，值為 6
         // 右手掌為7
-        this.drawCircleMaskFromPoint(rightPalmCenter, 5, 7); // 畫出右手掌，大小5，值為 7
+        this.drawCircleMaskFromPoint(rightPalmCenter, 8, 7); // 畫出右手掌，大小5，值為 7
         
         // 左腿為8
         this.drawFor(this.leftLeg, 8);
@@ -295,8 +295,8 @@ export class BoardGenerator {
 
     // 將中心點周圍 3x3 區域填上指定 type
     add9Grid(x, y, type = 1) {
-        for (let dx = -1; dx <= 1; dx++) {
-            for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -2; dx <= 2; dx++) {
+            for (let dy = -2; dy <= 2; dy++) {
                 let nx = x + dx;
                 let ny = y + dy;
                 if (nx >= 0 && nx < this.cols && ny >= 0 && ny < this.rows) {
