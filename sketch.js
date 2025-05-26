@@ -9,17 +9,31 @@ import { PoseTracker } from "./Objects/APIs/PoseTracker.js"
 const main_sketch = (p)=>{
     /// <reference types="p5" />
     //const game_scene = new GameScene(p)
-    const scene_manager = new SceneManager(p)
-    const pose_tracker = new PoseTracker(p)
+
+    let easyKeypointDataList = [];
+    let hardKeypointDataList = [];
     p.preload = () =>{
-        
+        for (let i = 1; i <= 8; i++) {
+            let data = p.loadJSON(`Data/easyPoseJson/pose_snapshot-${i}.json`);
+            easyKeypointDataList.push(data);
+        }
+        for (let i = 1; i <= 19; i++) {
+            let data = p.loadJSON(`Data/hardPoseJson/pose_snapshot-${i}.json`);
+            hardKeypointDataList.push(data);
+        }
     }
+
+    let scene_manager;
+    let pose_tracker;
+
     let delta =0;
     let last_time = 0;
     
 
 
     p.setup = () =>{
+        scene_manager = new SceneManager(p, easyKeypointDataList, hardKeypointDataList)
+        pose_tracker = new PoseTracker(p)
         p.is_left_pressing = false
         p.is_right_pressing = false
 
