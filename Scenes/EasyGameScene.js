@@ -11,7 +11,7 @@ import { DrawableImage } from "../Objects/DrawableObj/Game/DrawableImage.js"
 import { PoseDrawer } from "../Objects/DrawableObj/Game/PoseDrawer.js"
 import { PoseTracker } from "../Objects/APIs/PoseTracker.js"
 import { GeneratorManager, WaitTimer } from "../Objects/Utils/GeneratorManager.js"
-import { EasyBoardList } from "../Objects/Board/EasyBoardList.js";
+import { BoardList } from "../Objects/Board/BoardList.js";
 
 
 
@@ -25,6 +25,7 @@ export class EasyGameScene extends IScene{
         super(p);
         
         this.keypointDataList = easykeypointDataList;
+
         EasyGameScene.instance = this;
         EasyGameScene.instance.init();
 
@@ -66,8 +67,8 @@ export class EasyGameScene extends IScene{
 
 
 
-        this.easyBoardList = new EasyBoardList(this.p , this.keypointDataList);
-        instance.add(this.easyBoardList);
+        this.BoardList = new BoardList(this.p , this.keypointDataList);
+        instance.add(this.BoardList);
 
 
         // this.easyBoard = new EasyBoards(this.p, this.keypointDataList);
@@ -103,7 +104,7 @@ export class EasyGameScene extends IScene{
         }
         while (true) {
             console.log("生成板子");
-            let board = this.easyBoardList.add_board(this.JudgePose.bind(this) , this.boardEnd.bind(this));
+            let board = this.BoardList.add_board(this.JudgePose.bind(this) , this.boardEnd.bind(this));
             this.judgePoseState.set(board, false); 
             yield  *this.timer.delay(3000); 
         }
@@ -159,7 +160,7 @@ export class EasyGameScene extends IScene{
             this.p.line(i*(WIDTH/15), 0, i*(WIDTH/15), HEIGHT);      // (起始x, 起始y, 終點x, 終點y)
         }
         this.poseDrawer.posePoint = this.poseTracker.getFullSkeleton();
-        this.easyBoardList.update(delta);
+        this.BoardList.update(delta);
         this.generatorManager.update(delta);
 
 
@@ -206,7 +207,7 @@ export class EasyGameScene extends IScene{
     _on_exit(){
         this.generatorManager.clearAll();
         this.judgePoseState.clear();
-        this.easyBoardList.clear();
+        this.BoardList.clear();
     }
 
 }

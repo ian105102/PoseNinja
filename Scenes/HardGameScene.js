@@ -10,7 +10,8 @@ import { PoseHandler } from "../Objects/APIs/PoseHandler.js"
 import { PoseTracker } from "../Objects/APIs/PoseTracker.js"
 import { PoseDrawer } from "../Objects/DrawableObj/Game/PoseDrawer.js"
 
-import { HardBorads } from "../Objects/Board/HardBoards.js"
+import { BoardList  } from "../Objects/Board/BoardList.js";
+import { GeneratorManager, WaitTimer } from "../Objects/Utils/GeneratorManager.js"
 
 
 
@@ -26,7 +27,7 @@ export class HardGameScene extends IScene{
         this.keypointDataList = hardKeypointDataList;
         HardGameScene.instance = this;
         HardGameScene.instance.init()
-        console.log("keypointDataList: ", this.keypointDataList);
+        
     } 
     
 
@@ -42,13 +43,9 @@ export class HardGameScene extends IScene{
         let instance = HardGameScene.instance
 
 
-        this.poseTracker = PoseTracker.get_instance(this.p);
-        this.poseDrawer =new PoseDrawer(this.p); 
-        this.poseDrawer.posePoint = this.poseTracker.getFullSkeleton();
-    
-        this.poseDrawer.position.x =0;
-        this.poseDrawer.position.y = 0;
-        instance.add(this.poseDrawer);
+        this.judgePoseState = new Map();
+        this.generatorManager = new GeneratorManager();
+        this.timer = new WaitTimer();
 
 
         let go_score_button = new RectButton(this.p,300,100,func_to_scor)
@@ -62,19 +59,71 @@ export class HardGameScene extends IScene{
         instance.add(text)
 
         
-        this.boardList = [];
-        this.canGenerate = true;
-        this.genInterval = 120; // 每60幀生成一個板子
-        this.genTimer = 0;
 
-        this.hardBoard = new HardBorads(this.p, this.keypointDataList);
-        instance.add(this.hardBoard);
-        this.hardBoard.add_board();
+
+        this.boardList = new BoardList(this.p, this.keypointDataList);
+        instance.add(this.boardList);
         
+
+
+        this.poseTracker = PoseTracker.get_instance(this.p);
+        this.poseDrawer =new PoseDrawer(this.p); 
+        this.poseDrawer.posePoint = this.poseTracker.getFullSkeleton();
+    
+        this.poseDrawer.position.x =0;
+        this.poseDrawer.position.y = 0;
+        instance.add(this.poseDrawer);
 
     }
 
+    *GameFlow(){
+        for(let i =0; i < 3; i++){
+            console.log(3-i);
+            yield  *this.timer.delay(1000);
+        }
+        while (true) {
+            console.log("生成板子");
+            let board = this.boardList.add_board(this.JudgePose.bind(this) , this.boardEnd.bind(this));
+            this.judgePoseState.set(board, false); 
+            yield  *this.timer.delay(3000); 
+        }
+        
+    }
+    *TimerCount() {
+        while (true) {
+            this.time++;
+  
+            yield *this.timer.delay(1000); // 每秒更新一次
+        }
+    }
 
+
+    boardEnd(board) {
+        if(!this.judgePoseState.has(board) || !board){
+            console.log("板子已經被刪除或不存在");
+            return;
+        }
+        console.log(this.judgePoseState);
+        if(this.judgePoseState.get(board)){
+            console.log("判斷成功");
+        }else{
+            console.log("判斷失敗");
+        }
+        this.judgePoseState.delete(board);
+    }
+
+    JudgePose(board) {
+
+        if( !this.judgePoseState.has(board) || this.judgePoseState.get(board) === true){
+            board.changeColor(true);  // 命中
+            return;
+        }
+        const landmarks = this.poseTracker.getFullSkeleton();
+        if(!board.JudgePose(landmarks)){
+            this.judgePoseState.set(board, true);
+            return ;
+        }
+    }
     _on_update(delta){
         this.p.stroke(255, 0, 0, 20);
         for(let i = 0; i <= 15; i++){
@@ -82,12 +131,10 @@ export class HardGameScene extends IScene{
             this.p.line(i*(WIDTH/15), 0, i*(WIDTH/15), HEIGHT);      // (起始x, 起始y, 終點x, 終點y)
         }
         
-        this.hardBoard.update(delta);
-        
-        this.initSence();
-
         this.poseDrawer.posePoint = this.poseTracker.getFullSkeleton();
-        
+        this.boardList.update(delta);
+        this.generatorManager.update(delta);
+        this.initSence();
     }
 
     initSence(){
@@ -121,5 +168,17 @@ export class HardGameScene extends IScene{
         this.p.line(158.4, 0, 158.4, HEIGHT);
         this.p.line(921.6, 0, 921.6, HEIGHT);
         this.p.line(964.8, 0, 964.8, HEIGHT);
+    }
+    _on_enter(){
+        console.log("HardGameScene enter");
+        this.generatorManager.start(this.GameFlow());
+        this.generatorManager.start(this.TimerCount());
+        
+        
+    }
+    _on_exit(){
+        this.generatorManager.clearAll();
+        this.judgePoseState.clear();
+        this.boardList.clear();
     }
 }

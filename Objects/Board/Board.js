@@ -8,7 +8,7 @@ import { PoseDrawer } from "../DrawableObj/Game/PoseDrawer.js";
     type: 1 = 正常, 0 = 障礙物
     負責渲染一塊板，並且處理移動動畫
 */
-export class EasyBoard extends IObject {
+export class Board extends IObject {
     constructor(p) {
         super(p);
 
