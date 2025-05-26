@@ -6,8 +6,7 @@ import { SceneEnum } from "../SceneEnum.js"
 import { WIDTH } from "../G.js"
 import { HEIGHT } from "../G.js"
 import { DrawableText } from "../Objects/DrawableObj/Text/DrawableText.js"
-import { EasyBoard } from "../Objects/Board/EasyBoard.js";
-import { EasyBoradList } from "../Objects/Board/EasyBoradList.js"
+
 import { DrawableImage } from "../Objects/DrawableObj/Game/DrawableImage.js"
 import { PoseDrawer } from "../Objects/DrawableObj/Game/PoseDrawer.js"
 import { PoseTracker } from "../Objects/APIs/PoseTracker.js"
@@ -18,16 +17,19 @@ import { GeneratorManager, WaitTimer } from "../Objects/Utils/GeneratorManager.j
 export class EasyGameScene extends IScene{
     static instance = null
 
-    constructor(p) {
+    constructor(p, easykeypointDataList) {
         if (EasyGameScene.instance) {
             return EasyGameScene.instance
         }
         super(p);
-        EasyGameScene.instance = this;
-        EasyGameScene.instance.init()
-
         
+        this.keypointDataList = easykeypointDataList;
+        EasyGameScene.instance = this;
+        EasyGameScene.instance.init();
+
+
     } 
+    
     
 
     
@@ -62,10 +64,14 @@ export class EasyGameScene extends IScene{
 
 
 
-        this.easyBoardList = new EasyBoradList(this.p);
+
+        this.easyBoardList = new EasyBoradList(this.p , this.keypointDataList);
         instance.add(this.easyBoardList);
 
 
+        // this.easyBoard = new EasyBoards(this.p, this.keypointDataList);
+        // instance.add(this.easyBoard);
+        // this.easyBoard.add_board();
 
         this.poseTracker = PoseTracker.get_instance(this.p);
         this.poseDrawer =new PoseDrawer(this.p); 
@@ -129,7 +135,7 @@ export class EasyGameScene extends IScene{
     JudgePose(board) {
 
         if( !this.judgePoseState.has(board) || this.judgePoseState.get(board) === true){
-            board.changeColor(255, 0, 0);
+            board.changeColor(true);  // 命中
             return;
         }
         const landmarks = this.poseTracker.getFullSkeleton();

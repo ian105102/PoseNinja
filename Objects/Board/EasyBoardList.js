@@ -9,19 +9,20 @@ import { EasyBoard } from "./EasyBoard.js";
 */
 
 
-export class EasyBoradList extends IObject{
-    constructor(p){
+export class EasyBoardList extends IObject{
+    constructor(p, keypointDataList){
         super(p);
         this.position.x = 0;
         this.position.y = 0;
         this.easyBoardList = [];
         this.reusableStack = [];
 
+        this.keypointDataList = keypointDataList;
         this.isLoop = false;
 
 
         this.generatorManaer = new GeneratorManager();
-        this.boardGenerator = new BoardGenerator();
+        this.boardGenerator = new BoardGenerator(this.p, this.keypointDataList);
     }
     clear(){
     
@@ -33,6 +34,7 @@ export class EasyBoradList extends IObject{
         this.generatorManaer.clearAll();
     }
     add_board(onLine , onEnd){
+
         let board;
         if (this.reusableStack.length > 0) {
             board = this.reusableStack.pop(); 
@@ -42,7 +44,7 @@ export class EasyBoradList extends IObject{
             board = new EasyBoard(this.p); 
             this.easyBoardList.push(board); 
         }
-        this.boardGenerator.generateTestBoard();
+        this.boardGenerator.generateBoard();
         this.generatorManaer.start(
             board.startRise( 
                 this.boardGenerator.getBoard(),

@@ -11,7 +11,7 @@ import { ScoreScene } from "./Scenes/ScoreScene.js";
 
 export class SceneManager {
     static instance = null
-    constructor(p) {
+    constructor(p, easyKeypointDataList, hardKeypointDataList) {
         if(SceneManager.instance){
             return SceneManager.instance
         }
@@ -21,8 +21,8 @@ export class SceneManager {
       this.scenes = new Map();
       this.scenes.set(SceneEnum.MENU, new MenuScene(p));
       this.scenes.set(SceneEnum.TUTORIAL, new TutorialScene(p));
-      this.scenes.set(SceneEnum.EASY_GAME, new EasyGameScene(p));
-      this.scenes.set(SceneEnum.HARD_GAME, new HardGameScene(p));
+      this.scenes.set(SceneEnum.EASY_GAME, new EasyGameScene(p, easyKeypointDataList));
+      this.scenes.set(SceneEnum.HARD_GAME, new HardGameScene(p, hardKeypointDataList));
       this.scenes.set(SceneEnum.SCORE, new ScoreScene(p));
 
       this.currentScene = this.scenes.get(SceneEnum.MENU);

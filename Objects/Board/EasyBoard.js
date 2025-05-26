@@ -27,24 +27,25 @@ export class EasyBoard extends IObject {
         this.color = this.p.color(242, 133, 0, 60);
         this.WallCell = [];
         // 建立板子遮擋邏輯
-        this.Boards = [];
-        this.cols = 10;
-        this.rows = 10;
-        for (let i = 0; i < this.cols; i++) {
-            let row = [];
-            for (let j = 0; j < this.rows; j++) {
-                row.push(new Cell(i,j));
-            }
-            this.Boards.push(row);
-        }
+        // this.Boards = [];
+        // this.cols = 60;
+        // this.rows = 40;
+        // for (let i = 0; i < this.cols; i++) {
+        //     let row = [];
+        //     for (let j = 0; j < this.rows; j++) {
+        //         row.push(new Board(i,j));
+        //     }
+        //     this.Boards.push(row);
+        // }
 
         // 離屏畫布
         this.pg = this.p.createGraphics(849.6, 566.4);
-        this.drawToCanvas(this.color);
+        // this.drawToCanvas(this.color);
     }
 
-    _set_Board(boards) {
-    
+
+    _setBoard(boards) {
+        // console.log("設定進來的 board:", boards);
         this.cols = boards.length;
         this.rows = boards[0].length;
 
@@ -72,6 +73,7 @@ export class EasyBoard extends IObject {
         // 重新繪製到 buffer 畫布
         this.pg.clear();
         this.drawToCanvas(this.color);
+        console.log("Debug1: ", this.color);
 
 
     }
@@ -83,6 +85,7 @@ export class EasyBoard extends IObject {
             this.color = this.p.color(255, 0, 0, 60);
         }
         this.drawToCanvas(this.color);
+        console.log("Debug2: changeColor");
     }
 
     _on_draw() {
@@ -90,6 +93,7 @@ export class EasyBoard extends IObject {
     }
 
     _on_update(delta) {
+        // console.log("EasyBoard update", this.isActive);
         if (this.move) {
             this.position.y = this.position.y + (15 * delta *this.scale.y);
             this.scale.x = (this.position.y - 192 - 48) * 0.025 + 1;
@@ -119,10 +123,33 @@ export class EasyBoard extends IObject {
 
         for (let i = 0; i < this.cols; i++) {
             for (let j = 0; j < this.rows; j++) {
-                if (this.Boards[i][j].type === 0) {
-                    this.pg.fill(c);
-                } else {
-                    this.pg.fill(229, 229, 229, 80);
+                switch (this.Boards[i][j].type) {
+                    case 0:
+                        this.pg.fill(c); break;
+                    case 1:
+                        this.pg.fill(48, 60, 230, 80); break;
+                    case 2:
+                        this.pg.fill(155, 48, 230, 80); break;
+                    case 3:
+                        this.pg.fill(48, 117, 230, 80); break;
+                    case 4:
+                        this.pg.fill(97, 97, 97, 80); break;
+                    case 5:
+                        this.pg.fill(46, 46, 46, 80); break;
+                    case 6:
+                        this.pg.fill(127, 128, 0, 80); break;
+                    case 7:
+                        this.pg.fill(48, 178, 230, 80); break;
+                    case 8:
+                        this.pg.fill(63, 0, 0, 80); break;
+                    case 9:
+                        this.pg.fill(99, 0, 0, 80); break;
+                    case 10:
+                        this.pg.fill(201, 115, 185, 80); break;
+                    case 11:
+                        this.pg.fill(161, 91, 148, 80); break;
+                    default:
+                        this.pg.fill(229, 229, 229, 80);
                 }
                 this.pg.rect(i * cellW, j * cellH, cellW, cellH);
             }
@@ -133,9 +160,11 @@ export class EasyBoard extends IObject {
         return this.WallCell;
     }
 
+
     *startRise(board,  OnEnd , OnLine ) {
         this.isActive = true;
         this._set_Board(board);
+
         for (let i = this.riseStep; i > 0; i--) {
             this.riseStep -= 1;
             yield *this.waitTimer.delay(10);
@@ -150,7 +179,7 @@ export class EasyBoard extends IObject {
         }
         this.isActive = false;
         OnEnd(this);
-     
+    
     }
     JudgePose(FullSkeleton) {
         const wallCells = this.getWallCell();
