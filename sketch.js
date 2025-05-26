@@ -16,7 +16,7 @@ const main_sketch = (p)=>{
     }
     let delta =0;
     let last_time = 0;
-    
+    let maxDelta = 0.1;
 
 
     p.setup = () =>{
@@ -38,6 +38,7 @@ const main_sketch = (p)=>{
         
         let current_time = p.millis();
         delta = (current_time - last_time) / 1000; 
+        delta = Math.min(delta, maxDelta);
         last_time = current_time;
       
         p.background(220);

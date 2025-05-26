@@ -57,18 +57,14 @@ export class EasyGameScene extends IScene{
         go_score_button.position.y = 600
         instance.add(go_score_button)
         
-        let text = new DrawableText(this.p,"簡單遊戲介面",50)
-        text.position.x = WIDTH / 2
-        text.position.y = HEIGHT / 8
-        instance.add(text)
+
+
+
+
 
         this.easyBoardList = new EasyBoradList(this.p);
         instance.add(this.easyBoardList);
 
-
-        this.canGenerate = true;
-        this.genInterval = 120; // 每60幀生成一個板子
-        this.genTimer = 0;
 
 
         this.poseTracker = PoseTracker.get_instance(this.p);
@@ -85,7 +81,10 @@ export class EasyGameScene extends IScene{
         this.timer = new WaitTimer();
 
 
-
+        this.TimeText = new DrawableText(this.p,"",30)
+        this.TimeText.position.x = 100  
+        this.TimeText.position.y = HEIGHT / 8
+        instance.add(this.TimeText)
 
 
     }
@@ -106,6 +105,7 @@ export class EasyGameScene extends IScene{
     *TimerCount() {
         while (true) {
             this.time++;
+            this.TimeText.text = "time: " + this.time;
             console.log("時間:", this.time);
             yield *this.timer.delay(1000); // 每秒更新一次
         }
@@ -144,6 +144,7 @@ export class EasyGameScene extends IScene{
     }
 
     _on_update(delta){
+
         this.p.stroke(255, 0, 0, 20);
         for(let i = 0; i <= 15; i++){
             this.p.line(0, i*(HEIGHT/15), WIDTH, i*(HEIGHT/15));      // (起始x, 起始y, 終點x, 終點y)
