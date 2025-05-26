@@ -1,6 +1,8 @@
-import { Board } from './Board.js';
+
+// import { Board } from './Board.js';
 import { WIDTH } from "../../G.js";
 import { HEIGHT } from "../../G.js";
+import { Cell } from './Cell.js';
 /*
     type: 1 = 正常, 0 = 障礙物
     BoardGenerator 負責生成棋盤格子，並隨機產生一塊板
@@ -41,9 +43,9 @@ export class BoardGenerator {
         for (let i = 0; i < this.cols; i++) {
             let row = [];
             for (let j = 0; j < this.rows; j++) {
-                row.push(new Board(i,j));
+                row.push(new Cell(i,j));
             }
-            this.Boards.push(row);
+            this.Board.push(row);
         }
 
         // 隨機從資料中拿取一個
@@ -312,6 +314,6 @@ export class BoardGenerator {
 
     // 取得完整的棋盤物件
     getBoard() {
-        return this.Boards;
+        return this.Board;
     }
 }

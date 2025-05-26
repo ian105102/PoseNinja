@@ -7,7 +7,11 @@ import { WIDTH } from "../G.js"
 import { HEIGHT } from "../G.js"
 import { DrawableText } from "../Objects/DrawableObj/Text/DrawableText.js"
 import { EasyBoard } from "../Objects/Board/EasyBoard.js";
-import { EasyBorads } from "../Objects/Board/EasyBorads.js"
+import { EasyBoradList } from "../Objects/Board/EasyBoradList.js"
+import { DrawableImage } from "../Objects/DrawableObj/Game/DrawableImage.js"
+import { PoseDrawer } from "../Objects/DrawableObj/Game/PoseDrawer.js"
+import { PoseTracker } from "../Objects/APIs/PoseTracker.js"
+import { GeneratorManager, WaitTimer } from "../Objects/Utils/GeneratorManager.js"
 
 
 
@@ -39,6 +43,18 @@ export class EasyGameScene extends IScene{
 
         let instance = EasyGameScene.instance
 
+        this.testx = 0;
+        this.testy = 0;
+
+
+        this.Background = new DrawableImage(this.p);
+        this.Background.width = WIDTH;
+        this.Background.height = HEIGHT;
+        this.bg =  this.p.createGraphics(WIDTH, HEIGHT);
+        this.Background.src = this.CreateBackground(this.bg) ;
+        instance.add(this.Background);
+
+
         let go_score_button = new RectButton(this.p,300,100,func_to_scor)
         go_score_button.position.x = 800
         go_score_button.position.y = 600
@@ -49,7 +65,10 @@ export class EasyGameScene extends IScene{
         text.position.y = HEIGHT / 8
         instance.add(text)
 
-        
+        this.easyBoard = new EasyBoradList(this.p);
+        instance.add(this.easyBoard);
+
+
         this.boardList = [];
         this.canGenerate = true;
         this.genInterval = 120; // 每60幀生成一個板子
@@ -59,7 +78,74 @@ export class EasyGameScene extends IScene{
         instance.add(this.easyBoard);
         this.easyBoard.add_board();
 
+        this.poseTracker = PoseTracker.get_instance(this.p);
+        this.poseDrawer =new PoseDrawer(this.p); 
+        this.poseDrawer.posePoint = this.poseTracker.getFullSkeleton();
+        this.poseDrawer.width = 936;
+        this.poseDrawer.height = 576;
+        this.poseDrawer.position.x = 0;
+        this.poseDrawer.position.y = 0;
+        instance.add(this.poseDrawer);
+
+
+
         
+
+
+
+        this.judgePoseState = new Map();
+        this.generatorManager = new GeneratorManager();
+        this.timer = new WaitTimer();
+
+        this.generatorManager.start(this.GameFlow());
+
+
+
+    }
+
+    *GameFlow(){
+        for(let i =0; i < 3; i++){
+            console.log(3-i);
+            yield  *this.timer.delay(1000);
+        }
+        while (true) {
+            console.log("生成一個板子");
+
+            let board = this.easyBoard.add_board(this.JudgePose.bind(this) , this.boardEnd.bind(this));
+            this.judgePoseState.set(board, false); 
+            yield  *this.timer.delay(3000); 
+        }
+        
+    }
+    boardEnd(board) {
+        if(!this.judgePoseState.has(board) || !board){
+            console.log("板子已經被刪除或不存在");
+            return;
+        }
+        console.log(this.judgePoseState);
+        if(this.judgePoseState.get(board)){
+            console.log("判斷成功");
+        }else{
+            console.log("判斷失敗");
+        }
+        this.judgePoseState.delete(board);
+    }
+
+    JudgePose(board) {
+
+        if( !this.judgePoseState.has(board) || this.judgePoseState.get(board) === true){
+            return;
+        }
+        const landmarks = this.poseTracker.getFullSkeleton();
+        if(!board.JudgePose(landmarks)){
+            this.judgePoseState.set(board, true);
+            return ;
+        }
+    }
+
+
+    TestDraw(){
+
     }
 
     _on_update(delta){
@@ -68,87 +154,28 @@ export class EasyGameScene extends IScene{
             this.p.line(0, i*(HEIGHT/15), WIDTH, i*(HEIGHT/15));      // (起始x, 起始y, 終點x, 終點y)
             this.p.line(i*(WIDTH/15), 0, i*(WIDTH/15), HEIGHT);      // (起始x, 起始y, 終點x, 終點y)
         }
-        
+        this.poseDrawer.posePoint = this.poseTracker.getFullSkeleton();
         this.easyBoard.update(delta);
-        
-        this.initSence();
+        this.generatorManager.update(delta);
 
-
-        // this.boardList = this.boardList.filter(board => {
-    
-        // });
-
-        
-        // // 控制板子生成節奏
-        // this.genTimer++;
-        // if (this.genTimer >= this.genInterval) {
-        //     this.boardList.push(new EasyBoard(this.p)); // 每個板子起始位置
-        //     this.genTimer = 0;
-        // }
-
-        // 更新與繪製所有板子
-
-
-        //     if ((board.baseY >= 672) && board.judgePose) {
-        //     console.log("Debug1: 判斷姿勢!!");
-
-        //     // 1. 計算偏移（假設 centered）
-        //     let offsetX = (1080 - board.pg.width) / 2;
-        //     let offsetY = (720 - board.pg.height) / 2;
-
-        //     // 2. 計算相對於 board.pg 的滑鼠位置
-        //     let localX = this.p.mouseX - offsetX;
-        //     let localY = this.p.mouseY - offsetY;
-
-            
-
-        //     // 3. 檢查是否在 pg 範圍內
-        //     if (localX >= 0 && localX < board.pg.width && localY >= 0 && localY < board.pg.height) {
-        //         let cellW = board.pg.width / board.cols;
-        //         let cellH = board.pg.height / board.rows;
-
-        //         let gridX = this.p.floor(localX / cellW);
-        //         let gridY = this.p.floor(localY / cellH)-1;
-
-        //         console.log("Mouse Grid:", gridX, gridY);
-
-        //         let isInPose = board.points.some(([x, y]) => x === gridX && y === gridY);
-        //         console.log("Is in pose:", isInPose);
-
-        //         if (isInPose) {
-        //         board.changeColor(true);  // 命中
-        //         } else {
-        //         board.changeColor(false); // 沒命中
-        //         }
-        //     } else {
-        //         console.log("滑鼠不在板子上");
-        //         board.changeColor(false);
-        //     }
-
-        //     board.judgePose = false;
-        //     }
-
-        //     return board.baseY < 720;
-        // });
 
     }
     
-    initSence(){
-        this.p.noStroke();
-        this.p.fill(189, 224, 254);
-        this.p.quad((WIDTH/2)-36, 192+48, (WIDTH/2)+36, 192+48, 921.6, 624, 158.4, 624); //(x1, y1, x2, y2, x3, y3, x4, y4);
+    CreateBackground(bg){
+        bg.noStroke();
+        bg.fill(189, 224, 254);
+        bg.quad((WIDTH/2)-36, 192+48, (WIDTH/2)+36, 192+48, 921.6, 624, 158.4, 624); //(x1, y1, x2, y2, x3, y3, x4, y4);
         
-        this.p.noStroke(0);
-        this.p.fill(69, 123, 157);
-        this.p.quad(921.6, 624, 158.4, 624, 72, 720, 1008, 720); //(x1, y1, x2, y2, x3, y3, x4, y4);
-
-        this.p.stroke(0);
-        this.p.fill(205, 180, 219);
-        this.p.quad((WIDTH/2)-36, 192+48, (WIDTH/2)-36, 192+48, 0, HEIGHT, 72, HEIGHT);            // 左邊緣(x1, y1, x2, y2, x3, y3, x4, y4);
-        this.p.quad((WIDTH/2)+36, 192+48, (WIDTH/2)+36, 192+48, WIDTH, HEIGHT, WIDTH-72, HEIGHT);  // 右邊緣(x1, y1, x2, y2, x3, y3, x4, y4);
+        bg.noStroke(0);
+        bg.fill(69, 123, 157);
+        bg.quad(921.6, 624, 158.4, 624, 72, 720, 1008, 720); //(x1, y1, x2, y2, x3, y3, x4, 
+        bg.stroke(0);
+        bg.fill(205, 180, 219);
+        bg.quad((WIDTH/2)-36, 192+48, (WIDTH/2)-36, 192+48, 0, HEIGHT, 72, HEIGHT);            // 左邊緣(x1, y1, x2, y2, x3, y3, x4, y4);
+        bg.quad((WIDTH/2)+36, 192+48, (WIDTH/2)+36, 192+48, WIDTH, HEIGHT, WIDTH-72, HEIGHT);  // 右邊緣(x1, y1, x2, y2, x3, y3, x4, y4);
         
-        this.p.stroke(0, 0, 0, 50);
-        this.p.line(115.2, 672, 964.8, 672);                  // (起始x, 起始y, 終點x, 終點y)
+        bg.stroke(0, 0, 0, 50);
+        bg.line(115.2, 672, 964.8, 672);                  // (起始x, 起始y, 終點x, 終點y)
 
         /* 
         Line1: (x1, y1) = (504, 240), (x2, y2) = (72, 720)
@@ -159,14 +186,12 @@ export class EasyGameScene extends IScene{
         
         */
         // test line
-        this.p.stroke(0, 0, 0, 20);
-        this.p.line(115.2, 0, 115.2, HEIGHT);
-        this.p.line(158.4, 0, 158.4, HEIGHT);
-        this.p.line(921.6, 0, 921.6, HEIGHT);
-        this.p.line(964.8, 0, 964.8, HEIGHT);
+        bg.stroke(0, 0, 0, 20);
+        bg.line(115.2, 0, 115.2, HEIGHT);
+        bg.line(158.4, 0, 158.4, HEIGHT);
+        bg.line(921.6, 0, 921.6, HEIGHT);
+        bg.line(964.8, 0, 964.8, HEIGHT);
+        return bg;
     }
 
-    
 }
-
-

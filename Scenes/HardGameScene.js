@@ -43,7 +43,6 @@ export class HardGameScene extends IScene{
 
 
         this.poseTracker = PoseTracker.get_instance(this.p);
-   
         this.poseDrawer =new PoseDrawer(this.p); 
         this.poseDrawer.posePoint = this.poseTracker.getFullSkeleton();
     
