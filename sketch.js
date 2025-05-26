@@ -39,7 +39,7 @@ const main_sketch = (p)=>{
         let current_time = p.millis();
         delta = (current_time - last_time) / 1000; 
         last_time = current_time;
-        console.log("delta: ", delta)
+      
         p.background(220);
 
         SceneManager.instance.update(delta)
