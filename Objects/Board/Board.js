@@ -8,7 +8,7 @@ import { PoseDrawer } from "../DrawableObj/Game/PoseDrawer.js";
     type: 1 = 正常, 0 = 障礙物
     負責渲染一塊板，並且處理移動動畫
 */
-export class EasyBoard extends IObject {
+export class Board extends IObject {
     constructor(p) {
         super(p);
 
@@ -43,7 +43,8 @@ export class EasyBoard extends IObject {
         // this.drawToCanvas(this.color);
     }
 
-    _setBoard(boards) {
+
+    _set_Board(boards) {
         // console.log("設定進來的 board:", boards);
         this.cols = boards.length;
         this.rows = boards[0].length;
@@ -53,6 +54,8 @@ export class EasyBoard extends IObject {
 
         this.position.x = WIDTH / 2;
         this.position.y = 192 + 48;
+
+
         this.move = false;
         this.color = this.p.color(242, 133, 0, 60);
         this.riseStep = 48;
@@ -72,7 +75,7 @@ export class EasyBoard extends IObject {
         this.drawToCanvas(this.color);
         console.log("Debug1: ", this.color);
 
-        this.isActive = true; // 啟用狀態（方便物件池控制）
+
     }
 
     changeColor(poseCorrectWrong) {
@@ -113,8 +116,8 @@ export class EasyBoard extends IObject {
     drawToCanvas(c) {
         this.pg.clear();
         this.pg.noStroke();
+        console.log("draw to canvas");
         // this.pg.stroke(1);
-
         let cellW = this.pg.width / this.cols;
         let cellH = this.pg.height / this.rows;
 
@@ -157,8 +160,11 @@ export class EasyBoard extends IObject {
         return this.WallCell;
     }
 
-    *startRise(board,  OnEnd, OnLine) {
-        this._setBoard(board);
+
+    *startRise(board,  OnEnd , OnLine ) {
+        this.isActive = true;
+        this._set_Board(board);
+
         for (let i = this.riseStep; i > 0; i--) {
             this.riseStep -= 1;
             yield *this.waitTimer.delay(10);
@@ -167,6 +173,7 @@ export class EasyBoard extends IObject {
             if(this.position.y < 672+20 && this.position.y > 672-20){
                 OnLine(this);
             }
+        
             this.move = true;
             yield;
         }

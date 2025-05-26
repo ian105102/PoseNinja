@@ -1,7 +1,7 @@
 import { IObject } from "../IObject.js"
 import { GeneratorManager } from "../Utils/GeneratorManager.js";
 import {BoardGenerator } from "./BoardGenerator.js";
-import { EasyBoard } from "./EasyBoard.js";
+import { Board } from "./Board.js";
 /*
     處理多個 EasyBoard 的管理
     負責生成 EasyBoard 並管理它們的生命周期
@@ -9,7 +9,7 @@ import { EasyBoard } from "./EasyBoard.js";
 */
 
 
-export class EasyBoardList extends IObject{
+export class BoardList extends IObject{
     constructor(p, keypointDataList){
         super(p);
         this.position.x = 0;
@@ -24,13 +24,24 @@ export class EasyBoardList extends IObject{
         this.generatorManaer = new GeneratorManager();
         this.boardGenerator = new BoardGenerator(this.p, this.keypointDataList);
     }
-    add_board(onLine , onEnd){
+    clear(){
     
+        this.easyBoardList.forEach(board => {
+            board.isActive = false; 
+            this.reusableStack.push(board);
+        });
+        this.easyBoardList = [];
+        this.generatorManaer.clearAll();
+    }
+    add_board(onLine , onEnd){
+
         let board;
         if (this.reusableStack.length > 0) {
             board = this.reusableStack.pop(); 
+            this.easyBoardList.push(board); 
+          
         } else {
-            board = new EasyBoard(this.p); 
+            board = new Board(this.p); 
             this.easyBoardList.push(board); 
         }
         this.boardGenerator.generateBoard();
@@ -42,6 +53,7 @@ export class EasyBoardList extends IObject{
                         this.add_board(onLine);
                     }
                     this.reusableStack.push(board);
+                    this.easyBoardList = this.easyBoardList.filter(b => b !== board);
                     if(onEnd) {
                         onEnd(board);
                     }

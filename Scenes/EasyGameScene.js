@@ -6,12 +6,12 @@ import { SceneEnum } from "../SceneEnum.js"
 import { WIDTH } from "../G.js"
 import { HEIGHT } from "../G.js"
 import { DrawableText } from "../Objects/DrawableObj/Text/DrawableText.js"
-import { EasyBoard } from "../Objects/Board/EasyBoard.js";
-import { EasyBoardList } from "../Objects/Board/EasyBoardList.js"
+
 import { DrawableImage } from "../Objects/DrawableObj/Game/DrawableImage.js"
 import { PoseDrawer } from "../Objects/DrawableObj/Game/PoseDrawer.js"
 import { PoseTracker } from "../Objects/APIs/PoseTracker.js"
 import { GeneratorManager, WaitTimer } from "../Objects/Utils/GeneratorManager.js"
+import { BoardList } from "../Objects/Board/BoardList.js";
 
 
 
@@ -25,9 +25,11 @@ export class EasyGameScene extends IScene{
         super(p);
         
         this.keypointDataList = easykeypointDataList;
+
         EasyGameScene.instance = this;
         EasyGameScene.instance.init();
-        console.log("keypointDataList: ", this.keypointDataList);
+
+
     } 
     
     
@@ -43,9 +45,8 @@ export class EasyGameScene extends IScene{
 
         let instance = EasyGameScene.instance
 
-        this.testx = 0;
-        this.testy = 0;
 
+        this.time = 0;
 
         this.Background = new DrawableImage(this.p);
         this.Background.width = WIDTH;
@@ -60,19 +61,15 @@ export class EasyGameScene extends IScene{
         go_score_button.position.y = 600
         instance.add(go_score_button)
         
-        let text = new DrawableText(this.p,"簡單遊戲介面",50)
-        text.position.x = WIDTH / 2
-        text.position.y = HEIGHT / 8
-        instance.add(text)
-
-        this.easyBoard = new EasyBoardList(this.p, this.keypointDataList);
-        instance.add(this.easyBoard);
 
 
-        this.boardList = [];
-        this.canGenerate = true;
-        this.genInterval = 120; // 每60幀生成一個板子
-        this.genTimer = 0;
+
+
+
+
+        this.BoardList = new BoardList(this.p , this.keypointDataList);
+        instance.add(this.BoardList);
+
 
         // this.easyBoard = new EasyBoards(this.p, this.keypointDataList);
         // instance.add(this.easyBoard);
@@ -87,18 +84,15 @@ export class EasyGameScene extends IScene{
         this.poseDrawer.position.y = 0;
         instance.add(this.poseDrawer);
 
-
-
-        
-
-
-
         this.judgePoseState = new Map();
         this.generatorManager = new GeneratorManager();
         this.timer = new WaitTimer();
 
-        this.generatorManager.start(this.GameFlow());
 
+        this.TimeText = new DrawableText(this.p,"",30)
+        this.TimeText.position.x = 100  
+        this.TimeText.position.y = HEIGHT / 8
+        instance.add(this.TimeText)
 
 
     }
@@ -109,14 +103,23 @@ export class EasyGameScene extends IScene{
             yield  *this.timer.delay(1000);
         }
         while (true) {
-            console.log("生成一個板子");
-
-            let board = this.easyBoard.add_board(this.JudgePose.bind(this) , this.boardEnd.bind(this));
+            console.log("生成板子");
+            let board = this.BoardList.add_board(this.JudgePose.bind(this) , this.boardEnd.bind(this));
             this.judgePoseState.set(board, false); 
             yield  *this.timer.delay(3000); 
         }
         
     }
+    *TimerCount() {
+        while (true) {
+            this.time++;
+            this.TimeText.text = "time: " + this.time;
+            console.log("時間:", this.time);
+            yield *this.timer.delay(1000); // 每秒更新一次
+        }
+    }
+
+
     boardEnd(board) {
         if(!this.judgePoseState.has(board) || !board){
             console.log("板子已經被刪除或不存在");
@@ -134,7 +137,6 @@ export class EasyGameScene extends IScene{
     JudgePose(board) {
 
         if( !this.judgePoseState.has(board) || this.judgePoseState.get(board) === true){
-            
             board.changeColor(true);  // 命中
             return;
         }
@@ -151,16 +153,15 @@ export class EasyGameScene extends IScene{
     }
 
     _on_update(delta){
+
         this.p.stroke(255, 0, 0, 20);
         for(let i = 0; i <= 15; i++){
             this.p.line(0, i*(HEIGHT/15), WIDTH, i*(HEIGHT/15));      // (起始x, 起始y, 終點x, 終點y)
             this.p.line(i*(WIDTH/15), 0, i*(WIDTH/15), HEIGHT);      // (起始x, 起始y, 終點x, 終點y)
         }
         this.poseDrawer.posePoint = this.poseTracker.getFullSkeleton();
-        this.easyBoard.update(delta);
+        this.BoardList.update(delta);
         this.generatorManager.update(delta);
-
-
     }
     
     CreateBackground(bg){
@@ -194,6 +195,17 @@ export class EasyGameScene extends IScene{
         bg.line(921.6, 0, 921.6, HEIGHT);
         bg.line(964.8, 0, 964.8, HEIGHT);
         return bg;
+    }
+    _on_enter(){
+        this.generatorManager.start(this.GameFlow());
+        this.generatorManager.start(this.TimerCount());
+        
+        
+    }
+    _on_exit(){
+        this.generatorManager.clearAll();
+        this.judgePoseState.clear();
+        this.BoardList.clear();
     }
 
 }

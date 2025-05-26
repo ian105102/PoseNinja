@@ -10,7 +10,9 @@ import { PoseHandler } from "../Objects/APIs/PoseHandler.js"
 import { PoseTracker } from "../Objects/APIs/PoseTracker.js"
 import { PoseDrawer } from "../Objects/DrawableObj/Game/PoseDrawer.js"
 
-import { HardBorads } from "../Objects/Board/HardBoards.js"
+import { BoardList  } from "../Objects/Board/BoardList.js";
+import { GeneratorManager, WaitTimer } from "../Objects/Utils/GeneratorManager.js"
+import { DrawableImage } from "../Objects/DrawableObj/Game/DrawableImage.js"
 
 
 
@@ -26,10 +28,8 @@ export class HardGameScene extends IScene{
         this.keypointDataList = hardKeypointDataList;
         HardGameScene.instance = this;
         HardGameScene.instance.init()
-        console.log("keypointDataList: ", this.keypointDataList);
+        
     } 
-    
-
     
     //call after constructor
     init(){
@@ -42,13 +42,9 @@ export class HardGameScene extends IScene{
         let instance = HardGameScene.instance
 
 
-        this.poseTracker = PoseTracker.get_instance(this.p);
-        this.poseDrawer =new PoseDrawer(this.p); 
-        this.poseDrawer.posePoint = this.poseTracker.getFullSkeleton();
-    
-        this.poseDrawer.position.x =0;
-        this.poseDrawer.position.y = 0;
-        instance.add(this.poseDrawer);
+        this.judgePoseState = new Map();
+        this.generatorManager = new GeneratorManager();
+        this.timer = new WaitTimer();
 
 
         let go_score_button = new RectButton(this.p,300,100,func_to_scor)
@@ -61,51 +57,111 @@ export class HardGameScene extends IScene{
         text.position.y = HEIGHT / 8
         instance.add(text)
 
-        
-        this.boardList = [];
-        this.canGenerate = true;
-        this.genInterval = 120; // 每60幀生成一個板子
-        this.genTimer = 0;
+        this.Background = new DrawableImage(this.p);
+        this.Background.width = WIDTH;
+        this.Background.height = HEIGHT;
+        this.bg =  this.p.createGraphics(WIDTH, HEIGHT);
+        this.Background.src = this.CreateBackground(this.bg) ;
+        instance.add(this.Background);
 
-        this.hardBoard = new HardBorads(this.p, this.keypointDataList);
-        instance.add(this.hardBoard);
-        this.hardBoard.add_board();
-        
+
+        this.boardList = new BoardList(this.p, this.keypointDataList);
+        instance.add(this.boardList);
+
+        this.poseTracker = PoseTracker.get_instance(this.p);
+        this.poseDrawer =new PoseDrawer(this.p); 
+        this.poseDrawer.posePoint = this.poseTracker.getFullSkeleton();
+    
+        this.poseDrawer.position.x =0;
+        this.poseDrawer.position.y = 0;
+        instance.add(this.poseDrawer);
 
     }
 
+    *GameFlow(){
+        for(let i =0; i < 3; i++){
+            console.log(3-i);
+            yield  *this.timer.delay(1000);
+        }
+        while (true) {
+            console.log("生成板子");
+            let board = this.boardList.add_board(this.JudgePose.bind(this) , this.boardEnd.bind(this));
+            this.judgePoseState.set(board, false); 
+            yield  *this.timer.delay(3000); 
+        }
+        
+    }
+    *TimerCount() {
+        while (true) {
+            this.time++;
+  
+            yield *this.timer.delay(1000); // 每秒更新一次
+        }
+    }
 
+
+    boardEnd(board) {
+        if(!this.judgePoseState.has(board) || !board){
+            console.log("板子已經被刪除或不存在");
+            return;
+        }
+        console.log(this.judgePoseState);
+        if(this.judgePoseState.get(board)){
+            console.log("判斷成功");
+        }else{
+            console.log("判斷失敗");
+        }
+        this.judgePoseState.delete(board);
+    }
+
+    JudgePose(board) {
+
+        if( !this.judgePoseState.has(board) || this.judgePoseState.get(board) === true){
+            board.changeColor(true);  // 命中
+            return;
+        }
+        const landmarks = this.poseTracker.getFullSkeleton();
+        if(!board.JudgePose(landmarks)){
+            this.judgePoseState.set(board, true);
+            return ;
+        }
+    }
     _on_update(delta){
         this.p.stroke(255, 0, 0, 20);
         for(let i = 0; i <= 15; i++){
             this.p.line(0, i*(HEIGHT/15), WIDTH, i*(HEIGHT/15));      // (起始x, 起始y, 終點x, 終點y)
             this.p.line(i*(WIDTH/15), 0, i*(WIDTH/15), HEIGHT);      // (起始x, 起始y, 終點x, 終點y)
         }
-        
-        this.hardBoard.update(delta);
-        
-        this.initSence();
-
         this.poseDrawer.posePoint = this.poseTracker.getFullSkeleton();
-        
+        this.boardList.update(delta);
+        this.generatorManager.update(delta);
     }
 
-    initSence(){
-        this.p.noStroke();
-        this.p.fill(189, 224, 254);
-        this.p.quad((WIDTH/2)-36, 192+48, (WIDTH/2)+36, 192+48, 921.6, 624, 158.4, 624); //(x1, y1, x2, y2, x3, y3, x4, y4);
-        
-        this.p.noStroke(0);
-        this.p.fill(69, 123, 157);
-        this.p.quad(921.6, 624, 158.4, 624, 72, 720, 1008, 720); //(x1, y1, x2, y2, x3, y3, x4, y4);
+    _on_enter(){
+        this.generatorManager.start(this.GameFlow());
+        this.generatorManager.start(this.TimerCount());
+    }
+    _on_exit(){
+        this.generatorManager.clearAll();
+        this.judgePoseState.clear();
+        this.boardList.clear();
+    }
 
-        this.p.stroke(0);
-        this.p.fill(205, 180, 219);
-        this.p.quad((WIDTH/2)-36, 192+48, (WIDTH/2)-36, 192+48, 0, HEIGHT, 72, HEIGHT);            // 左邊緣(x1, y1, x2, y2, x3, y3, x4, y4);
-        this.p.quad((WIDTH/2)+36, 192+48, (WIDTH/2)+36, 192+48, WIDTH, HEIGHT, WIDTH-72, HEIGHT);  // 右邊緣(x1, y1, x2, y2, x3, y3, x4, y4);
+    CreateBackground(bg){
+        bg.noStroke();
+        bg.fill(189, 224, 254);
+        bg.quad((WIDTH/2)-36, 192+48, (WIDTH/2)+36, 192+48, 921.6, 624, 158.4, 624); //(x1, y1, x2, y2, x3, y3, x4, y4);
         
-        this.p.stroke(0, 0, 0, 50);
-        this.p.line(115.2, 672, 964.8, 672);                  // (起始x, 起始y, 終點x, 終點y)
+        bg.noStroke(0);
+        bg.fill(69, 123, 157);
+        bg.quad(921.6, 624, 158.4, 624, 72, 720, 1008, 720); //(x1, y1, x2, y2, x3, y3, x4, 
+        bg.stroke(0);
+        bg.fill(205, 180, 219);
+        bg.quad((WIDTH/2)-36, 192+48, (WIDTH/2)-36, 192+48, 0, HEIGHT, 72, HEIGHT);            // 左邊緣(x1, y1, x2, y2, x3, y3, x4, y4);
+        bg.quad((WIDTH/2)+36, 192+48, (WIDTH/2)+36, 192+48, WIDTH, HEIGHT, WIDTH-72, HEIGHT);  // 右邊緣(x1, y1, x2, y2, x3, y3, x4, y4);
+        
+        bg.stroke(0, 0, 0, 50);
+        bg.line(115.2, 672, 964.8, 672);                  // (起始x, 起始y, 終點x, 終點y)
 
         /* 
         Line1: (x1, y1) = (504, 240), (x2, y2) = (72, 720)
@@ -116,10 +172,11 @@ export class HardGameScene extends IScene{
         
         */
         // test line
-        this.p.stroke(0, 0, 0, 20);
-        this.p.line(115.2, 0, 115.2, HEIGHT);
-        this.p.line(158.4, 0, 158.4, HEIGHT);
-        this.p.line(921.6, 0, 921.6, HEIGHT);
-        this.p.line(964.8, 0, 964.8, HEIGHT);
+        bg.stroke(0, 0, 0, 20);
+        bg.line(115.2, 0, 115.2, HEIGHT);
+        bg.line(158.4, 0, 158.4, HEIGHT);
+        bg.line(921.6, 0, 921.6, HEIGHT);
+        bg.line(964.8, 0, 964.8, HEIGHT);
+        return bg;
     }
 }

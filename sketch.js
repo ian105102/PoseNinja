@@ -13,14 +13,7 @@ const main_sketch = (p)=>{
     let easyKeypointDataList = [];
     let hardKeypointDataList = [];
     p.preload = () =>{
-        for (let i = 1; i <= 8; i++) {
-            let data = p.loadJSON(`Data/easyPoseJson/pose_snapshot-${i}.json`);
-            easyKeypointDataList.push(data);
-        }
-        for (let i = 1; i <= 19; i++) {
-            let data = p.loadJSON(`Data/hardPoseJson/pose_snapshot-${i}.json`);
-            hardKeypointDataList.push(data);
-        }
+
     }
 
     let scene_manager;
@@ -28,10 +21,20 @@ const main_sketch = (p)=>{
 
     let delta =0;
     let last_time = 0;
-    
+    let maxDelta = 0.1;
 
 
     p.setup = () =>{
+        for (let i = 1; i <= 8; i++) {
+            let data = p.loadJSON(`Data/easyPoseJson/pose_snapshot-${i}.json`);
+            easyKeypointDataList.push(data);
+        }
+        for (let i = 1; i <= 19; i++) {
+            let data = p.loadJSON(`Data/hardPoseJson/pose_snapshot-${i}.json`);
+          
+            hardKeypointDataList.push(data);
+        }
+      
         scene_manager = new SceneManager(p, easyKeypointDataList, hardKeypointDataList)
         pose_tracker = new PoseTracker(p)
         p.is_left_pressing = false
@@ -52,6 +55,7 @@ const main_sketch = (p)=>{
         
         let current_time = p.millis();
         delta = (current_time - last_time) / 1000; 
+        delta = Math.min(delta, maxDelta);
         last_time = current_time;
       
         p.background(220);
