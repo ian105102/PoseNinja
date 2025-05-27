@@ -69,17 +69,16 @@ export class BoardList extends IObject{
 
     _on_update(delta){
         this.generatorManaer.update();
-        this.easyBoardList.forEach(board => {
-            board.update(delta);
-        });
+        for (let i = this.easyBoardList.length - 1; i >= 0; i--) {
+            this.easyBoardList[i].update(delta);
+        }
     }
 
     
     _on_draw(){
-        this.easyBoardList.forEach(board => {
-            board.draw();
-        });
-        
+        for (let i = this.easyBoardList.length - 1; i >= 0; i--) {
+            this.easyBoardList[i].draw();
+        }
     }
 
 

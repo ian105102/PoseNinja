@@ -34,25 +34,24 @@ export class BoardGenerator {
         this.rightLeg = [[24, 26], [26, 28], [28, 30]];
         this.leftSole = [[29, 31]];
         this.rightSole = [[30, 32]];
-    }
 
-    generateBoard(){
         this.Boards = []; 
-        this.points = [];
-        // 初始化 Board 網格
         for (let i = 0; i < this.cols; i++) {
             let row = [];
             for (let j = 0; j < this.rows; j++) {
-                row.push(new Cell(i,j));
+                row.push(new Cell(i, j, this.cellW, this.cellH, 0));
             }
             this.Boards.push(row);
         }
+    }
 
-        // 隨機從資料中拿取一個
+    generateBoard() {
+        for (let i = 0; i < this.cols; i++) {
+            for (let j = 0; j < this.rows; j++) {
+                this.Boards[i][j].type = 0; 
+            }
+        }
         this.keypoints = this.keypointDataList[this.p.floor(this.p.random(this.keypointDataList.length))];
-        console.log("this.keypoints: ", this.keypoints); // 確認資料
-
-        // 將物件轉陣列
         this.originalPts = Object.values(this.keypoints);
 
         if (!Array.isArray(this.originalPts)) {
@@ -60,40 +59,34 @@ export class BoardGenerator {
             return;
         }
 
-        // 映射至板子內部（座標轉為實際像素位置）
+        // 映射關鍵點至實際座標
         this.pts = this.originalPts.map(pt => {
             return {
                 x: this.offsetX + pt.x * this.pgWidth,
                 y: this.offsetY + pt.y * this.pgHeight
             };
         });
-        
-        // 脖子為1
+
+        // 畫脖子為 1
         const head = this.pts[0];
         const leftShoulder = this.pts[11];
         const rightShoulder = this.pts[12];
 
         if (
-        head && typeof head.x === 'number' && typeof head.y === 'number' &&
-        leftShoulder && typeof leftShoulder.x === 'number' && typeof leftShoulder.y === 'number' &&
-        rightShoulder && typeof rightShoulder.x === 'number' && typeof rightShoulder.y === 'number'
+            head && typeof head.x === 'number' && typeof head.y === 'number' &&
+            leftShoulder && typeof leftShoulder.x === 'number' && typeof leftShoulder.y === 'number' &&
+            rightShoulder && typeof rightShoulder.x === 'number' && typeof rightShoulder.y === 'number'
         ) {
-            // 計算肩膀中心點
             const neckX = (leftShoulder.x + rightShoulder.x) / 2;
             const neckY = (leftShoulder.y + rightShoulder.y) / 2;
-
-            // 將頭點與脖子點轉成網格座標
             const headGridX = Math.floor((head.x - this.offsetX) / this.cellW);
             const headGridY = Math.floor((head.y - this.offsetY) / this.cellH) - 2;
-
             const neckGridX = Math.floor((neckX - this.offsetX) / this.cellW);
             const neckGridY = Math.floor((neckY - this.offsetY) / this.cellH) - 2;
-
-            // 畫脖子線（在 Boards 上標記）
             this.drawLineOnBoard(headGridX, headGridY, neckGridX, neckGridY, 1);
         }
 
-        // 軀幹為2
+        // 軀幹為 2
         const polygon = this.torsoIndices.map(idx => {
             const pt = this.pts[idx];
             return pt ? [
@@ -109,113 +102,71 @@ export class BoardGenerator {
                     const cy = j + 0.5;
                     if (this.pointInPolygon([cx, cy], polygon)) {
                         this.Boards[i][j].type = 2;
-                        this.points.push([i, j]);
                     }
                 }
             }
         }
-        this.drawFor(this.torso, 2);
+
+        this.drawFor(this.torso, 2); // 額外描線輪廓用
 
         // 頭部為 3
-        this.drawCircleMaskFromPoint(head, 13, 3); // 畫出頭部，直徑為9，值為 3
+        this.drawCircleMaskFromPoint(head, 14, 3);
 
-        // 左手臂為4
+        // 左右手臂為 4, 5
         this.drawFor(this.leftHand, 4);
-        // 右手臂為5
         this.drawFor(this.rightHand, 5);
 
-        // 計算手掌中心點
+        // 計算手掌中心並畫出
         const getPalmCenter = (indices) => {
-            const p = indices
-                .map(i => this.pts[i])
+            const p = indices.map(i => this.pts[i])
                 .filter(pt => pt && typeof pt.x === 'number' && typeof pt.y === 'number');
 
             if (p.length === 0) return null;
-
             const avgX = p.reduce((sum, pt) => sum + pt.x, 0) / p.length;
             const avgY = p.reduce((sum, pt) => sum + pt.y, 0) / p.length;
-
             return { x: avgX, y: avgY };
         };
 
         const leftPalmCenter = getPalmCenter([17, 19, 21]);
         const rightPalmCenter = getPalmCenter([18, 20, 22]);
-        // 左手掌為6
-        this.drawCircleMaskFromPoint(leftPalmCenter, 8, 6); // 畫出左手掌，大小5，值為 6
-        // 右手掌為7
-        this.drawCircleMaskFromPoint(rightPalmCenter, 8, 7); // 畫出右手掌，大小5，值為 7
-        
-        // 左腿為8
+
+        this.drawCircleMaskFromPoint(leftPalmCenter, 9, 6); // 左手掌
+        this.drawCircleMaskFromPoint(rightPalmCenter, 9, 7); // 右手掌
+
+        // 左右腿為 8, 9
         this.drawFor(this.leftLeg, 8);
-        // 右腿為9
         this.drawFor(this.rightLeg, 9);
 
-        // 左腳掌為10
+        // 左右腳掌為 10, 11
         this.drawFor(this.leftSole, 10);
-        // 右腳掌為11
         this.drawFor(this.rightSole, 11);
+    }
 
-        for (let [x, y] of this.points) {
-            if (x >= 0 && x < this.cols && y >= 0 && y < this.rows) {
-                if(this.Boards[x][y].type >= 12){
-                    this.Boards[x][y].type = 12;
+
+    // 測試用產生整個滿板
+    generateTestBoard() {
+        for (let i = 0; i < this.cols; i++) {
+            for (let j = 0; j < this.rows; j++) {
+                this.Boards[i][j].type = 0; 
+            }
+        }
+        for (let i = 0; i < this.cols; i++) {
+            for (let j = 0; j < this.rows; j++) {
+                if( i > this.cols/2) {
+
+                    this.Boards[i][j].type = 1;
+                }else{
+                    if( j > this.rows/2){
+                        this.Boards[i][j].type = 1;
+                    }else{
+                        this.Boards[i][j].type = 0;
+                    }
+                    
                 }
             }
         }
     }
 
-    // // 隨機產生一塊板
-    // generateBoard() {
-    //     let headX = Math.floor(Math.random() * (this.cols - 16)) + 8;
-    //     let headY = Math.floor(Math.random() * (13 - 3)) + 3;
-    //     for (let i = 0; i < this.cols; i++) {
-    //         for (let j = 0; j < this.rows; j++) {
-    //             this.Boards[i][j].type = 0; 
-    //         }
-    //     }
-    //     const isValid = (x, y) => x >= 0 && x < this.cols && y >= 0 && y < this.rows;
-
-    //     if (isValid(headX, headY)) {
-    //         this.drawCircleOnBoard(headX, headY, 7);
-    //     }
-
-    //     if (isValid(headX + 8, headY + 7) && isValid(headX - 8, headY + 7)) {
-    //         let shoulderRightX = headX + 5;
-    //         let shoulderRightY = headY + 7 + this.randomRangeInt(-2, 2);
-    //         let shoulderLeftX = headX - 5;
-    //         let shoulderLeftY = headY + 7 + this.randomRangeInt(-2, 2);
-    //         this.drawLineOnBoard(shoulderLeftX, shoulderLeftY, shoulderRightX, shoulderRightY);
-    //     }
-    // }
-
-    // // 測試用產生整個滿板
-    // generateTestBoard() {
-    //     for (let i = 0; i < this.cols; i++) {
-    //         for (let j = 0; j < this.rows; j++) {
-    //             if( i < this.cols/2) {
-    //                 this.Boards[i][j].type = 1;
-    //             }else{
-    //                 this.Boards[i][j].type = 0;
-    //             }
-    //         }
-    //     }
-    // }
-
-    // 在棋盤上畫圓形（預設 type = 1）
-    // drawCircleOnBoard(centerX, centerY, diameter, type = 1) {
-    //     let radius = Math.floor(diameter / 2);
-    //     for (let dx = -radius; dx <= radius; dx++) {
-    //         for (let dy = -radius; dy <= radius; dy++) {
-    //             if (dx * dx + dy * dy <= radius * radius + 1) {
-    //                 let x = centerX + dx;
-    //                 let y = centerY + dy;
-    //                 if (x >= 0 && x < this.cols && y >= 0 && y < this.rows) {
-    //                     this.Boards[x][y].type = type;
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
 
     // 連骨架的線
     drawFor(arr, num){
@@ -234,12 +185,9 @@ export class BoardGenerator {
 
     // 畫圓
     drawCircleMaskFromPoint(point, size, value) {
-        if (!point || typeof point.x !== 'number' || typeof point.y !== 'number') return;
-
         const halfSize = Math.floor(size / 2);
         const gridX = Math.floor((point.x - this.offsetX) / this.cellW);
         const gridY = Math.floor((point.y - this.offsetY) / this.cellH) - 2;
-
         const isValid = (x, y) => x >= 0 && x < this.cols && y >= 0 && y < this.rows;
 
         for (let dx = -halfSize; dx <= halfSize; dx++) {
@@ -249,7 +197,6 @@ export class BoardGenerator {
             const y = gridY + dy;
             if (isValid(x, y)) {
                 this.Boards[x][y].type = value;
-                this.points.push([x, y]);
             }
             }
         }
@@ -295,13 +242,12 @@ export class BoardGenerator {
 
     // 將中心點周圍 3x3 區域填上指定 type
     add9Grid(x, y, type = 1) {
-        for (let dx = -2; dx <= 2; dx++) {
-            for (let dy = -2; dy <= 2; dy++) {
+        for (let dx = -3; dx <= 3; dx++) {
+            for (let dy = -3; dy <= 3; dy++) {
                 let nx = x + dx;
                 let ny = y + dy;
                 if (nx >= 0 && nx < this.cols && ny >= 0 && ny < this.rows) {
                     this.Boards[nx][ny].type = type;
-                    this.points.push([nx, ny]);
                 }
             }
         }
@@ -314,8 +260,6 @@ export class BoardGenerator {
 
     // 取得完整的棋盤物件
     getBoard() {
-        
-        console.log("生成的 Board:", this.Boards);
         return this.Boards;
     }
 }
