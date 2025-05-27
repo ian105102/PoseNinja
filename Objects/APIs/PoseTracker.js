@@ -208,4 +208,22 @@ export class PoseTracker {
         }
         p.fill(0, 0, 0);
     }
+    static checkHeadAndWristsVisible(landmarks) {
+      if (!landmarks || landmarks.length < 17) return false;
+      const headPoints = [0, 1, 2];  // nose, leftEye, rightEye
+      const wristPoints = [15, 16];  // leftWrist, rightWrist
+      const headVisible = headPoints.every(index => {
+          const pt = landmarks[index];
+          return pt && this._isPointVisible(pt);
+      });
+      const wristVisible = wristPoints.every(index => {
+          const pt = landmarks[index];
+          return pt && this._isPointVisible(pt);
+      });
+      return headVisible && wristVisible;
+  }
+  static _isPointVisible(pt) {
+      return pt.x >= 0 && pt.x <= 1 && pt.y >= 0 && pt.y <= 1;
+  }
+
 }

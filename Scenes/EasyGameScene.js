@@ -29,12 +29,9 @@ export class EasyGameScene extends IScene{
         EasyGameScene.instance = this;
         EasyGameScene.instance.init();
 
-
     } 
     
-    
 
-    
     //call after constructor
     init(){
         
@@ -45,8 +42,11 @@ export class EasyGameScene extends IScene{
 
         let instance = EasyGameScene.instance
 
-
         this.time = 0;
+        this.passCount = 0;
+        this.allCount = 0;
+
+        this.poseScore = 0;
 
         this.Background = new DrawableImage(this.p);
         this.Background.width = WIDTH;
@@ -55,25 +55,13 @@ export class EasyGameScene extends IScene{
         this.Background.src = this.CreateBackground(this.bg) ;
         instance.add(this.Background);
 
-
-        let go_score_button = new RectButton(this.p,300,100,func_to_scor)
-        go_score_button.position.x = 800
-        go_score_button.position.y = 600
-        instance.add(go_score_button)
+        // let go_score_button = new RectButton(this.p,300,100,func_to_scor)
+        // go_score_button.position.x = 800
+        // go_score_button.position.y = 600
+        // instance.add(go_score_button)
         
-
-
-
-
-
-
-        this.BoardList = new BoardList(this.p , this.keypointDataList);
-        instance.add(this.BoardList);
-
-
-        // this.easyBoard = new EasyBoards(this.p, this.keypointDataList);
-        // instance.add(this.easyBoard);
-        // this.easyBoard.add_board();
+        this.boardList = new BoardList(this.p , this.keypointDataList);
+        instance.add(this.boardList);
 
         this.poseTracker = PoseTracker.get_instance(this.p);
         this.poseDrawer =new PoseDrawer(this.p); 
@@ -88,46 +76,68 @@ export class EasyGameScene extends IScene{
         this.generatorManager = new GeneratorManager();
         this.timer = new WaitTimer();
 
-
         this.TimeText = new DrawableText(this.p,"",30)
         this.TimeText.position.x = 100  
         this.TimeText.position.y = HEIGHT / 8
         instance.add(this.TimeText)
 
 
+        this.CountdownText = new DrawableText(this.p,"",100)
+        this.CountdownText.position.x = WIDTH / 2 
+        this.CountdownText.position.y = HEIGHT / 2
+        instance.add(this.CountdownText)
+
+
+        this.ScoreText = new DrawableText(this.p,"",30)
+        this.ScoreText.position.x = WIDTH -140
+        this.ScoreText.position.y = HEIGHT / 8 
+        instance.add(this.ScoreText);
+
     }
 
     *GameFlow(){
+        this.CountdownText.isActive = true;
         for(let i =0; i < 3; i++){
             console.log(3-i);
+            this.CountdownText.text = (3-i).toString();
             yield  *this.timer.delay(1000);
         }
+        this.CountdownText.text = "開始!!!";
+        yield  *this.timer.delay(1000);
+        this.CountdownText.isActive = false;
+
         while (true) {
-   
-            let board = this.BoardList.add_board(this.JudgePose.bind(this) , this.boardEnd.bind(this));
+
+            let board = this.boardList.add_board(this.JudgePose.bind(this) , this.boardEnd.bind(this));
             this.judgePoseState.set(board, false); 
             yield  *this.timer.delay(5000); 
         }
         
     }
+
     *TimerCount() {
+        
         while (true) {
             this.time++;
-            this.TimeText.text = "time: " + this.time;
-            console.log("時間:", this.time);
+            this.TimeText.text = "time: " + this.time+"/120";
+            if(this.time >= 120){
+                SceneManager.instance.changeScene(SceneEnum.SCORE);
+            }
             yield *this.timer.delay(1000); // 每秒更新一次
         }
     }
 
 
     boardEnd(board) {
+        this.allCount++;
         if(!this.judgePoseState.has(board) || !board){
             console.log("板子已經被刪除或不存在");
             return;
         }
-        console.log(this.judgePoseState);
         if(this.judgePoseState.get(board)){
             console.log("判斷成功");
+           
+            this.passCount++;
         }else{
             console.log("判斷失敗");
         }
@@ -135,32 +145,25 @@ export class EasyGameScene extends IScene{
     }
 
     JudgePose(board) {
-
+        const landmarks = this.poseTracker.getFullSkeleton();
+        if(!PoseTracker.checkHeadAndWristsVisible(landmarks))return;
         if( !this.judgePoseState.has(board) || this.judgePoseState.get(board) === true){
             board.changeColor(true);  // 命中
             return;
         }
-        const landmarks = this.poseTracker.getFullSkeleton();
         if(!board.JudgePose(landmarks)){
             this.judgePoseState.set(board, true);
+       
             return ;
         }
     }
 
-
-    TestDraw(){
-
-    }
-
     _on_update(delta){
-
+        
+        this.ScoreText.text = "通過率: " + (this.allCount !== 0 ? (this.passCount / this.allCount * 100).toFixed(2) : "0.00") + "%";
         this.p.stroke(255, 0, 0, 20);
-        for(let i = 0; i <= 15; i++){
-            this.p.line(0, i*(HEIGHT/15), WIDTH, i*(HEIGHT/15));      // (起始x, 起始y, 終點x, 終點y)
-            this.p.line(i*(WIDTH/15), 0, i*(WIDTH/15), HEIGHT);      // (起始x, 起始y, 終點x, 終點y)
-        }
         this.poseDrawer.posePoint = this.poseTracker.getFullSkeleton();
-        this.BoardList.update(delta);
+        this.boardList.update(delta);
         this.generatorManager.update(delta);
     }
     
@@ -178,7 +181,7 @@ export class EasyGameScene extends IScene{
         bg.quad((WIDTH/2)+36, 192+48, (WIDTH/2)+36, 192+48, WIDTH, HEIGHT, WIDTH-72, HEIGHT);  // 右邊緣(x1, y1, x2, y2, x3, y3, x4, y4);
         
         bg.stroke(0, 0, 0, 50);
-        bg.line(115.2, 672, 964.8, 672);                  // (起始x, 起始y, 終點x, 終點y)
+       // bg.line(115.2, 672, 964.8, 672);                  // (起始x, 起始y, 終點x, 終點y)
 
         /* 
         Line1: (x1, y1) = (504, 240), (x2, y2) = (72, 720)
@@ -190,22 +193,23 @@ export class EasyGameScene extends IScene{
         */
         // test line
         bg.stroke(0, 0, 0, 20);
-        bg.line(115.2, 0, 115.2, HEIGHT);
-        bg.line(158.4, 0, 158.4, HEIGHT);
-        bg.line(921.6, 0, 921.6, HEIGHT);
-        bg.line(964.8, 0, 964.8, HEIGHT);
+        // bg.line(115.2, 0, 115.2, HEIGHT);
+        // bg.line(158.4, 0, 158.4, HEIGHT);
+        // bg.line(921.6, 0, 921.6, HEIGHT);
+        // bg.line(964.8, 0, 964.8, HEIGHT);
         return bg;
     }
     _on_enter(){
         this.generatorManager.start(this.GameFlow());
         this.generatorManager.start(this.TimerCount());
-        
-        
+        this.time = 0;
+        this.passCount = 0;
+        this.allCount = 0;
     }
     _on_exit(){
         this.generatorManager.clearAll();
         this.judgePoseState.clear();
-        this.BoardList.clear();
+        this.boardList.clear();
     }
 
 }

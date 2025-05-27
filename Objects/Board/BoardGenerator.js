@@ -44,8 +44,13 @@ export class BoardGenerator {
             this.Boards.push(row);
         }
     }
-
-    generateBoard() {
+    static Type = Object.freeze({
+    POSE: 0,
+    TOP: 1,
+    RIGHT: 2,
+    LIFE: 3
+    });
+    generatePoseBoard() {
         for (let i = 0; i < this.cols; i++) {
             for (let j = 0; j < this.rows; j++) {
                 this.Boards[i][j].type = 0; 
@@ -141,7 +146,28 @@ export class BoardGenerator {
         this.drawFor(this.leftSole, 10);
         this.drawFor(this.rightSole, 11);
     }
+    generateTestBoard() {
+        for (let i = 0; i < this.cols; i++) {
+            for (let j = 0; j < this.rows; j++) {
+                this.Boards[i][j].type = 0; 
+            }
+        }
+        for (let i = 0; i < this.cols; i++) {
+            for (let j = 0; j < this.rows; j++) {
+                if( i > this.cols/2) {
 
+                    this.Boards[i][j].type = 1;
+                }else{
+                    if( j > this.rows/2){
+                        this.Boards[i][j].type = 1;
+                    }else{
+                        this.Boards[i][j].type = 0;
+                    }
+                    
+                }
+            }
+        }
+    }
 
     // 測試用產生整個滿板
     generateTestBoard() {
@@ -163,6 +189,29 @@ export class BoardGenerator {
                     }
                     
                 }
+            }
+        }
+    }
+    generateTopArea() {
+        for (let i = 0; i < this.cols; i++) {
+            for (let j = 0; j < this.rows; j++) {
+                this.Boards[i][j].type = (j < this.rows *5/6) ? 1 : 0;
+            }
+        }
+    }
+
+  
+    generateLeftArea() {
+        for (let i = 0; i < this.cols; i++) {
+            for (let j = 0; j < this.rows; j++) {
+                this.Boards[i][j].type = (i < this.cols / 3) ? 1 : 0;
+            }
+        }
+    }
+    generateRightArea() {
+        for (let i = 0; i < this.cols; i++) {
+            for (let j = 0; j < this.rows; j++) {
+                this.Boards[i][j].type = (i >= this.cols*2 / 3) ? 1 : 0;
             }
         }
     }
@@ -226,7 +275,7 @@ export class BoardGenerator {
         let err = dx - dy;
 
         while (true) {
-            this.add9Grid(x0, y0, type);
+            this.addGrid(x0, y0, type);
             if (x0 === x1 && y0 === y1) break;
             let e2 = 2 * err;
             if (e2 > -dy) {
@@ -241,9 +290,9 @@ export class BoardGenerator {
     }
 
     // 將中心點周圍 3x3 區域填上指定 type
-    add9Grid(x, y, type = 1) {
-        for (let dx = -3; dx <= 3; dx++) {
-            for (let dy = -3; dy <= 3; dy++) {
+    addGrid(x, y, type = 1) {
+        for (let dx = -2; dx <= 2; dx++) {
+            for (let dy = -2; dy <= 2; dy++) {
                 let nx = x + dx;
                 let ny = y + dy;
                 if (nx >= 0 && nx < this.cols && ny >= 0 && ny < this.rows) {
