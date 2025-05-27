@@ -4,6 +4,7 @@ import { IObject } from "../IObject.js";
 import { GeneratorManager, WaitTimer } from "../Utils/GeneratorManager.js";
 import { Cell } from './Cell.js';
 import { PoseDrawer } from "../DrawableObj/Game/PoseDrawer.js";
+import { Square } from "./Square.js";
 /*
     type: 1 = 正常, 0 = 障礙物
     負責渲染一塊板，並且處理移動動畫
@@ -24,8 +25,9 @@ export class Board extends IObject {
 
         this.waitTimer = new WaitTimer();
 
-        this.color = this.p.color(242, 133, 0, 60);
+        this.color = this.p.color(242, 133, 0);
         this.WallCell = [];
+        this.squares = [];
         // 建立板子遮擋邏輯
         // this.Boards = [];
         // this.cols = 60;
@@ -63,6 +65,7 @@ export class Board extends IObject {
         this.Boards = boards;
 
         this.WallCell = [];
+        this.squares = [];
         for (let i = 0; i < this.cols; i++) {
             for (let j = 0; j < this.rows; j++) {
                 if(this.Boards[i][j].type == 0){
@@ -70,6 +73,20 @@ export class Board extends IObject {
                 }
             }
         }
+        console.log("Debug: WallCell",this.cols , this.rows);
+        for (let i = 0; i < this.cols - 1; i++) {
+            for (let j = 0; j < this.rows - 1; j++) {
+                let topLeft = this.Boards[i][j];
+                let topRight = this.Boards[i + 1][j];
+                let bottomRight = this.Boards[i + 1][j + 1];
+                let bottomLeft = this.Boards[i][j + 1];
+
+                let square = new Square(topLeft, topRight, bottomRight, bottomLeft);
+                this.squares.push(square);
+            }
+        }
+        console.log("Debug0: ",this.squares);
+
         // 重新繪製到 buffer 畫布
         this.pg.clear();
         this.drawToCanvas(this.color);
@@ -118,41 +135,152 @@ export class Board extends IObject {
         this.pg.noStroke();
         console.log("draw to canvas");
         // this.pg.stroke(1);
-        let cellW = this.pg.width / this.cols;
-        let cellH = this.pg.height / this.rows;
 
-        for (let i = 0; i < this.cols; i++) {
-            for (let j = 0; j < this.rows; j++) {
-                switch (this.Boards[i][j].type) {
-                    case 0:
-                        this.pg.fill(c); break;
-                    case 1:
-                        this.pg.fill(48, 60, 230, 80); break;
-                    case 2:
-                        this.pg.fill(155, 48, 230, 80); break;
-                    case 3:
-                        this.pg.fill(48, 117, 230, 80); break;
-                    case 4:
-                        this.pg.fill(97, 97, 97, 80); break;
-                    case 5:
-                        this.pg.fill(46, 46, 46, 80); break;
-                    case 6:
-                        this.pg.fill(127, 128, 0, 80); break;
-                    case 7:
-                        this.pg.fill(48, 178, 230, 80); break;
-                    case 8:
-                        this.pg.fill(63, 0, 0, 80); break;
-                    case 9:
-                        this.pg.fill(99, 0, 0, 80); break;
-                    case 10:
-                        this.pg.fill(201, 115, 185, 80); break;
-                    case 11:
-                        this.pg.fill(161, 91, 148, 80); break;
-                    default:
-                        this.pg.fill(229, 229, 229, 80);
-                }
-                this.pg.rect(i * cellW, j * cellH, cellW, cellH);
-            }
+        const cellW = this.pg.width / this.cols;
+        const cellH = this.pg.height / this.rows;
+
+        // for (let i = 0; i < this.cols; i++) {
+        //     for (let j = 0; j < this.rows; j++) {
+        //         this._get_color(this.pg, this.Boards[i][j].type, c);
+        //         this.pg.rect(i * cellW, j * cellH, cellW, cellH);
+        //     }
+        // }
+
+        for (let square of this.squares) {
+            this.drawMarchingSquare(square, this.pg, (pg, type) => this._get_color(pg, type, c) , this.width / this.cols, this.height / this.rows);
+        }
+    }
+
+    drawMarchingSquare(square, pg, colorFunc) {
+        const w = pg.width / this.cols;
+        const h = pg.height / this.rows;
+
+        const X = p => p.x * w;
+        const Y = p => p.y * h;
+
+         pg.fill(this.color);
+
+        switch (square.configuration) {
+            case 0:
+                break;
+            case 15:
+                this.draw_polygon(pg, [square.topLeft, square.topRight, square.bottomRight, square.bottomLeft], X, Y);
+                break;
+
+            case 1:
+                this.draw_polygon(pg, [square.centerLeft, square.bottomLeft, square.centerBottom], X, Y);
+                this.draw_line(pg, square.centerLeft, square.centerBottom, X, Y);
+                break;
+
+            case 2:
+                this.draw_polygon(pg, [square.centerBottom, square.bottomRight, square.centerRight], X, Y);
+                this.draw_line(pg, square.centerBottom, square.centerRight, X, Y);
+                break;
+
+            case 3:
+                this.draw_polygon(pg, [square.centerLeft, square.bottomLeft, square.bottomRight, square.centerRight], X, Y);
+                this.draw_line(pg, square.centerLeft, square.centerRight, X, Y);
+                break;
+
+            case 4:
+                this.draw_polygon(pg, [square.centerTop, square.topRight, square.centerRight], X, Y);
+                this.draw_line(pg, square.centerTop, square.centerRight, X, Y);
+                break;
+
+            case 5:
+                this.draw_polygon(pg, [square.centerTop, square.topRight, square.centerRight, square.centerBottom, square.bottomLeft, square.centerLeft], X, Y);
+                this.draw_line(pg, square.centerTop, square.centerLeft, X, Y);
+                this.draw_line(pg, square.centerRight, square.centerBottom, X, Y);
+                break;
+
+            case 6:
+                this.draw_polygon(pg, [square.centerTop, square.topRight, square.bottomRight, square.centerBottom], X, Y);
+                this.draw_line(pg, square.centerTop, square.centerBottom, X, Y);
+                break;
+
+            case 7:
+                this.draw_polygon(pg, [square.centerLeft, square.bottomLeft, square.bottomRight, square.topRight, square.centerTop], X, Y);
+                this.draw_line(pg, square.centerLeft, square.centerTop, X, Y);
+                break;
+
+            case 8:
+                this.draw_polygon(pg, [square.topLeft, square.centerTop, square.centerLeft], X, Y);
+                this.draw_line(pg, square.centerLeft, square.centerTop, X, Y);
+                break;
+
+            case 9:
+                this.draw_polygon(pg, [square.topLeft, square.centerTop, square.centerBottom, square.bottomLeft], X, Y);
+                this.draw_line(pg, square.centerTop, square.centerBottom, X, Y);
+                break;
+
+            case 10:
+                this.draw_polygon(pg, [square.topLeft, square.centerTop, square.centerRight, square.bottomRight, square.centerBottom, square.centerLeft], X, Y);
+                this.draw_line(pg, square.centerLeft, square.centerRight, X, Y);
+                break;
+
+            case 11:
+                this.draw_polygon(pg, [square.topLeft, square.centerTop, square.centerRight, square.bottomRight, square.bottomLeft], X, Y);
+                this.draw_line(pg, square.centerTop, square.bottomLeft, X, Y);
+                break;
+
+            case 12:
+                this.draw_polygon(pg, [square.topLeft, square.topRight, square.centerRight, square.centerLeft], X, Y);
+                this.draw_line(pg, square.centerLeft, square.centerRight, X, Y);
+                break;
+
+            case 13:
+                this.draw_polygon(pg, [square.topLeft, square.topRight, square.centerRight, square.centerBottom, square.bottomLeft], X, Y);
+                this.draw_line(pg, square.centerBottom, square.topLeft, X, Y);
+                break;
+
+            case 14:
+                this.draw_polygon(pg, [square.topLeft, square.topRight, square.bottomRight, square.centerBottom, square.centerLeft], X, Y);
+                this.draw_line(pg, square.centerBottom, square.centerLeft, X, Y);
+                break;
+
+            default:
+                break;
+        }
+    }
+    draw_polygon(pg, points, X, Y) {
+        pg.beginShape();
+        for (let p of points) {
+            pg.vertex(X(p), Y(p));
+        }
+        pg.endShape(pg.CLOSE);
+    }
+
+    draw_line(pg, p1, p2, X, Y) {
+
+    }
+    _get_color( pg , type, c){
+        switch (type) {
+            case 0:
+                pg.fill(c); break;
+            case 1:
+                pg.fill(48, 60, 230); break;
+            case 2:
+                pg.fill(155, 48, 230); break;
+            case 3:
+                pg.fill(48, 117, 230); break;
+            case 4:
+                pg.fill(97, 97, 97); break;
+            case 5:
+                pg.fill(46, 46, 46); break;
+            case 6:
+                pg.fill(127, 128, 0); break;
+            case 7:
+                pg.fill(48, 178, 230); break;
+            case 8:
+                pg.fill(63, 0, 0); break;
+            case 9:
+                pg.fill(99, 0, 0); break;
+            case 10:
+                pg.fill(201, 115, 185); break;
+            case 11:
+                pg.fill(161, 91, 148); break;
+            default:
+                pg.fill(229, 229, 229);
         }
     }
 

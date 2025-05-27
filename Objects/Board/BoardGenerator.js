@@ -39,18 +39,17 @@ export class BoardGenerator {
     generateBoard(){
         this.Boards = []; 
         this.points = [];
-        // 初始化 Board 網格
+       
         for (let i = 0; i < this.cols; i++) {
             let row = [];
             for (let j = 0; j < this.rows; j++) {
-                row.push(new Cell(i,j));
+                row.push(new Cell(i,j , this.cellW , this.cellH , 0  ));
             }
             this.Boards.push(row);
         }
 
-        // 隨機從資料中拿取一個
+
         this.keypoints = this.keypointDataList[this.p.floor(this.p.random(this.keypointDataList.length))];
-        console.log("this.keypoints: ", this.keypoints); // 確認資料
 
         // 將物件轉陣列
         this.originalPts = Object.values(this.keypoints);
