@@ -110,7 +110,7 @@ export class BoardGenerator {
         this.drawFor(this.torso, 2); // 額外描線輪廓用
 
         // 頭部為 3
-        this.drawCircleMaskFromPoint(head, 13, 3);
+        this.drawCircleMaskFromPoint(head, 15, 3);
 
         // 左右手臂為 4, 5
         this.drawFor(this.leftHand, 4);
@@ -244,8 +244,8 @@ export class BoardGenerator {
 
     // 將中心點周圍 3x3 區域填上指定 type
     add9Grid(x, y, type = 1) {
-        for (let dx = -2; dx <= 2; dx++) {
-            for (let dy = -2; dy <= 2; dy++) {
+        for (let dx = -3; dx <= 3; dx++) {
+            for (let dy = -3; dy <= 3; dy++) {
                 let nx = x + dx;
                 let ny = y + dy;
                 if (nx >= 0 && nx < this.cols && ny >= 0 && ny < this.rows) {
