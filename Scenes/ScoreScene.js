@@ -46,7 +46,7 @@ export class ScoreScene extends IScene{
         this.pose_handler = new PoseHandler(this.p)
                 
         this.func_to_menu = ()=>{
-            SceneManager.instance.changeScene(SceneEnum.MENU)
+            SceneManager.instance.changeScene(SceneEnum.ASSET)
         } 
     }
 

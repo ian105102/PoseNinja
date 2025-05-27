@@ -25,8 +25,10 @@ export class MenuScene extends IScene{
         MenuScene.instance.init()
     
         this.pose_handler = new PoseHandler(p)
-
+        this.rotation_active = false;
+        this.rotation_timer = 0;
         this.func_to_easy =()=>{
+             this.rotation_active = false;
             SceneManager.instance.changeScene(SceneEnum.EASY_GAME)
         }
 
@@ -52,30 +54,29 @@ export class MenuScene extends IScene{
         bg.height = HEIGHT;
         this.add(bg);
         // ✅ Easy 按鈕圖片
-        const btn_easy = new DrawableImage(this.p);
-        btn_easy.setImage(ASSETS.btn_easy);
-        btn_easy.position.set(540 - 300, height);
-        btn_easy.width = 200;
-        btn_easy.height = 100;
-        this.add(btn_easy);
-
-        // ✅ Hard 按鈕圖片
-        const btn_hard = new DrawableImage(this.p);
-        btn_hard.setImage(ASSETS.btn_hard);
-        btn_hard.position.set(540, height);
-        btn_hard.width = 200;
-        btn_hard.height = 100;
-        this.add(btn_hard);
+        this.btn_easy = new DrawableImage(this.p);
+        this.btn_easy.setImage(ASSETS.btn_easy); // ✅ 可替換為去背手裡劍圖
+        this.btn_easy.width = 200;
+        this.btn_easy.height = 133;
+        this.btn_easy.position.set(190 + 100, 580 + 66.5); // 中心
+        this.btn_easy.setAnchor(0.5, 0.5); // 繞中心轉
+        this.add(this.btn_easy);
 
         // ✅ Rule 按鈕圖片
         const btn_rule = new DrawableImage(this.p);
         btn_rule.setImage(ASSETS.btn_rule);
-        btn_rule.position.set(540 + 300, height);
-        btn_rule.width = 200;
-        btn_rule.height = 100;
+        btn_rule.position.set(450, 580);
+        btn_rule.width = 140;
+        btn_rule.height = 140;
         this.add(btn_rule);
         
-
+        // ✅ Hard 按鈕圖片
+        const btn_hard = new DrawableImage(this.p);
+        btn_hard.setImage(ASSETS.btn_hard);
+        btn_hard.position.set(630, 580);
+        btn_hard.width = 140;
+        btn_hard.height = 140;
+        this.add(btn_hard);
         
         
 
@@ -110,23 +111,39 @@ export class MenuScene extends IScene{
 
     }
 
-    _on_update(_delta){
-       
-        this.pose_image.src = PoseTracker.get_instance(this.p).getVideo();
-        this.pose_handler.update(_delta)
-        if(this.pose_handler.is_left_counter_reached()){
-            this.func_to_easy()
-
+    _on_update(_delta) {
+        const tracker = PoseTracker.get_instance(this.p);
+        const isLeftUp = tracker.get_is_left_hand_up();
+        if (this.rotation_active && !isLeftUp) {
+            this.rotation_active = false;
+            this.btn_easy.rotation = 0;  
         }
-         if(this.pose_handler.is_righ_counter_reached()){
-            this.func_to_hard()
-
+        this.pose_image.src = tracker.getVideo();
+        this.pose_handler.update(_delta / 1000);
+        if (this.rotation_active) {
+            this.btn_easy.rotation += 0.3;
+            if (this.pose_handler.is_left_counter_reached()) {
+                this.rotation_active = false;
+                this.func_to_easy();
+            }
+            return; 
         }
-         if(this.pose_handler.is_doub_counter_reached()){
-            this.func_to_tuto()
 
+        if (isLeftUp) {
+            this.rotation_active = true;
+            this.btn_easy.rotation = 0;
+            return;
+        }
+
+
+        if (this.pose_handler.is_righ_counter_reached()) {
+            this.func_to_hard();
+        }
+        if (this.pose_handler.is_doub_counter_reached()) {
+            this.func_to_tuto();
         }
     }
+
 
     _on_enter(){
 
