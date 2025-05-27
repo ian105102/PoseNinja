@@ -14,6 +14,7 @@ export class AssetScene extends IScene {
         ASSETS.btn_rule = this.p.loadImage("assets/rule.png");
         ASSETS.bg_menu = this.p.loadImage("assets/Menu.png");
         ASSETS.btn_open = this.p.loadImage("assets/open.png");
+        ASSETS.btn_skeleton = this.p.loadImage("assets/Skeleton.png");
         }
 
 

@@ -6,4 +6,5 @@ export const ASSETS = {
     btn_hard: null,
     btn_rule: null,
     btn_open: null,
+    btn_skeleton: null,
 };
