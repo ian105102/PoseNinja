@@ -20,6 +20,8 @@ export class Board extends IObject {
         this.scale.x = 1;
         this.scale.y = 1;
 
+        this.speed = 10;
+
         this.position.x = WIDTH / 2;
         this.position.y = 192 + 48;
 
@@ -112,7 +114,7 @@ export class Board extends IObject {
     _on_update(delta) {
         // console.log("EasyBoard update", this.isActive);
         if (this.move) {
-            this.position.y = this.position.y + (15 * delta *this.scale.y);
+            this.position.y = this.position.y + (this.speed * delta *this.scale.y);
             this.scale.x = (this.position.y - 192 - 48) * 0.025 + 1;
             this.scale.y = (this.position.y - 192 - 48) * 0.025 + 1;
         }
