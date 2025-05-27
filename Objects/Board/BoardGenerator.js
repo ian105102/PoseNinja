@@ -110,7 +110,7 @@ export class BoardGenerator {
         this.drawFor(this.torso, 2); // 額外描線輪廓用
 
         // 頭部為 3
-        this.drawCircleMaskFromPoint(head, 15, 3);
+        this.drawCircleMaskFromPoint(head, 14, 3);
 
         // 左右手臂為 4, 5
         this.drawFor(this.leftHand, 4);
@@ -130,8 +130,8 @@ export class BoardGenerator {
         const leftPalmCenter = getPalmCenter([17, 19, 21]);
         const rightPalmCenter = getPalmCenter([18, 20, 22]);
 
-        this.drawCircleMaskFromPoint(leftPalmCenter, 8, 6); // 左手掌
-        this.drawCircleMaskFromPoint(rightPalmCenter, 8, 7); // 右手掌
+        this.drawCircleMaskFromPoint(leftPalmCenter, 9, 6); // 左手掌
+        this.drawCircleMaskFromPoint(rightPalmCenter, 9, 7); // 右手掌
 
         // 左右腿為 8, 9
         this.drawFor(this.leftLeg, 8);
@@ -185,11 +185,9 @@ export class BoardGenerator {
 
     // 畫圓
     drawCircleMaskFromPoint(point, size, value) {
-     
         const halfSize = Math.floor(size / 2);
         const gridX = Math.floor((point.x - this.offsetX) / this.cellW);
         const gridY = Math.floor((point.y - this.offsetY) / this.cellH) - 2;
-
         const isValid = (x, y) => x >= 0 && x < this.cols && y >= 0 && y < this.rows;
 
         for (let dx = -halfSize; dx <= halfSize; dx++) {
@@ -262,8 +260,6 @@ export class BoardGenerator {
 
     // 取得完整的棋盤物件
     getBoard() {
-        
-        console.log("生成的 Board:", this.Boards);
         return this.Boards;
     }
 }

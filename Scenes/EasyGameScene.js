@@ -103,7 +103,7 @@ export class EasyGameScene extends IScene{
             yield  *this.timer.delay(1000);
         }
         while (true) {
-            console.log("生成板子");
+   
             let board = this.BoardList.add_board(this.JudgePose.bind(this) , this.boardEnd.bind(this));
             this.judgePoseState.set(board, false); 
             yield  *this.timer.delay(5000); 
