@@ -1,27 +1,29 @@
 import { IObject } from "../../IObject.js";
+import { ASSETS } from "../../../G.js";
 
+export class DrawableText extends IObject {
+  constructor(p, text, text_size, font = null) {
+    super(p);
+    this.text = text;
+    this.text_size = text_size;
+    this.font = font;
+    this.strokeColor = p.color(255);  
+    this.strokeWeight = 4;            
+    this.fillColor = p.color(0);     
+  }
 
-export class DrawableText extends IObject{
+  _on_draw() {
+    const p = this.p;
+    p.push();
+    p.textSize(this.text_size);
+    if (this.font) p.textFont(this.font);
+    p.textAlign(p.LEFT); // 可依需求改 CENTER
+    p.stroke(this.strokeColor);
+    p.strokeWeight(this.strokeWeight);
+    p.fill(this.fillColor);
+    p.text(this.text, 0, 0);
+    p.pop();
+  }
 
-
-
-    constructor(p,text,text_size){
-        super(p)
-        this.text = text
-        this.text_size = text_size
-        
-    }
-
-    _on_draw(){
-        this.p.fill(0);
-        this.p.strokeWeight(1)
-        this.p.textAlign(this.p.CENTER);
-        this.p.textSize(this.text_size);
-        this.p.text(this.text, 0, 0);
-
-    }
-
-    _on_update(delta){
-        
-    }
+  _on_update(delta) {}
 }

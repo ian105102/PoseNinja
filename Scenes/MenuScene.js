@@ -5,7 +5,7 @@ import { SceneEnum } from "../SceneEnum.js";
 import { SceneManager } from "../SceneManager.js";
 
 import { PoseTracker } from "../Objects/APIs/PoseTracker.js";
-
+import { Kite } from "../Objects/DrawableObj/Game/Kite.js";
 import { WIDTH } from "../G.js"
 import { HEIGHT } from "../G.js"
 import { ASSETS } from "../G.js"
@@ -47,20 +47,22 @@ export class MenuScene extends IScene{
     
     //call after constructor
     init(){
+
+
         let height = HEIGHT / 7 * 6
 
-        const bg = new DrawableImage(this.p);
-        bg.setImage(ASSETS.bg_menu);
-        bg.position.set(0, 0);
-        bg.width = WIDTH;
-        bg.height = HEIGHT;
-        this.add(bg);
+        this.bg = new DrawableImage(this.p);
+        this.bg.setImage(ASSETS.bg_menu);
+        this.bg.position.set(0, 0);
+        this.bg.width = WIDTH;
+        this.bg.height = HEIGHT;
+        this.add(this.bg);
         // ✅ Easy 按鈕圖片
         this.btn_easy = new DrawableImage(this.p);
         this.btn_easy.setImage(ASSETS.btn_easy); // ✅ 可替換為去背手裡劍圖
         this.btn_easy.width = 200;
         this.btn_easy.height = 133;
-        this.btn_easy.position.set(190 + 100, 580 + 66.5); // 中心
+        this.btn_easy.position.set(290, 646.5);; // 中心
         this.btn_easy.setAnchor(0.5, 0.5); // 繞中心轉
         this.add(this.btn_easy);
 
@@ -100,12 +102,16 @@ export class MenuScene extends IScene{
         this.pose_image.position.y = HEIGHT - HEIGHT/4 - 20;
         this.pose_image.width = WIDTH/4;
         this.pose_image.height = HEIGHT/4;
-
+        for (let i = 0; i < 10; i++) {
+            const kite = new Kite(this.p);
+            this.add(kite);
+        }
         MenuScene.instance.add(this.pose_image);
 
     }
 
     _on_update(_delta) {
+        super._on_update(_delta);
         const tracker = PoseTracker.get_instance(this.p);
         this.pose_handler.update(_delta);
         const isLeftUp   = tracker.get_is_left_hand_up();
@@ -141,7 +147,6 @@ export class MenuScene extends IScene{
         if (this.rotation_active) {
             this.btn_easy.rotation += 0.3;
             if (this.pose_handler.is_left_counter_reached()) {
-                console.log("easy");
                 this.rotation_active = false;
                 this.func_to_easy();
             }
