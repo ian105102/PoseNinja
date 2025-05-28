@@ -7,4 +7,7 @@ export const ASSETS = {
     btn_rule: null,
     btn_open: null,
     btn_skeleton: null,
+    sfx_knife:    null,
+    sfx_shuriken: null,
+    sfx_openChest:null,
 };

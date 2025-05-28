@@ -15,6 +15,9 @@ export class AssetScene extends IScene {
         ASSETS.bg_menu = this.p.loadImage("assets/Menu.png");
         ASSETS.btn_open = this.p.loadImage("assets/open.png");
         ASSETS.btn_skeleton = this.p.loadImage("assets/Skeleton.png");
+        ASSETS.sfx_knife      = this.p.loadSound("assets/Knife.MP3");
+        ASSETS.sfx_openChest  = this.p.loadSound("assets/open_chest.MP3");
+        ASSETS.sfx_shuriken   = this.p.loadSound("assets/shuriken.MP3")
         }
 
 

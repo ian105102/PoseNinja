@@ -23,7 +23,9 @@ export class MenuScene extends IScene{
         super(p);
         MenuScene.instance = this;
         MenuScene.instance.init()
-    
+        this.prevLeftUp  = false;
+        this.prevRightUp = false;
+        this.prevBothUp  = false;
         this.pose_handler = new PoseHandler(p)
         this.rotation_active = false;
         this.rotation_timer = 0;
@@ -109,6 +111,20 @@ export class MenuScene extends IScene{
         const isLeftUp   = tracker.get_is_left_hand_up();
         const isRightUp  = tracker.get_is_righ_hand_up();
         const bothUp     = tracker.get_is_doub_hand_up();
+         // —— 偵測 rising edge，剛舉起就播一次音效 —— //
+        if (isLeftUp && !this.prevLeftUp) {
+            ASSETS.sfx_shuriken.play();
+        }
+        if (isRightUp && !this.prevRightUp) {
+            ASSETS.sfx_knife.play();
+        }
+        if (bothUp && !this.prevBothUp) {
+            ASSETS.sfx_openChest.play();
+        }
+        // 更新前一幀狀態
+        this.prevLeftUp  = isLeftUp;
+        this.prevRightUp = isRightUp;
+        this.prevBothUp  = bothUp;
         this.btn_rule.visible = !bothUp;
         this.btn_open.visible =  bothUp;
         this.btn_hard.visible = !isRightUp;
