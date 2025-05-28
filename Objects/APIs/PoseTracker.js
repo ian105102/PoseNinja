@@ -26,7 +26,7 @@ export class PoseTracker {
   constructor(p) {
     this.flag = true
     this.p = p
-    this.buffer = null
+    this.buffer = this.p.createGraphics(WIDTH, HEIGHT);
     if (PoseTracker.#instance) {
       return PoseTracker.#instance;
     }
@@ -90,7 +90,7 @@ export class PoseTracker {
 
   }
   getVideo() {
-      this.buffer = this.p.createGraphics(WIDTH, HEIGHT);
+
       this.buffer.push();
       this.buffer.translate(WIDTH, 0);
       this.buffer.scale(-1, 1); // 水平翻轉
