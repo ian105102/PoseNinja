@@ -11,9 +11,13 @@ export class IObject {
       this.isActive = true; 
     }
     // Abstract methods
-    _on_draw(){
-        throw new Error('Abstract method _on_draw() must be implemented in derived class');
-
+    _on_draw() {
+      if (this.src) {
+          this.p.image(this.src, this.position.x, this.position.y, this.width, this.height);
+      }
+    }
+    setImage(img) {
+        this.src = img;
     }
 
     _on_update(delta){
