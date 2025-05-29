@@ -27,7 +27,7 @@ export class Board extends IObject {
 
         this.waitTimer = new WaitTimer();
 
-        this.color = this.p.color(242, 133, 0 ,80);
+        this.color = this.p.color(" rgba(0, 177, 242, 0.86)");
         this.WallCells = [];
         this.squares = [];
         this.PassCells = [];
@@ -60,7 +60,7 @@ export class Board extends IObject {
 
 
         this.move = false;
-        this.color = this.p.color(242, 133, 0,60);
+        this.color = this.p.color(" rgba(0, 177, 242, 0.65)");
         this.riseStep = 48;
 
         this.Boards = boards;

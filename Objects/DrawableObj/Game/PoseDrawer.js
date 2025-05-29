@@ -53,7 +53,9 @@ export class PoseDrawer extends IObject{
 
         // 限制繪製區域
         this.p.push();
+    
         this.p.beginClip();
+     
         this.p.rect(this.offsetX, this.offsetY, this.areaWidth, this.areaHeight);
         this.p.endClip();
 
@@ -74,7 +76,7 @@ export class PoseDrawer extends IObject{
     _drawClippingRect(offsetX, offsetY, areaWidth, areaHeight , c = "rgba(24, 25, 29, 0.5)") {
         this.p.noFill();
         this.p.stroke(c);
-        this.p.strokeWeight(2);
+        this.p.strokeWeight(5);
         this.p.rect(offsetX, offsetY, areaWidth, areaHeight);
     }
 

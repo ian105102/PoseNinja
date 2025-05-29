@@ -10,6 +10,7 @@ export class DrawableText extends IObject {
     this.strokeColor = p.color(255);  
     this.strokeWeight = 4;            
     this.fillColor = p.color(0);     
+    this.textAlign = p.LEFT; // 可依需求改 CENTER
   }
 
   _on_draw() {
@@ -17,7 +18,7 @@ export class DrawableText extends IObject {
     p.push();
     p.textSize(this.text_size);
     if (this.font) p.textFont(this.font);
-    p.textAlign(p.LEFT); // 可依需求改 CENTER
+    p.textAlign(this.textAlign); // 可依需求改 CENTER
     p.stroke(this.strokeColor);
     p.strokeWeight(this.strokeWeight);
     p.fill(this.fillColor);

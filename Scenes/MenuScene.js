@@ -5,7 +5,7 @@ import { SceneEnum } from "../SceneEnum.js";
 import { SceneManager } from "../SceneManager.js";
 
 import { PoseTracker } from "../Objects/APIs/PoseTracker.js";
-import { Kite } from "../Objects/DrawableObj/Game/Kite.js";
+import { Shuriken } from "../Objects/DrawableObj/Game/Shuriken.js";
 import { WIDTH } from "../G.js"
 import { HEIGHT } from "../G.js"
 import { ASSETS } from "../G.js"
@@ -51,6 +51,8 @@ export class MenuScene extends IScene{
 
         let height = HEIGHT / 7 * 6
 
+   
+
         this.bg = new DrawableImage(this.p);
         this.bg.setImage(ASSETS.bg_menu);
         this.bg.position.set(0, 0);
@@ -62,8 +64,9 @@ export class MenuScene extends IScene{
         this.btn_easy.setImage(ASSETS.btn_easy); // ✅ 可替換為去背手裡劍圖
         this.btn_easy.width = 200;
         this.btn_easy.height = 133;
-        this.btn_easy.position.set(290, 646.5);; // 中心
-        this.btn_easy.setAnchor(0.5, 0.5); // 繞中心轉
+        this.btn_easy.position.set(290, 646.5); // 中心
+        this.btn_easy.setAnchor(0.5, 0.5); // 設定錨點為中心
+        
         this.add(this.btn_easy);
 
         // ✅ Rule 按鈕圖片
@@ -78,7 +81,7 @@ export class MenuScene extends IScene{
         this.btn_open.position.set(430, 550);
         this.btn_open.width = 170;
         this.btn_open.height = 170;
-        this.btn_open.visible = false;
+        this.btn_open.isActive = false;
         this.add(this.btn_open);
         
         // ✅ Hard 按鈕圖片
@@ -94,24 +97,34 @@ export class MenuScene extends IScene{
         this.btn_skeleton.position.set(600, 500);
         this.btn_skeleton.width = 200;
         this.btn_skeleton.height = 200;
-        this.btn_skeleton.visible = false;
+        this.btn_skeleton.isActive = false;
         this.add(this.btn_skeleton);
         
+
+        
+        for (let i = 0; i < 10; i++) {
+            const kite = new Shuriken(this.p);
+            kite.position.x = this.p.random(0, WIDTH);
+            kite.position.y = this.p.random(0, HEIGHT);
+            this.add(kite);
+        }
+
         this.pose_image = new DrawableImage(this.p);
         this.pose_image.position.x = WIDTH - WIDTH/4 - 20;
         this.pose_image.position.y = HEIGHT - HEIGHT/4 - 20;
         this.pose_image.width = WIDTH/4;
         this.pose_image.height = HEIGHT/4;
-        for (let i = 0; i < 10; i++) {
-            const kite = new Kite(this.p);
-            this.add(kite);
-        }
+
         MenuScene.instance.add(this.pose_image);
+
+
 
     }
 
     _on_update(_delta) {
-        super._on_update(_delta);
+        this.btn_hard.position.set(630, 580 + Math.sin(this.p.millis() * 0.001) * 10);
+        this.btn_rule.position.set(450, 580 + Math.sin(this.p.millis() * 0.001) * 10);
+        this.btn_easy.position.set(290, 646.5+ Math.sin(this.p.millis() * 0.001) * 10);
         const tracker = PoseTracker.get_instance(this.p);
         this.pose_handler.update(_delta);
         const isLeftUp   = tracker.get_is_left_hand_up();
@@ -131,10 +144,10 @@ export class MenuScene extends IScene{
         this.prevLeftUp  = isLeftUp;
         this.prevRightUp = isRightUp;
         this.prevBothUp  = bothUp;
-        this.btn_rule.visible = !bothUp;
-        this.btn_open.visible =  bothUp;
-        this.btn_hard.visible = !isRightUp;
-        this.btn_skeleton.visible =  isRightUp;
+        this.btn_rule.isActive = !bothUp;
+        this.btn_open.isActive =  bothUp;
+        this.btn_hard.isActive = !isRightUp;
+        this.btn_skeleton.isActive =  isRightUp;
         if (this.pose_handler.is_doub_counter_reached()) {
             this.func_to_tuto();
         }

@@ -10,7 +10,6 @@ export class DrawableImage extends IObject{
         this.src = null; // Placeholder for image resource
         this.anchor = { x: 0, y: 0 }; // (0,0)=左上；(0.5,0.5)=中心
         this.rotation = 0
-        this.visible  = true;
     }
 
     setImage(img) {
@@ -30,30 +29,13 @@ export class DrawableImage extends IObject{
     }
 
     
-   draw() {
-        if (this.visible === false) return;
+   _on_draw() {
         if (!this.src) {
             console.warn("⚠️ 沒有圖可以畫");
             return;
-        }
-
-        this.p.push();
-        this.p.translate(this.position.x, this.position.y); // 移動到指定位置
-
-        if (this.rotation) {
-            this.p.rotate(this.rotation); // 如果有設 rotation 就旋轉
-        }
-
-        const offsetX = -this.anchor.x * this.width;
-        const offsetY = -this.anchor.y * this.height;
-
-        if (typeof this.src === "object" && this.src instanceof HTMLVideoElement) {
-            this.p.image(this.src, offsetX, offsetY, this.width, this.height);
-        } else {
-            this.p.image(this.src, offsetX, offsetY, this.width, this.height);
-        }
-
-        this.p.pop();
+        }   
+   
+        this.p.image(this.src, -this.anchor.x * this.width , -this.anchor.y * this.height, this.width, this.height);
     }
 
     update_collider(){

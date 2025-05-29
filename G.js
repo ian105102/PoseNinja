@@ -15,5 +15,6 @@ export const ASSETS = {
     sfx_openChest:null,
     sfx_return:null,
     font_huninn  :null,
+    maingame_background : null,
 
 };

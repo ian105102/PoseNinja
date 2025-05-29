@@ -1,5 +1,4 @@
 import { SceneEnum } from "./SceneEnum.js"
-import { AssetScene } from "./Scenes/AssetScene.js";
 import { MenuScene } from "./Scenes/MenuScene.js";
 import { TutorialScene } from "./Scenes/TutoriaScene.js";
 import { EasyGameScene } from "./Scenes/EasyGameScene.js";
@@ -19,15 +18,13 @@ export class SceneManager {
 
 
       this.scenes = new Map();
-      this.scenes.set(SceneEnum.ASSET, new AssetScene(p)); 
-      this.scenes.get(SceneEnum.ASSET).preload();
       this.scenes.set(SceneEnum.MENU, new MenuScene(p));
       this.scenes.set(SceneEnum.TUTORIAL, new TutorialScene(p));
       this.scenes.set(SceneEnum.EASY_GAME, new EasyGameScene(p, easyKeypointDataList));
       this.scenes.set(SceneEnum.HARD_GAME, new HardGameScene(p, hardKeypointDataList));
       this.scenes.set(SceneEnum.SCORE, new ScoreScene(p));
       
-      this.currentScene = this.scenes.get(SceneEnum.ASSET);
+      this.currentScene = this.scenes.get(SceneEnum.MENU);
       SceneManager.instance = this
 
     }
