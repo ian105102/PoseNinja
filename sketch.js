@@ -53,7 +53,8 @@ const main_sketch = (p)=>{
         ASSETS.maingame_background = p.loadImage("assets/maingamebackground.png");
         ASSETS.HpIcon = p.loadImage("assets/hp.png");
         ASSETS.font = p.loadFont("assets/ttf/Bakudai-Medium.ttf");
-
+        ASSETS.score = p.loadImage("assets/Score.png");
+        ASSETS.home = p.loadImage("assets/HOME.png");
         scene_manager = new SceneManager(p, easyKeypointDataList, hardKeypointDataList)
         pose_tracker = new PoseTracker(p)
         p.is_left_pressing = false
