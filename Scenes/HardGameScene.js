@@ -13,6 +13,7 @@ import { PoseDrawer } from "../Objects/DrawableObj/Game/PoseDrawer.js"
 import { BoardList  } from "../Objects/Board/BoardList.js";
 import { GeneratorManager, WaitTimer } from "../Objects/Utils/GeneratorManager.js"
 import { DrawableImage } from "../Objects/DrawableObj/Game/DrawableImage.js"
+import { HpBar } from "../Objects/DrawableObj/Game/HpBar.js"
 
 
 
@@ -87,11 +88,22 @@ export class HardGameScene extends IScene{
         this.ScoreText.textAlign = "center";
         instance.add(this.ScoreText)
 
+
+
+
         this.CountdownText = new DrawableText(this.p,"",100)
         this.CountdownText.position.x = WIDTH / 2 
         this.CountdownText.position.y = HEIGHT / 2
         this.CountdownText.textAlign = "center";
         instance.add(this.CountdownText)
+
+
+        this.hpbar = new HpBar(this.p);
+        this.hpbar.position.x = WIDTH /2 -70;
+        this.hpbar.position.y = HEIGHT /8 -40;
+       
+        this.hpbar.currentHp = this.life;
+        instance.add(this.hpbar);
     }
 
     *GameFlow(){
@@ -151,6 +163,7 @@ export class HardGameScene extends IScene{
         }else{
             console.log("判斷失敗");
             this.life--;
+            this.hpbar.currentHp = this.life;
             if(this.life <= 0){
                 SceneManager.instance.changeScene(SceneEnum.SCORE);
             }
@@ -195,7 +208,7 @@ export class HardGameScene extends IScene{
 
     CreateBackground(bg) {
         const layers = 15;
-        const startColor = bg.color("rgb(255, 189, 161)");
+        const startColor = bg.color("rgb(255, 175, 175)");
         const endColor = bg.color("rgb(255, 255, 255)");
         const layerHeight = HEIGHT / layers;
 

@@ -51,6 +51,8 @@ const main_sketch = (p)=>{
         ASSETS.sfx_return     = p.loadSound("assets/return.MP3");
         ASSETS.font_huninn =    p.loadFont("assets/jf-openhuninn-2.1.ttf");
         ASSETS.maingame_background = p.loadImage("assets/maingamebackground.png");
+        ASSETS.HpIcon = p.loadImage("assets/hp.png");
+        ASSETS.font = p.loadFont("assets/ttf/Bakudai-Medium.ttf");
 
         scene_manager = new SceneManager(p, easyKeypointDataList, hardKeypointDataList)
         pose_tracker = new PoseTracker(p)

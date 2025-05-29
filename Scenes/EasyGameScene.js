@@ -83,7 +83,7 @@ export class EasyGameScene extends IScene{
         this.generatorManager = new GeneratorManager();
         this.timer = new WaitTimer();
 
-        this.TimeText = new DrawableText(this.p,"時間: 0")
+        this.TimeText = new DrawableText(this.p,"時間: 0/120秒" ,30)
         this.TimeText.position.x = 100  
         this.TimeText.position.y = HEIGHT / 8
         this.TimeText.textAlign = "center";
