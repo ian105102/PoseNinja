@@ -20,7 +20,7 @@ export class BoardList extends IObject{
         this.keypointDataList = keypointDataList;
         this.isLoop = false;
 
-
+        this.boardAddSpeed = 0;
         this.generatorManaer = new GeneratorManager();
         this.boardGenerator = new BoardGenerator(this.p, this.keypointDataList);
     }
@@ -33,8 +33,7 @@ export class BoardList extends IObject{
         this.easyBoardList = [];
         this.generatorManaer.clearAll();
     }
-    add_board(onLine , onEnd){
-
+    add_board(onLine , onEnd , type = BoardGenerator.Type.POSE , speed = 10) {
         let board;
         if (this.reusableStack.length > 0) {
             board = this.reusableStack.pop(); 
@@ -44,7 +43,8 @@ export class BoardList extends IObject{
             board = new Board(this.p); 
             this.easyBoardList.push(board); 
         }
-        this.boardGenerator.generateBoard();
+        
+        this.GeneratorBoard(type);
         this.generatorManaer.start(
             board.startRise( 
                 this.boardGenerator.getBoard(),
@@ -63,7 +63,29 @@ export class BoardList extends IObject{
                 }
             )
         );    
+        board.addSpeed = this.boardAddSpeed;
+        board.speed = speed;
         return board;
+    }
+    GeneratorBoard(type) {
+        switch(type){
+            case BoardGenerator.Type.POSE:
+                return this.boardGenerator.generatePoseBoard();
+            case BoardGenerator.Type.LIFE:
+                return this.boardGenerator.generateLeftArea();
+            case BoardGenerator.Type.RIGHT:
+                return this.boardGenerator.generateRightArea();
+            case BoardGenerator.Type.TOP:
+                return this.boardGenerator.generateTopArea();
+            default:
+                throw new Error("Unknown board type");
+        }
+    }
+    setSpeed(speed){
+        for (let i = this.easyBoardList.length - 1; i >= 0; i--) {
+            this.easyBoardList[i].addSpeed = speed;
+            this.boardAddSpeed = speed;
+        }
     }
     
 

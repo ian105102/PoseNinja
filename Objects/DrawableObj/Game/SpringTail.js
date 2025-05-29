@@ -24,7 +24,6 @@ export class SpringTail  {
 
 
   _on_update(target) {
-    // 第一節跟隨目標（例如滑鼠或物件）
     this.segments[0] = target;
 
     for (let i = 1; i < this.segmentCount; i++) {
@@ -32,17 +31,11 @@ export class SpringTail  {
       let current = this.segments[i];
       let velocity = this.velocities[i];
 
-      // 彈簧力
       let force = p5.Vector.sub(prev, current);
       let distance = force.mag();
       let stretch = distance - this.segmentLength;
       force.setMag(stretch * this.springStrength);
-
-
-      
       force.add(this.gravity);
-
-      // 更新速度與位置
       velocity.add(force);
       velocity.mult(this.damping);
       this.segments[i].add(velocity);

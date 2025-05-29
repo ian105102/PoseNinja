@@ -19,5 +19,8 @@ export const ASSETS = {
     sfx_return:null,
     sfx_BHOME :null,
     font_huninn  :null,
+    maingame_background : null,
+    HpIcon: null,
+    font: null,
 
 };

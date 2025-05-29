@@ -2,7 +2,7 @@
 
 
 import { SceneManager } from "./SceneManager.js"
-import { WIDTH } from "./G.js"
+import { ASSETS, WIDTH } from "./G.js"
 import { HEIGHT } from "./G.js"
 import { PoseTracker } from "./Objects/APIs/PoseTracker.js"
 
@@ -34,7 +34,27 @@ const main_sketch = (p)=>{
           
             hardKeypointDataList.push(data);
         }
-      
+
+
+        ASSETS.btn_easy =       p.loadImage("assets/easy.png");
+        ASSETS.btn_hard =       p.loadImage("assets/hard.png");
+        ASSETS.btn_rule =       p.loadImage("assets/rule.png");
+        ASSETS.bg_menu =        p.loadImage("assets/Menu.png");
+        ASSETS.btn_open =       p.loadImage("assets/open.png");
+        ASSETS.btn_skeleton =   p.loadImage("assets/Skeleton.png");
+        ASSETS.how          =   p.loadImage("assets/how.png");
+        ASSETS.ninja        =   p.loadImage("assets/ninja.png");
+        ASSETS.back        =    p.loadImage("assets/Back.png");
+        ASSETS.sfx_knife      = p.loadSound("assets/Knife.MP3");
+        ASSETS.sfx_openChest  = p.loadSound("assets/open_chest.MP3");
+        ASSETS.sfx_shuriken   = p.loadSound("assets/shuriken.MP3");
+        ASSETS.sfx_return     = p.loadSound("assets/return.MP3");
+        ASSETS.font_huninn =    p.loadFont("assets/jf-openhuninn-2.1.ttf");
+        ASSETS.maingame_background = p.loadImage("assets/maingamebackground.png");
+        ASSETS.HpIcon = p.loadImage("assets/hp.png");
+        ASSETS.font = p.loadFont("assets/ttf/Bakudai-Medium.ttf");
+        ASSETS.score = p.loadImage("assets/Score.png");
+        ASSETS.home = p.loadImage("assets/HOME.png");
         scene_manager = new SceneManager(p, easyKeypointDataList, hardKeypointDataList)
         pose_tracker = new PoseTracker(p)
         p.is_left_pressing = false

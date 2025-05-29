@@ -14,7 +14,7 @@ export class IScene{
         for(let i = 0 ; i < this.objects.length ; i ++){
             this.objects[i].draw()
         }
-        this.TestDraw();
+    
     }
   
     update(delta) {
@@ -56,7 +56,5 @@ export class IScene{
 
 
     }
-    TestDraw(){
 
-    }
 }

@@ -12,7 +12,6 @@ import { Square } from "./Square.js";
 export class Board extends IObject {
     constructor(p) {
         super(p);
-
         this.width = 72;
         this.height = 48;
         this.riseStep = 47.9;
@@ -21,15 +20,17 @@ export class Board extends IObject {
         this.scale.y = 1;
 
         this.speed = 10;
+        this.addSpeed =0;
 
         this.position.x = WIDTH / 2;
         this.position.y = 192 + 48;
 
         this.waitTimer = new WaitTimer();
 
-        this.color = this.p.color(242, 133, 0 ,60);
-        this.WallCell = [];
+        this.color = this.p.color(" rgba(0, 177, 242, 0.86)");
+        this.WallCells = [];
         this.squares = [];
+        this.PassCells = [];
         // 建立板子遮擋邏輯
         // this.Boards = [];
         // this.cols = 60;
@@ -59,17 +60,21 @@ export class Board extends IObject {
 
 
         this.move = false;
-        this.color = this.p.color(242, 133, 0,60);
+        this.color = this.p.color(" rgba(0, 177, 242, 0.65)");
         this.riseStep = 48;
 
         this.Boards = boards;
 
-        this.WallCell = [];
+
+        this.WallCells = [];
+        this.PassCells = [];
         this.squares = [];
         for (let i = 0; i < this.cols; i++) {
             for (let j = 0; j < this.rows; j++) {
                 if(this.Boards[i][j].type == 0){
-                    this.WallCell.push(this.Boards[i][j]);
+                    this.WallCells.push(this.Boards[i][j]);
+                }else{
+                    this.PassCells.push(this.Boards[i][j]);
                 }
             }
         }
@@ -92,9 +97,9 @@ export class Board extends IObject {
 
     changeColor(poseCorrectWrong) {
         if (poseCorrectWrong) {
-            this.color = this.p.color(42, 157, 143, 60);
+            this.color = this.p.color(42, 157, 143, 80);
         } else {
-            this.color = this.p.color(255, 0, 0, 60);
+            this.color = this.p.color(255, 0, 0, 80);
         }
         this.drawToCanvas(this.color);
     }
@@ -122,7 +127,7 @@ export class Board extends IObject {
 
     _on_update(delta) {
         if (this.move) {
-            this.position.y = this.position.y + (this.speed * delta *this.scale.y);
+            this.position.y = this.position.y + ((this.speed +this.addSpeed)* delta *this.scale.y);
             this.scale.x = (this.position.y - 192 - 48) * 0.025 + 1;
             this.scale.y = (this.position.y - 192 - 48) * 0.025 + 1;
         }
@@ -264,7 +269,7 @@ export class Board extends IObject {
     }
 
     getWallCell() {
-        return this.WallCell;
+        return this.WallCells;
     }
 
 
@@ -288,51 +293,92 @@ export class Board extends IObject {
         OnEnd(this);
     
     }
-    JudgePose(FullSkeleton) {
-        const wallCells = this.getWallCell();
-        const landmarks = FullSkeleton;
-        if (!landmarks || landmarks.length === 0) return;
+    GetPosePoint(FullSkeleton) {
+        if (!FullSkeleton || FullSkeleton.length === 0) return 0;
+        console.log("GetPosePoint", this.PassCells);
+  
+        const { x: boxWidth, y: boxHeight } = this.getBoardWorldSize();
+        const offsetX = 115.2, offsetY = 105.6;
+        const areaWidth = 849.6, areaHeight = 566.4;
 
-        const boxSize = this.getBoardWorldSize();
-        const boxWidth = boxSize.x;
-        const boxHeight = boxSize.y;
+        const toWorldPos = (lm) => ({
+            x: offsetX + (1 - lm.x) * areaWidth,
+            y: offsetY + lm.y * areaHeight
+        });
 
-        // === 限制區域 ===
-        const offsetX = 115.2;
-        const offsetY = 105.6;
-        const areaWidth = 849.6;
-        const areaHeight = 566.4;
+        const lines = this.createSkeletonLines(FullSkeleton, toWorldPos);
 
-        for (const board of wallCells) {
-            const nose = landmarks[0];
-            const leftShoulder = landmarks[11];
-            const rightShoulder = landmarks[12];
-            if (nose && leftShoulder && rightShoulder) {
-                const headX = offsetX + (1 - nose.x) * areaWidth;
-                const headY = offsetY + nose.y * areaHeight;
-                const neckX = offsetX + (1 - (leftShoulder.x + rightShoulder.x) / 2) * areaWidth;
-                const neckY = offsetY + ((leftShoulder.y + rightShoulder.y) / 2) * areaHeight;
-
-                const boxPosition = this.tileToWorld(board.x, board.y);
-                if (this.p.collideLineRect(headX, headY, neckX, neckY, boxPosition.x, boxPosition.y, boxWidth, boxHeight)) {
-                    return true;
-                }
+        let touchedCount = 0;
+        for (const cell of this.PassCells) {
+            const boxPos = this.tileToWorld(cell.x, cell.y);
+            if (this.checkCollision(lines, boxPos, boxWidth, boxHeight)) {
+                touchedCount++;
             }
+        }
 
-            for (const [start, end] of PoseDrawer.connections) {
-                const a = landmarks[start];
-                const b = landmarks[end];
-                if (!a || !b) continue;
+        const total = this.PassCells.length;
+        return {
+            touched: touchedCount,
+            notTouched: total - touchedCount,
+            ratio: total > 0 ? touchedCount / total : 0
+        };
+    }
 
-                const x1 = offsetX + (1 - a.x) * areaWidth;
-                const y1 = offsetY + a.y * areaHeight;
-                const x2 = offsetX + (1 - b.x) * areaWidth;
-                const y2 = offsetY + b.y * areaHeight;
+    JudgePose(FullSkeleton) {
+        if (!FullSkeleton || FullSkeleton.length === 0) return false;
 
-                const boxPosition = this.tileToWorld(board.x, board.y);
-                if (this.p.collideLineRect(x1, y1, x2, y2, boxPosition.x, boxPosition.y, boxWidth, boxHeight)) {
-                    return true;
-                }
+        const { x: boxWidth, y: boxHeight } = this.getBoardWorldSize();
+        const offsetX = 115.2, offsetY = 105.6;
+        const areaWidth = 849.6, areaHeight = 566.4;
+
+        const toWorldPos = (lm) => ({
+            x: offsetX + (1 - lm.x) * areaWidth,
+            y: offsetY + lm.y * areaHeight
+        });
+
+        const lines = this.createSkeletonLines(FullSkeleton, toWorldPos);
+
+        for (const board of this.getWallCell()) {
+            const boxPos =  this.tileToWorld(board.x, board.y);
+            if (this.checkCollision(lines, boxPos, boxWidth, boxHeight)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    createSkeletonLines(FullSkeleton, toWorldPos) {
+        const lines = [];
+
+        const nose = FullSkeleton[0];
+        const leftShoulder = FullSkeleton[11];
+        const rightShoulder = FullSkeleton[12];
+        if (nose && leftShoulder && rightShoulder) {
+            const head = toWorldPos(nose);
+            const neck = toWorldPos({
+                x: (leftShoulder.x + rightShoulder.x) / 2,
+                y: (leftShoulder.y + rightShoulder.y) / 2
+            });
+            lines.push({ p1: head, p2: neck });
+        }
+
+        for (const [start, end] of PoseDrawer.connections) {
+            const a = FullSkeleton[start];
+            const b = FullSkeleton[end];
+            if (!a || !b) continue;
+            lines.push({ p1: toWorldPos(a), p2: toWorldPos(b) });
+        }
+
+        return lines;
+    }
+
+    checkCollision(lines, boxPos, boxWidth, boxHeight) {
+        for (const { p1, p2 } of lines) {
+            if (this.p.collideLineRect(
+                p1.x, p1.y, p2.x, p2.y,
+                boxPos.x, boxPos.y, boxWidth, boxHeight
+            )) {
+                return true;
             }
         }
         return false;

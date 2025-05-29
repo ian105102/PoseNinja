@@ -6,7 +6,6 @@ import { PoseTracker } from "../Objects/APIs/PoseTracker.js";
 import { WIDTH } from "../G.js"
 import { HEIGHT } from "../G.js"
 import { ASSETS } from "../G.js"
-import { RectButton } from "../Objects/DrawableObj/Button/RectButton.js";
 import { DrawableText } from "../Objects/DrawableObj/Text/DrawableText.js";
 import { DrawableImage } from "../Objects/DrawableObj/Game/DrawableImage.js";
 import { PoseHandler } from './../Objects/APIs/PoseHandler.js';
@@ -84,8 +83,7 @@ export class TutorialScene extends IScene{
         this.pose_image.position.x = WIDTH/3 + 70;
         this.pose_image.position.y = HEIGHT - HEIGHT/5 -20;
         this.pose_image.width = WIDTH/4;
-        this.pose_image.height = HEIGHT/5;
-        //this.pose_image.visible = false;
+        this.pose_image.height = HEIGHT/4;
         TutorialScene.instance.add(this.pose_image)
         this.func_to_menu = ()=>{
             SceneManager.instance.changeScene(SceneEnum.MENU)

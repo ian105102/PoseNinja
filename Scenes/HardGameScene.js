@@ -13,6 +13,7 @@ import { PoseDrawer } from "../Objects/DrawableObj/Game/PoseDrawer.js"
 import { BoardList  } from "../Objects/Board/BoardList.js";
 import { GeneratorManager, WaitTimer } from "../Objects/Utils/GeneratorManager.js"
 import { DrawableImage } from "../Objects/DrawableObj/Game/DrawableImage.js"
+import { HpBar } from "../Objects/DrawableObj/Game/HpBar.js"
 
 
 
@@ -38,24 +39,25 @@ export class HardGameScene extends IScene{
             SceneManager.instance.changeScene(SceneEnum.SCORE)
         }
 
-
         let instance = HardGameScene.instance
 
+        this.time = 0;
+        this.life = 3;
+        this.Score = 0;
 
         this.judgePoseState = new Map();
         this.generatorManager = new GeneratorManager();
         this.timer = new WaitTimer();
 
-
-        let go_score_button = new RectButton(this.p,300,100,func_to_scor)
-        go_score_button.position.x = 800
-        go_score_button.position.y = 600
-        instance.add(go_score_button)
+        // let go_score_button = new RectButton(this.p,300,100,func_to_scor)
+        // go_score_button.position.x = 800
+        // go_score_button.position.y = 600
+        // instance.add(go_score_button)
         
-        let text = new DrawableText(this.p,"困難遊戲介面",50)
-        text.position.x = WIDTH / 2
-        text.position.y = HEIGHT / 8
-        instance.add(text)
+        // let text = new DrawableText(this.p,"困難遊戲介面",50)
+        // text.position.x = WIDTH / 2
+        // text.position.y = HEIGHT / 8
+        // instance.add(text)
 
         this.Background = new DrawableImage(this.p);
         this.Background.width = WIDTH;
@@ -64,38 +66,87 @@ export class HardGameScene extends IScene{
         this.Background.src = this.CreateBackground(this.bg) ;
         instance.add(this.Background);
 
-
         this.boardList = new BoardList(this.p, this.keypointDataList);
         instance.add(this.boardList);
-
         this.poseTracker = PoseTracker.get_instance(this.p);
         this.poseDrawer =new PoseDrawer(this.p); 
         this.poseDrawer.posePoint = this.poseTracker.getFullSkeleton();
-    
         this.poseDrawer.position.x =0;
         this.poseDrawer.position.y = 0;
         instance.add(this.poseDrawer);
 
+
+        this.TimeText = new DrawableText(this.p,"時間: 0秒" ,30)
+        this.TimeText.position.x = 100  
+        this.TimeText.position.y = HEIGHT / 8
+        this.TimeText.textAlign = "center";
+        instance.add(this.TimeText)
+
+        this.ScoreText = new DrawableText(this.p,"分數: 0",30)
+        this.ScoreText.position.x = WIDTH -140
+        this.ScoreText.position.y = HEIGHT / 8
+        this.ScoreText.textAlign = "center";
+        instance.add(this.ScoreText)
+
+
+
+
+        this.CountdownText = new DrawableText(this.p,"",100)
+        this.CountdownText.position.x = WIDTH / 2 
+        this.CountdownText.position.y = HEIGHT / 2
+        this.CountdownText.textAlign = "center";
+        instance.add(this.CountdownText)
+
+
+        this.hpbar = new HpBar(this.p);
+        this.hpbar.position.x = WIDTH /2 -70;
+        this.hpbar.position.y = HEIGHT /8 -40;
+       
+        this.hpbar.currentHp = this.life;
+        instance.add(this.hpbar);
     }
 
     *GameFlow(){
+        this.CountdownText.isActive = true;
         for(let i =0; i < 3; i++){
             console.log(3-i);
+            this.CountdownText.text = (3-i).toString();
+            
             yield  *this.timer.delay(1000);
         }
+        this.CountdownText.text = "開始!!!";
+        yield  *this.timer.delay(1000);
+        this.CountdownText.isActive = false;
+        this.generatorManager.start(this.TimerCount());
+
         while (true) {
             console.log("生成板子");
+            if(Math.floor(Math.random() * 3) === 0){
+                yield  *this.generatorManager.start(this.BoxState(Math.floor(Math.random() * 2)+2));
+            }
+      
             let board = this.boardList.add_board(this.JudgePose.bind(this) , this.boardEnd.bind(this));
             this.judgePoseState.set(board, false); 
-            yield  *this.timer.delay(3000); 
+            yield  *this.timer.delay(4000 - Math.min(this.time*5 ,1000 )); 
         }
         
+    }
+    *BoxState(round){
+        yield *this.timer.delay(2000);
+        for(let i = 0; i < round; i++){
+            let round = Math.floor(Math.random() * 3) + 1; // 隨機生成1到3之間的整數
+            let board = this.boardList.add_board(this.JudgePose.bind(this) , this.boardEnd.bind(this) ,round ,17); 
+            this.judgePoseState.set(board, false); 
+            yield  *this.timer.delay(2000 - Math.min(this.time*1 ,500 )); // 每個板子間隔時間隨機減少
+        }
+
     }
     *TimerCount() {
         while (true) {
             this.time++;
-  
-            yield *this.timer.delay(1000); // 每秒更新一次
+            this.boardList.setSpeed(this.time/100);
+            this.TimeText.text = "時間: " + this.time+"秒";
+            yield *this.timer.delay(1000); 
         }
     }
 
@@ -107,20 +158,28 @@ export class HardGameScene extends IScene{
         }
         console.log(this.judgePoseState);
         if(this.judgePoseState.get(board)){
-            console.log("判斷成功");
+            this.Score++;
+            this.ScoreText.text = "分數: " + this.Score;
         }else{
             console.log("判斷失敗");
+            this.life--;
+            this.hpbar.currentHp = this.life;
+            if(this.life <= 0){
+                SceneManager.instance.changeScene(SceneEnum.SCORE);
+            }
         }
         this.judgePoseState.delete(board);
     }
 
     JudgePose(board) {
 
+        const landmarks = this.poseTracker.getFullSkeleton();
+        if(!PoseTracker.checkHeadAndWristsVisible(landmarks))return;  
         if( !this.judgePoseState.has(board) || this.judgePoseState.get(board) === true){
             board.changeColor(true);  // 命中
             return;
         }
-        const landmarks = this.poseTracker.getFullSkeleton();
+
         if(!board.JudgePose(landmarks)){
             this.judgePoseState.set(board, true);
             return ;
@@ -128,10 +187,7 @@ export class HardGameScene extends IScene{
     }
     _on_update(delta){
         this.p.stroke(255, 0, 0, 20);
-        for(let i = 0; i <= 15; i++){
-            this.p.line(0, i*(HEIGHT/15), WIDTH, i*(HEIGHT/15));      // (起始x, 起始y, 終點x, 終點y)
-            this.p.line(i*(WIDTH/15), 0, i*(WIDTH/15), HEIGHT);      // (起始x, 起始y, 終點x, 終點y)
-        }
+
         this.poseDrawer.posePoint = this.poseTracker.getFullSkeleton();
         this.boardList.update(delta);
         this.generatorManager.update(delta);
@@ -139,7 +195,10 @@ export class HardGameScene extends IScene{
 
     _on_enter(){
         this.generatorManager.start(this.GameFlow());
-        this.generatorManager.start(this.TimerCount());
+  
+        this.time = 0;
+        this.life = 3;
+        this.Score = 0;
     }
     _on_exit(){
         this.generatorManager.clearAll();
@@ -147,36 +206,89 @@ export class HardGameScene extends IScene{
         this.boardList.clear();
     }
 
-    CreateBackground(bg){
-        bg.noStroke();
-        bg.fill(189, 224, 254);
-        bg.quad((WIDTH/2)-36, 192+48, (WIDTH/2)+36, 192+48, 921.6, 624, 158.4, 624); //(x1, y1, x2, y2, x3, y3, x4, y4);
-        
-        bg.noStroke(0);
-        bg.fill(69, 123, 157);
-        bg.quad(921.6, 624, 158.4, 624, 72, 720, 1008, 720); //(x1, y1, x2, y2, x3, y3, x4, 
+    CreateBackground(bg) {
+        const layers = 15;
+        const startColor = bg.color("rgb(255, 175, 175)");
+        const endColor = bg.color("rgb(255, 255, 255)");
+        const layerHeight = HEIGHT / layers;
+
+        for (let i = 0; i < layers; i++) {
+            let t = i / (layers - 1);
+            let interColor = bg.lerpColor(startColor, endColor, t);
+            bg.noStroke();
+            bg.fill(interColor);
+            bg.rect(0, i * layerHeight, WIDTH, layerHeight);
+        }
+
+        bg.strokeWeight(3);
         bg.stroke(0);
-        bg.fill(205, 180, 219);
-        bg.quad((WIDTH/2)-36, 192+48, (WIDTH/2)-36, 192+48, 0, HEIGHT, 72, HEIGHT);            // 左邊緣(x1, y1, x2, y2, x3, y3, x4, y4);
-        bg.quad((WIDTH/2)+36, 192+48, (WIDTH/2)+36, 192+48, WIDTH, HEIGHT, WIDTH-72, HEIGHT);  // 右邊緣(x1, y1, x2, y2, x3, y3, x4, y4);
-        
-        bg.stroke(0, 0, 0, 50);
-        bg.line(115.2, 672, 964.8, 672);                  // (起始x, 起始y, 終點x, 終點y)
 
-        /* 
-        Line1: (x1, y1) = (504, 240), (x2, y2) = (72, 720)
-        Line2: (x1, y1) = (576, 240), (x2, y2) = (1008, 720)
+        bg.noStroke();
+        bg.fill("rgb(255, 248, 216)");
+        bg.quad((WIDTH / 2) - 36, 240, (WIDTH / 2) + 36, 240, 921.6, 624, 158.4, 624);
 
-        y=624, 與Line1的交點為(158.4,624), 與Line2的交點為(921.6,624)
-        y=672, 與Line1的交點為(115.2,672), 與Line2的交點為(964.8,672)
-        
-        */
-        // test line
-        bg.stroke(0, 0, 0, 20);
-        bg.line(115.2, 0, 115.2, HEIGHT);
-        bg.line(158.4, 0, 158.4, HEIGHT);
-        bg.line(921.6, 0, 921.6, HEIGHT);
-        bg.line(964.8, 0, 964.8, HEIGHT);
+        this.drawWarningStripe(bg, 921.6, 624, 158.4, 624, 72, 720, 1008, 720);
+
+        bg.strokeWeight(3);
+        bg.stroke(0);
+        bg.fill("rgb(255, 212, 137)");
+        bg.quad((WIDTH / 2) - 36, 240, (WIDTH / 2) - 36, 240, 0, HEIGHT, 72, HEIGHT); // 左邊
+        bg.quad((WIDTH / 2) + 36, 240, (WIDTH / 2) + 36, 240, WIDTH, HEIGHT, WIDTH - 72, HEIGHT); // 右邊
+
+        bg.line((WIDTH / 2) - 36, 240, (WIDTH / 2) + 36, 240);
+        this.drawRoadArrows(bg, 3);
         return bg;
+    }
+
+    drawRoadArrows(bg, count = 3) {
+        const startX = WIDTH / 2;
+        const startY = 240;
+        const endY = HEIGHT - 100;
+
+        for (let i = 1; i <= count; i++) {
+            const t = i / (count + 1);
+            const y = startY + this.lerp(startY, endY, t) * (i / 7) + 100;
+            const scale = this.lerp(0.3, 3.0, t);
+            const baseSize = 40;
+            const halfBase = baseSize * scale * 1.5;
+            const height = baseSize * scale;
+
+            bg.noStroke();
+            bg.fill("rgba(255, 210, 113, 0.8)");
+            bg.triangle(
+                startX, y + height * scale / 7,
+                startX - halfBase, y - height * 0.5,
+                startX + halfBase, y - height * 0.5
+            );
+        }
+    }
+
+    drawWarningStripe(bg, x1, y1, x2, y2, x3, y3, x4, y4, stripeWidth = 50) {
+        const topStart = { x: x1, y: y1 }, topEnd = { x: x2, y: y2 };
+        const bottomStart = { x: x3, y: y3 }, bottomEnd = { x: x4, y: y4 };
+        const steps = Math.ceil(Math.hypot(topEnd.x - topStart.x, topEnd.y - topStart.y) / stripeWidth);
+
+        for (let i = 0; i < steps; i++) {
+            const t1 = i / steps, t2 = (i + 1) / steps;
+            const topA = this.lerpPoint(topStart, topEnd, t1);
+            const topB = this.lerpPoint(topStart, topEnd, t2);
+            const bottomA = this.lerpPoint(bottomEnd, bottomStart, t1);
+            const bottomB = this.lerpPoint(bottomEnd, bottomStart, t2);
+
+            bg.fill(i % 2 === 0 ? "rgb(255, 224, 0)" : "rgb(0, 0, 0)");
+            bg.noStroke();
+            bg.quad(topA.x, topA.y, topB.x, topB.y, bottomB.x, bottomB.y, bottomA.x, bottomA.y);
+        }
+    }
+
+    lerp(a, b, t) {
+        return a + (b - a) * t;
+    }
+
+    lerpPoint(p1, p2, t) {
+        return {
+            x: p1.x + (p2.x - p1.x) * t,
+            y: p1.y + (p2.y - p1.y) * t
+        };
     }
 }
