@@ -5,6 +5,7 @@ import { SceneEnum } from "../SceneEnum.js"
 
 import { ASSETS, WIDTH } from "../G.js"
 import { HEIGHT } from "../G.js"
+import { ASSETS } from "../G.js"
 import { DrawableText } from "../Objects/DrawableObj/Text/DrawableText.js"
 
 import { DrawableImage } from "../Objects/DrawableObj/Game/DrawableImage.js"
@@ -41,6 +42,7 @@ export class EasyGameScene extends IScene{
         
 
         let instance = EasyGameScene.instance
+
 
         this.time = 0;
         this.passCount = 0;

@@ -41,6 +41,7 @@ export class MenuScene extends IScene{
         this.func_to_tuto =()=>{
             SceneManager.instance.changeScene(SceneEnum.TUTORIAL)
         }
+        
     } 
     
 
@@ -116,6 +117,10 @@ export class MenuScene extends IScene{
         this.pose_image.height = HEIGHT/4;
 
         MenuScene.instance.add(this.pose_image);
+        // let go_score_button = new RectButton(this.p,300,100,func_to_scor)
+        // go_score_button.position.x = 800
+        // go_score_button.position.y = 600
+        // MenuScene.instance.add(go_score_button)
 
 
 
