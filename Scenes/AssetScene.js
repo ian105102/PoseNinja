@@ -18,10 +18,14 @@ export class AssetScene extends IScene {
         ASSETS.how          = this.p.loadImage("assets/how.png");
         ASSETS.ninja        = this.p.loadImage("assets/ninja.png");
         ASSETS.back        = this.p.loadImage("assets/Back.png");
+        ASSETS.score        = this.p.loadImage("assets/Score.png");
+        ASSETS.home        = this.p.loadImage("assets/HOME.png");
+        ASSETS.game        = this.p.loadImage("assets/game_bg.png");
         ASSETS.sfx_knife      = this.p.loadSound("assets/Knife.MP3");
         ASSETS.sfx_openChest  = this.p.loadSound("assets/open_chest.MP3");
         ASSETS.sfx_shuriken   = this.p.loadSound("assets/shuriken.MP3");
         ASSETS.sfx_return     = this.p.loadSound("assets/return.MP3");
+        ASSETS.sfx_BHOME     = this.p.loadSound("assets/B_HOME.MP3");
         ASSETS.font_huninn = this.p.loadFont("assets/jf-openhuninn-2.1.ttf");
         }
 

@@ -85,6 +85,7 @@ export class TutorialScene extends IScene{
         this.pose_image.position.y = HEIGHT - HEIGHT/5 -20;
         this.pose_image.width = WIDTH/4;
         this.pose_image.height = HEIGHT/5;
+        //this.pose_image.visible = false;
         TutorialScene.instance.add(this.pose_image)
         this.func_to_menu = ()=>{
             SceneManager.instance.changeScene(SceneEnum.MENU)
