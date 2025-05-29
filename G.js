@@ -10,10 +10,14 @@ export const ASSETS = {
     how         : null,
     ninja         :null,
     back          :null,
+    home          :null,
+    score         :null,
+    game          :null,
     sfx_knife:    null,
     sfx_shuriken: null,
     sfx_openChest:null,
     sfx_return:null,
+    sfx_BHOME :null,
     font_huninn  :null,
 
 };

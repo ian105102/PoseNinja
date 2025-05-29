@@ -5,6 +5,7 @@ import { SceneEnum } from "../SceneEnum.js"
 
 import { WIDTH } from "../G.js"
 import { HEIGHT } from "../G.js"
+import { ASSETS } from "../G.js"
 import { DrawableText } from "../Objects/DrawableObj/Text/DrawableText.js"
 
 import { DrawableImage } from "../Objects/DrawableObj/Game/DrawableImage.js"
@@ -45,6 +46,12 @@ export class EasyGameScene extends IScene{
 
         let instance = EasyGameScene.instance
 
+        // this.game = new DrawableImage(this.p);
+        // this.game.setImage(ASSETS.game);
+        // this.game.position.set(0, 0);
+        // this.game.width = WIDTH;
+        // this.game.height = HEIGHT;
+        // this.add(this.game);
 
         this.time = 0;
 
