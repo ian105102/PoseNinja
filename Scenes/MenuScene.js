@@ -134,6 +134,21 @@ export class MenuScene extends IScene{
         this.t3.position.set(WIDTH / 2 + 100, 590);
         this.add(this.t3);
         MenuScene.instance.add(this.pose_image);
+
+
+        this.title = new DrawableText(this.p, "姿勢忍者", 150);
+        this.title.position.set(WIDTH /2, 150);
+        this.title.strokeWeight = 10;
+        this.title.textAlign = this.p.CENTER;
+        
+        this.add(this.title);
+        this.title2 = new DrawableText(this.p, "PoseNinja", 50);    
+        this.title2.position.set(WIDTH /2, 220);
+        this.title.strokeWeight = 10;
+        this.title2.textAlign = this.p.CENTER;
+        
+        this.add(this.title2);
+
         // let func_to_scor =()=> {
         //     SceneManager.instance.changeScene(SceneEnum.SCORE)
         // }
@@ -147,7 +162,7 @@ export class MenuScene extends IScene{
     }
 
     _on_update(_delta) {
-        this.btn_hard.position.set(630, 580 + Math.sin(this.p.millis() * 0.001) * 10);
+        this.btn_hard.position.set(630, 600 + Math.sin(this.p.millis() * 0.001) * 10);
         this.btn_rule.position.set(WIDTH / 2 - 63, 580 + Math.sin(this.p.millis() * 0.001) * 10);
         this.btn_easy.position.set(WIDTH / 3 - 50, 646.5+ Math.sin(this.p.millis() * 0.001) * 10);
         const tracker = PoseTracker.get_instance(this.p);

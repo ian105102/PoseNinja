@@ -51,11 +51,15 @@ const main_sketch = (p)=>{
         ASSETS.sfx_return     = p.loadSound("assets/return.MP3");
         ASSETS.sfx_BHOME      = p.loadSound("assets/B_HOME.MP3"); 
         ASSETS.font_huninn =    p.loadFont("assets/jf-openhuninn-2.1.ttf");
+        ASSETS.game_bg = p.loadImage("assets/game_bg.png");
         ASSETS.maingame_background = p.loadImage("assets/maingamebackground.png");
         ASSETS.HpIcon = p.loadImage("assets/hp.png");
         ASSETS.font = p.loadFont("assets/ttf/Bakudai-Medium.ttf");
         ASSETS.score = p.loadImage("assets/Score.png");
         ASSETS.home = p.loadImage("assets/HOME.png");
+        let canvas = p.createCanvas(WIDTH, HEIGHT);
+        canvas.class("GameCanvas");
+        
         scene_manager = new SceneManager(p, easyKeypointDataList, hardKeypointDataList)
         pose_tracker = new PoseTracker(p)
         p.is_left_pressing = false
@@ -64,7 +68,7 @@ const main_sketch = (p)=>{
         p.is_first_left_pressing = false
         p.is_first_right_pressing = false
     
-        p.createCanvas(WIDTH, HEIGHT);
+
 
 
         

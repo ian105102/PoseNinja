@@ -3,7 +3,7 @@ import { RectButton } from "../Objects/DrawableObj/Button/RectButton.js"
 import { SceneManager } from "../SceneManager.js"
 import { SceneEnum } from "../SceneEnum.js"
 
-import { WIDTH } from "../G.js"
+import { ASSETS, WIDTH } from "../G.js"
 import { HEIGHT } from "../G.js"
 import { DrawableText } from "../Objects/DrawableObj/Text/DrawableText.js"
 import { PoseHandler } from "../Objects/APIs/PoseHandler.js"
@@ -14,6 +14,7 @@ import { BoardList  } from "../Objects/Board/BoardList.js";
 import { GeneratorManager, WaitTimer } from "../Objects/Utils/GeneratorManager.js"
 import { DrawableImage } from "../Objects/DrawableObj/Game/DrawableImage.js"
 import { HpBar } from "../Objects/DrawableObj/Game/HpBar.js"
+
 
 
 
@@ -58,6 +59,15 @@ export class HardGameScene extends IScene{
         // text.position.x = WIDTH / 2
         // text.position.y = HEIGHT / 8
         // instance.add(text)
+
+
+        this.gameCanva = document.querySelector(".GameCanvas");
+        console.log(this.gameCanva);
+        this.Backgroundimage = new DrawableImage(this.p);
+        this.Backgroundimage.width = WIDTH;
+        this.Backgroundimage.height = HEIGHT;
+        this.Backgroundimage.src = ASSETS.game_bg; 
+        instance.add(this.Backgroundimage);
 
         this.Background = new DrawableImage(this.p);
         this.Background.width = WIDTH;
@@ -162,6 +172,7 @@ export class HardGameScene extends IScene{
             this.ScoreText.text = "分數: " + this.Score;
         }else{
             console.log("判斷失敗");
+            this.generatorManager.start(this.ScreenShake());
             this.life--;
             this.hpbar.currentHp = this.life;
             if(this.life <= 0){
@@ -198,7 +209,7 @@ export class HardGameScene extends IScene{
   
         this.time = 0;
         this.life = 3;
-        this.Score = 0;
+        this.Score =5;
     }
     _on_exit(){
         this.generatorManager.clearAll();
@@ -208,17 +219,17 @@ export class HardGameScene extends IScene{
 
     CreateBackground(bg) {
         const layers = 15;
-        const startColor = bg.color("rgb(255, 175, 175)");
-        const endColor = bg.color("rgb(255, 255, 255)");
-        const layerHeight = HEIGHT / layers;
+        // const startColor = bg.color("rgb(255, 175, 175)");
+        // const endColor = bg.color("rgb(255, 255, 255)");
+        // const layerHeight = HEIGHT / layers;
 
-        for (let i = 0; i < layers; i++) {
-            let t = i / (layers - 1);
-            let interColor = bg.lerpColor(startColor, endColor, t);
-            bg.noStroke();
-            bg.fill(interColor);
-            bg.rect(0, i * layerHeight, WIDTH, layerHeight);
-        }
+        // for (let i = 0; i < layers; i++) {
+        //     let t = i / (layers - 1);
+        //     let interColor = bg.lerpColor(startColor, endColor, t);
+        //     bg.noStroke();
+        //     bg.fill(interColor);
+        //     bg.rect(0, i * layerHeight, WIDTH, layerHeight);
+        // }
 
         bg.strokeWeight(3);
         bg.stroke(0);
@@ -231,7 +242,7 @@ export class HardGameScene extends IScene{
 
         bg.strokeWeight(3);
         bg.stroke(0);
-        bg.fill("rgb(255, 212, 137)");
+        bg.fill("rgb(189, 116, 116)");
         bg.quad((WIDTH / 2) - 36, 240, (WIDTH / 2) - 36, 240, 0, HEIGHT, 72, HEIGHT); // 左邊
         bg.quad((WIDTH / 2) + 36, 240, (WIDTH / 2) + 36, 240, WIDTH, HEIGHT, WIDTH - 72, HEIGHT); // 右邊
 
@@ -239,7 +250,11 @@ export class HardGameScene extends IScene{
         this.drawRoadArrows(bg, 3);
         return bg;
     }
-
+    *ScreenShake(){
+        this.gameCanva.classList.add('shake');
+        yield* this.timer.delay(40);
+        this.gameCanva.classList.remove('shake');
+    }
     drawRoadArrows(bg, count = 3) {
         const startX = WIDTH / 2;
         const startY = 240;

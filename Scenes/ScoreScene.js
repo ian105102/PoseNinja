@@ -12,6 +12,9 @@ import { DrawableImage } from "../Objects/DrawableObj/Game/DrawableImage.js";
 import { PoseHandler } from "../Objects/APIs/PoseHandler.js";
 import { PoseTracker } from "../Objects/APIs/PoseTracker.js";
 import { Fireworks } from "../Objects/DrawableObj/Game/Fireworks.js";
+import { MenuScene } from "./MenuScene.js";
+import { EasyGameScene } from "./EasyGameScene.js";
+import { HardGameScene } from "./HardGameScene.js";
 
 
 export class ScoreScene extends IScene{
@@ -34,6 +37,7 @@ export class ScoreScene extends IScene{
     
     //call after constructor
     init(){
+        let instance = ScoreScene.instance;
 
 
         this.bg = new DrawableImage(this.p);
@@ -41,14 +45,14 @@ export class ScoreScene extends IScene{
         this.bg.position.set(0, 0);
         this.bg.width = WIDTH;
         this.bg.height = HEIGHT;
-        this.add(this.bg);
+        instance.add(this.bg);
         
         this.home = new DrawableImage(this.p);
         this.home.setImage(ASSETS.home);
         this.home.position.set(400, 480);
         this.home.width = 250;
         this.home.height = 250;
-        this.add(this.home);
+        instance.add(this.home);
         
         // let go_menu_button = new RectButton(this.p,200,70,func)
 
@@ -64,7 +68,7 @@ export class ScoreScene extends IScene{
 
         this.t1 = new DrawableText(this.p, "右手舉起", 25);
         this.t1.position.set(WIDTH /2 - 70 , 715);
-        this.add(this.t1);
+        instance.add(this.t1);
 
         this.pose_handler = new PoseHandler(this.p)
         this.pose_image = new DrawableImage(this.p);
@@ -78,10 +82,29 @@ export class ScoreScene extends IScene{
             SceneManager.instance.changeScene(SceneEnum.MENU)
         }
         this.fireworks = new Fireworks(this.p, this);
-        this.add(this.fireworks);
+        instance.add(this.fireworks);
+
+
+        this.ScoreText = new DrawableText(this.p,"",30)
+        this.ScoreText.position.x = WIDTH /2
+        this.ScoreText.position.y = HEIGHT /2
+        this.ScoreText.textAlign = "center";
+        instance.add(this.ScoreText)
+
+
 
     }
-
+    _on_enter(){
+        
+        if(MenuScene.instance.gameType){
+            console.log("困難模式結算畫面")
+            
+            console.log(EasyGameScene.instance.allCount , EasyGameScene.instance.passCount);
+            this.ScoreText.text = "恭喜完成簡單模式:\n " + "通過率: " + (EasyGameScene.instance.allCount !== 0 ? (EasyGameScene.instance.passCount / EasyGameScene.instance.allCount * 100).toFixed(2) : "0.00") + "%";
+        }else{
+            this.ScoreText.text = "恭喜完成困難模式:\n " + "分數為: " + HardGameScene.instance.Score;
+        }
+    }
      _on_update(_delta){
         // super.update(_delta);
         this.pose_handler.update(_delta)
