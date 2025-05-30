@@ -169,9 +169,11 @@ export class HardGameScene extends IScene{
         }
         console.log(this.judgePoseState);
         if(this.judgePoseState.get(board)){
+            ASSETS.pass.play();
             this.Score++;
             this.ScoreText.text = "分數: " + this.Score;
         }else{
+            ASSETS.NotPass.play();
             console.log("判斷失敗");
             this.generatorManager.start(this.ScreenShake());
             this.life--;
