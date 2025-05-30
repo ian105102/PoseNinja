@@ -96,12 +96,12 @@ export class ScoreScene extends IScene{
     }
     _on_enter(){
         
-        if(MenuScene.instance.gameType){
-            console.log("困難模式結算畫面")
+        if(MenuScene.instance.gameType ==1){
+            
             
             console.log(EasyGameScene.instance.allCount , EasyGameScene.instance.passCount);
             this.ScoreText.text = "恭喜完成簡單模式:\n " + "通過率: " + (EasyGameScene.instance.allCount !== 0 ? (EasyGameScene.instance.passCount / EasyGameScene.instance.allCount * 100).toFixed(2) : "0.00") + "%";
-        }else{
+        }else if(MenuScene.instance.gameType ==2){
             this.ScoreText.text = "恭喜完成困難模式:\n " + "分數為: " + HardGameScene.instance.Score;
         }
     }
