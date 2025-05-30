@@ -49,10 +49,11 @@ export class EasyGameScene extends IScene{
 
         this.poseScore = 0;
 
+        this.gameCanva = document.querySelector(".GameCanvas");
         this.Backgroundimage = new DrawableImage(this.p);
         this.Backgroundimage.width = WIDTH;
         this.Backgroundimage.height = HEIGHT;
-        this.Backgroundimage.src = ASSETS.maingame_background ;
+        this.Backgroundimage.src = ASSETS.game_bg; ;
         instance.add(this.Backgroundimage);
         
 
@@ -85,7 +86,7 @@ export class EasyGameScene extends IScene{
         this.timer = new WaitTimer();
 
         this.TimeText = new DrawableText(this.p,"時間: 0/120秒" ,30)
-        this.TimeText.position.x = 100  
+        this.TimeText.position.x = 150  
         this.TimeText.position.y = HEIGHT / 8
         this.TimeText.textAlign = "center";
         instance.add(this.TimeText)
@@ -151,6 +152,7 @@ export class EasyGameScene extends IScene{
             this.passCount++;
         }else{
             console.log("判斷失敗");
+            this.generatorManager.start(this.ScreenShake());
         }
         this.judgePoseState.delete(board);
     }
@@ -177,21 +179,25 @@ export class EasyGameScene extends IScene{
         this.boardList.update(delta);
         this.generatorManager.update(delta);
     }
-    
+    *ScreenShake(){
+        this.gameCanva.classList.add('shake');
+        yield* this.timer.delay(40);
+        this.gameCanva.classList.remove('shake');
+    }
     CreateBackground(bg) {
-        const layers = 15;
-        const startColor = bg.color("rgb(201, 235, 255)"); // 最上面顏色（淺藍）
-        const endColor = bg.color("rgb(255, 255, 255)");   // 底部顏色（深藍）
+        // const layers = 15;
+        // const startColor = bg.color("rgb(201, 235, 255)"); // 最上面顏色（淺藍）
+        // const endColor = bg.color("rgb(255, 255, 255)");   // 底部顏色（深藍）
 
-        const layerHeight = HEIGHT / layers;
+        // const layerHeight = HEIGHT / layers;
 
-        for (let i = 0; i < layers; i++) {
-            let t = i / (layers - 1);
-            let interColor = bg.lerpColor(startColor, endColor, t);
-            bg.noStroke();
-            bg.fill(interColor);
-            bg.rect(0, i * layerHeight, WIDTH, layerHeight);
-        }
+        // for (let i = 0; i < layers; i++) {
+        //     let t = i / (layers - 1);
+        //     let interColor = bg.lerpColor(startColor, endColor, t);
+        //     bg.noStroke();
+        //     bg.fill(interColor);
+        //     bg.rect(0, i * layerHeight, WIDTH, layerHeight);
+        // }
 
         bg.strokeWeight(3);
         bg.stroke(0);
@@ -204,7 +210,7 @@ export class EasyGameScene extends IScene{
 
         bg.strokeWeight(3);
         bg.stroke(0);
-        bg.fill("rgb(255, 212, 137)");
+        bg.fill("rgb(116, 189, 158)");
         bg.quad((WIDTH / 2) - 36, 240, (WIDTH / 2) - 36, 240, 0, HEIGHT, 72, HEIGHT); // 左邊
         bg.quad((WIDTH / 2) + 36, 240, (WIDTH / 2) + 36, 240, WIDTH, HEIGHT, WIDTH - 72, HEIGHT); // 右邊
 

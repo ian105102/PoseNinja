@@ -22,5 +22,6 @@ export const ASSETS = {
     maingame_background : null,
     HpIcon: null,
     font: null,
+    game_bg: null,
 
 };
