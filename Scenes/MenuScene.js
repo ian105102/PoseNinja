@@ -103,7 +103,7 @@ export class MenuScene extends IScene{
     
         this.btn_skeleton = new DrawableImage(this.p);
         this.btn_skeleton.setImage(ASSETS.btn_skeleton);
-        this.btn_skeleton.position.set(600, 500);
+        this.btn_skeleton.position.set(600, 540);
         this.btn_skeleton.width = 200;
         this.btn_skeleton.height = 200;
         this.btn_skeleton.isActive = false;
