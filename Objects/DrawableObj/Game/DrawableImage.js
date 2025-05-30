@@ -10,6 +10,7 @@ export class DrawableImage extends IObject{
         this.src = null; // Placeholder for image resource
         this.anchor = { x: 0, y: 0 }; // (0,0)=左上；(0.5,0.5)=中心
         this.rotation = 0
+        this.visible  = true;
     }
 
     setImage(img) {
@@ -30,13 +31,16 @@ export class DrawableImage extends IObject{
 
     
    _on_draw() {
+        if (!this.visible) return; // <== 這行很重要！
+
         if (!this.src) {
             console.warn("⚠️ 沒有圖可以畫");
             return;
         }   
-   
+
         this.p.image(this.src, -this.anchor.x * this.width , -this.anchor.y * this.height, this.width, this.height);
     }
+
 
     update_collider(){
         

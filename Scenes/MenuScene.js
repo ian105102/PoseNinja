@@ -79,7 +79,7 @@ export class MenuScene extends IScene{
         this.add(this.btn_rule);
         this.btn_open = new DrawableImage(this.p);
         this.btn_open.setImage(ASSETS.btn_open);
-        this.btn_open.position.set(430, 550);
+        this.btn_open.position.set(WIDTH / 2 - 65, 550);
         this.btn_open.width = 170;
         this.btn_open.height = 170;
         this.btn_open.isActive = false;
@@ -116,7 +116,23 @@ export class MenuScene extends IScene{
         this.pose_image.width = WIDTH/4;
         this.pose_image.height = HEIGHT/4;
 
+        this.t1 = new DrawableText(this.p, "左手舉起", 30);
+        this.t1.position.set(WIDTH / 3 - 110, 590);
+        this.add(this.t1);
+
+        // 簡單模式說明
+        this.t2 = new DrawableText(this.p, "雙手舉起", 30);
+        this.t2.position.set(WIDTH / 2 - 50, 590);
+        this.add(this.t2);
+
+        // 困難模式說明
+        this.t3 = new DrawableText(this.p, "右手舉起", 30);
+        this.t3.position.set(WIDTH / 2 + 100, 590);
+        this.add(this.t3);
         MenuScene.instance.add(this.pose_image);
+        // let func_to_scor =()=> {
+        //     SceneManager.instance.changeScene(SceneEnum.SCORE)
+        // }
         // let go_score_button = new RectButton(this.p,300,100,func_to_scor)
         // go_score_button.position.x = 800
         // go_score_button.position.y = 600
@@ -128,8 +144,8 @@ export class MenuScene extends IScene{
 
     _on_update(_delta) {
         this.btn_hard.position.set(630, 580 + Math.sin(this.p.millis() * 0.001) * 10);
-        this.btn_rule.position.set(450, 580 + Math.sin(this.p.millis() * 0.001) * 10);
-        this.btn_easy.position.set(290, 646.5+ Math.sin(this.p.millis() * 0.001) * 10);
+        this.btn_rule.position.set(WIDTH / 2 - 63, 580 + Math.sin(this.p.millis() * 0.001) * 10);
+        this.btn_easy.position.set(WIDTH / 3 - 50, 646.5+ Math.sin(this.p.millis() * 0.001) * 10);
         const tracker = PoseTracker.get_instance(this.p);
         this.pose_handler.update(_delta);
         const isLeftUp   = tracker.get_is_left_hand_up();
