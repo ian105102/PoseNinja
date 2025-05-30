@@ -23,7 +23,9 @@ export const ASSETS = {
     HpIcon: null,
     font: null,
     game_bg: null,
-
+    pass:null,
+    NotPass:null,
+    ace:null,
     bgm_EazyMode :null,
     bgm_HardMode : null,
     bgm_menu : null,
