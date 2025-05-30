@@ -14,6 +14,7 @@ import { BoardList  } from "../Objects/Board/BoardList.js";
 import { GeneratorManager, WaitTimer } from "../Objects/Utils/GeneratorManager.js"
 import { DrawableImage } from "../Objects/DrawableObj/Game/DrawableImage.js"
 import { HpBar } from "../Objects/DrawableObj/Game/HpBar.js"
+import { BgmManager } from "../AudioController/BgmManager.js"
 
 
 
@@ -39,7 +40,7 @@ export class HardGameScene extends IScene{
         let func_to_scor =()=>{
             SceneManager.instance.changeScene(SceneEnum.SCORE)
         }
-
+        this.bgmManager = BgmManager.get_instance(this.p);
         let instance = HardGameScene.instance
 
         this.time = 0;
@@ -206,7 +207,7 @@ export class HardGameScene extends IScene{
 
     _on_enter(){
         this.generatorManager.start(this.GameFlow());
-  
+        this.bgmManager.playLoop(ASSETS.bgm_HardMode);
         this.time = 0;
         this.life = 3;
         this.Score =5;

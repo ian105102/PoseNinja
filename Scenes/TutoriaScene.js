@@ -9,6 +9,7 @@ import { ASSETS } from "../G.js"
 import { DrawableText } from "../Objects/DrawableObj/Text/DrawableText.js";
 import { DrawableImage } from "../Objects/DrawableObj/Game/DrawableImage.js";
 import { PoseHandler } from './../Objects/APIs/PoseHandler.js';
+import { BgmManager } from "../AudioController/BgmManager.js";
 export class TutorialScene extends IScene{
     static instance = null
 
@@ -32,6 +33,7 @@ export class TutorialScene extends IScene{
         let func =()=>{
             SceneManager.instance.changeScene(SceneEnum.MENU)
         }
+        this.bgmManager = BgmManager.get_instance(this.p);
         //背景
         this.bg = new DrawableImage(this.p);
         this.bg.setImage(ASSETS.how);
@@ -91,6 +93,7 @@ export class TutorialScene extends IScene{
     }
 
     _on_update(_delta){
+        this.bgmManager.playLoop(ASSETS.bgm_menu);
         this.pose_handler.update(_delta)
         this.pose_image.src = PoseTracker.get_instance(this.p).getVideo();
         const tracker = PoseTracker.get_instance(this.p);

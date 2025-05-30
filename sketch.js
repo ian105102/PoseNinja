@@ -5,6 +5,7 @@ import { SceneManager } from "./SceneManager.js"
 import { ASSETS, WIDTH } from "./G.js"
 import { HEIGHT } from "./G.js"
 import { PoseTracker } from "./Objects/APIs/PoseTracker.js"
+import { BgmManager } from "./AudioController/BgmManager.js"
 
 const main_sketch = (p)=>{
     /// <reference types="p5" />
@@ -14,10 +15,13 @@ const main_sketch = (p)=>{
     let hardKeypointDataList = [];
     p.preload = () =>{
 
+
+        
     }
 
     let scene_manager;
     let pose_tracker;
+    let bgm_manager;
 
     let delta =0;
     let last_time = 0;
@@ -25,17 +29,15 @@ const main_sketch = (p)=>{
 
 
     p.setup = () =>{
+        console.log("setup")
         for (let i = 1; i <= 8; i++) {
             let data = p.loadJSON(`Data/easyPoseJson/pose_snapshot-${i}.json`);
             easyKeypointDataList.push(data);
         }
         for (let i = 1; i <= 19; i++) {
             let data = p.loadJSON(`Data/hardPoseJson/pose_snapshot-${i}.json`);
-          
             hardKeypointDataList.push(data);
         }
-
-
         ASSETS.btn_easy =       p.loadImage("assets/easy.png");
         ASSETS.btn_hard =       p.loadImage("assets/hard.png");
         ASSETS.btn_rule =       p.loadImage("assets/rule.png");
@@ -57,11 +59,19 @@ const main_sketch = (p)=>{
         ASSETS.font = p.loadFont("assets/ttf/Bakudai-Medium.ttf");
         ASSETS.score = p.loadImage("assets/Score.png");
         ASSETS.home = p.loadImage("assets/HOME.png");
+
+
+        ASSETS.bgm_EazyMode = p.loadSound("assets/Bgm/EazyMode.mp3");
+        ASSETS.bgm_HardMode = p.loadSound("assets/Bgm/HardMode.mp3");
+        ASSETS.bgm_menu = p.loadSound("assets/Bgm/MainMenu.mp3");
+        ASSETS.bgm_score_view = p.loadSound("assets/Bgm/ScoreView.mp3");
+
         let canvas = p.createCanvas(WIDTH, HEIGHT);
         canvas.class("GameCanvas");
-        
-        scene_manager = new SceneManager(p, easyKeypointDataList, hardKeypointDataList)
         pose_tracker = new PoseTracker(p)
+        bgm_manager = new BgmManager(p)
+        scene_manager = new SceneManager(p, easyKeypointDataList, hardKeypointDataList)
+
         p.is_left_pressing = false
         p.is_right_pressing = false
 
@@ -77,7 +87,7 @@ const main_sketch = (p)=>{
     }
     
     p.draw = () =>{
-        
+        bgm_manager.update();
         let current_time = p.millis();
         delta = (current_time - last_time) / 1000; 
         delta = Math.min(delta, maxDelta);

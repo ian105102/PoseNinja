@@ -12,6 +12,9 @@ import { ASSETS } from "../G.js"
 import { DrawableText } from "../Objects/DrawableObj/Text/DrawableText.js";
 import { PoseHandler } from "../Objects/APIs/PoseHandler.js";
 import { DrawableImage } from "../Objects/DrawableObj/Game/DrawableImage.js";
+import { SustainCounter } from "../Objects/Counters/SustainCounter.js";
+import {BgmManager} from "../AudioController/BgmManager.js"
+
 export class MenuScene extends IScene{
     static instance = null
 
@@ -56,6 +59,7 @@ export class MenuScene extends IScene{
 
         let height = HEIGHT / 7 * 6
 
+        this.bgmManager = BgmManager.get_instance(this.p);
         
 
         this.bg = new DrawableImage(this.p);
@@ -198,6 +202,7 @@ export class MenuScene extends IScene{
         this.pose_image.src = tracker.getVideo();
         this.pose_handler.update(_delta / 1000);
         if (this.rotation_active) {
+            
             this.btn_easy.rotation += 0.3;
             if (this.pose_handler.is_left_counter_reached()) {
                 this.rotation_active = false;
@@ -215,12 +220,15 @@ export class MenuScene extends IScene{
         if (this.pose_handler.is_righ_counter_reached()) {
             this.func_to_hard();
         }
-       
+        
     }
 
 
     _on_enter(){
-
+        this.bgmManager.playLoop(ASSETS.bgm_menu);
+        console.log("MenuScene Entered");
+        
+        
     }
 
     _on_exit(){

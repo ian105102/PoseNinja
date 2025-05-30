@@ -15,6 +15,7 @@ import { Fireworks } from "../Objects/DrawableObj/Game/Fireworks.js";
 import { MenuScene } from "./MenuScene.js";
 import { EasyGameScene } from "./EasyGameScene.js";
 import { HardGameScene } from "./HardGameScene.js";
+import { BgmManager } from "../AudioController/BgmManager.js";
 
 
 export class ScoreScene extends IScene{
@@ -38,7 +39,8 @@ export class ScoreScene extends IScene{
     //call after constructor
     init(){
         let instance = ScoreScene.instance;
-
+        this.bgmManager = BgmManager.get_instance(this.p);
+        
 
         this.bg = new DrawableImage(this.p);
         this.bg.setImage(ASSETS.score);
@@ -95,7 +97,7 @@ export class ScoreScene extends IScene{
 
     }
     _on_enter(){
-        
+        this.bgmManager.playLoop(ASSETS.bgm_score_view);
         if(MenuScene.instance.gameType ==1){
             
             

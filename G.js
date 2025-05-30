@@ -24,4 +24,9 @@ export const ASSETS = {
     font: null,
     game_bg: null,
 
+    bgm_EazyMode :null,
+    bgm_HardMode : null,
+    bgm_menu : null,
+    bgm_score_view :null,
+
 };

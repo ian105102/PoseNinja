@@ -25,6 +25,7 @@ export class SceneManager {
       this.scenes.set(SceneEnum.SCORE, new ScoreScene(p));
       
       this.currentScene = this.scenes.get(SceneEnum.MENU);
+      this.currentScene._on_enter();
       SceneManager.instance = this
 
     }

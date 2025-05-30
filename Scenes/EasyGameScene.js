@@ -12,6 +12,7 @@ import { PoseDrawer } from "../Objects/DrawableObj/Game/PoseDrawer.js"
 import { PoseTracker } from "../Objects/APIs/PoseTracker.js"
 import { GeneratorManager, WaitTimer } from "../Objects/Utils/GeneratorManager.js"
 import { BoardList } from "../Objects/Board/BoardList.js";
+import { BgmManager } from "../AudioController/BgmManager.js"
 
 
 
@@ -41,7 +42,7 @@ export class EasyGameScene extends IScene{
         
 
         let instance = EasyGameScene.instance
-
+        this.bgmManager = BgmManager.get_instance(this.p);
 
         this.time = 0;
         this.passCount = 0;
@@ -272,7 +273,7 @@ export class EasyGameScene extends IScene{
     }
     _on_enter(){
         this.generatorManager.start(this.GameFlow());
-
+        this.bgmManager.playLoop(ASSETS.bgm_EazyMode);
         this.time = 0;
         this.passCount = 0;
         this.allCount = 0;
