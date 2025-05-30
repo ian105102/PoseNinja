@@ -29,12 +29,16 @@ export class MenuScene extends IScene{
         this.pose_handler = new PoseHandler(p)
         this.rotation_active = false;
         this.rotation_timer = 0;
+
+        this.gameType = 1;
         this.func_to_easy =()=>{
             this.rotation_active = false;
+            this.gameType = 1;
             SceneManager.instance.changeScene(SceneEnum.EASY_GAME)
         }
 
         this.func_to_hard =()=>{
+            this.gameType = 2;
             SceneManager.instance.changeScene(SceneEnum.HARD_GAME)
         }
 
@@ -52,7 +56,7 @@ export class MenuScene extends IScene{
 
         let height = HEIGHT / 7 * 6
 
-   
+        
 
         this.bg = new DrawableImage(this.p);
         this.bg.setImage(ASSETS.bg_menu);
