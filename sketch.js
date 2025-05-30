@@ -59,8 +59,9 @@ const main_sketch = (p)=>{
         ASSETS.font = p.loadFont("assets/ttf/Bakudai-Medium.ttf");
         ASSETS.score = p.loadImage("assets/Score.png");
         ASSETS.home = p.loadImage("assets/HOME.png");
-
-
+        ASSETS.pass = p.loadSound("assets/Correct.mp3");
+        ASSETS.NotPass = p.loadSound("assets/Wrong.mp3");
+        ASSETS.ace = p.loadSound("assets/ACE.MP3");
         ASSETS.bgm_EazyMode = p.loadSound("assets/Bgm/EazyMode.mp3");
         ASSETS.bgm_HardMode = p.loadSound("assets/Bgm/HardMode.mp3");
         ASSETS.bgm_menu = p.loadSound("assets/Bgm/MainMenu.mp3");

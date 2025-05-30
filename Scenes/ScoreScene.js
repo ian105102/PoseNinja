@@ -40,8 +40,6 @@ export class ScoreScene extends IScene{
     init(){
         let instance = ScoreScene.instance;
         this.bgmManager = BgmManager.get_instance(this.p);
-        
-
         this.bg = new DrawableImage(this.p);
         this.bg.setImage(ASSETS.score);
         this.bg.position.set(0, 0);
@@ -97,15 +95,20 @@ export class ScoreScene extends IScene{
 
     }
     _on_enter(){
+        
         this.bgmManager.playLoop(ASSETS.bgm_score_view);
-        if(MenuScene.instance.gameType ==1){
-            
-            
+
+        if(MenuScene.instance.gameType ==1){   
             console.log(EasyGameScene.instance.allCount , EasyGameScene.instance.passCount);
             this.ScoreText.text = "恭喜完成簡單模式:\n " + "通過率: " + (EasyGameScene.instance.allCount !== 0 ? (EasyGameScene.instance.passCount / EasyGameScene.instance.allCount * 100).toFixed(2) : "0.00") + "%";
         }else if(MenuScene.instance.gameType ==2){
             this.ScoreText.text = "恭喜完成困難模式:\n " + "分數為: " + HardGameScene.instance.Score;
         }
+        const ace = ASSETS.ace;
+        ace.addCue(ace.duration(), () => {
+            this.bgmManager.playLoop(ASSETS.bgm_score_view);
+        });
+        ace.play();
     }
      _on_update(_delta){
         // super.update(_delta);

@@ -149,9 +149,10 @@ export class EasyGameScene extends IScene{
         }
         if(this.judgePoseState.get(board)){
             console.log("判斷成功");
-           
+            ASSETS.pass.play();
             this.passCount++;
         }else{
+            ASSETS.NotPass.play();
             console.log("判斷失敗");
             this.generatorManager.start(this.ScreenShake());
         }

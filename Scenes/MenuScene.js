@@ -55,7 +55,7 @@ export class MenuScene extends IScene{
     
     //call after constructor
     init(){
-
+        console.log("ASSERACE",ASSETS.ace)
 
         let height = HEIGHT / 7 * 6
 
