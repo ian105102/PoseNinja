@@ -210,7 +210,9 @@ export class HardGameScene extends IScene{
         this.bgmManager.playLoop(ASSETS.bgm_HardMode);
         this.time = 0;
         this.life = 3;
-        this.Score =5;
+        this.Score =0;
+        this.TimeText.text = "時間: " + this.time+"秒";
+        
     }
     _on_exit(){
         this.generatorManager.clearAll();
