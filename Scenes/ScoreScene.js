@@ -11,6 +11,9 @@ import { DrawableText } from "../Objects/DrawableObj/Text/DrawableText.js";
 import { DrawableImage } from "../Objects/DrawableObj/Game/DrawableImage.js";
 import { PoseHandler } from "../Objects/APIs/PoseHandler.js";
 import { PoseTracker } from "../Objects/APIs/PoseTracker.js";
+import { Fireworks } from "../Objects/DrawableObj/Game/Fireworks.js";
+
+
 export class ScoreScene extends IScene{
     static instance = null
 
@@ -42,7 +45,7 @@ export class ScoreScene extends IScene{
         
         this.home = new DrawableImage(this.p);
         this.home.setImage(ASSETS.home);
-        this.home.position.set(400, 500);
+        this.home.position.set(400, 480);
         this.home.width = 250;
         this.home.height = 250;
         this.add(this.home);
@@ -59,6 +62,9 @@ export class ScoreScene extends IScene{
         // text.position.y = HEIGHT / 8
         // ScoreScene.instance.add(text)
 
+        this.t1 = new DrawableText(this.p, "右手舉起", 25);
+        this.t1.position.set(WIDTH /2 - 70 , 715);
+        this.add(this.t1);
 
         this.pose_handler = new PoseHandler(this.p)
         this.pose_image = new DrawableImage(this.p);
@@ -70,10 +76,14 @@ export class ScoreScene extends IScene{
         ScoreScene.instance.add(this.pose_image)        
         this.func_to_Menu = ()=>{
             SceneManager.instance.changeScene(SceneEnum.MENU)
-        } 
+        }
+        this.fireworks = new Fireworks(this.p, this);
+        this.add(this.fireworks);
+
     }
 
      _on_update(_delta){
+        // super.update(_delta);
         this.pose_handler.update(_delta)
         this.pose_image.src = PoseTracker.get_instance(this.p).getVideo();
         const tracker = PoseTracker.get_instance(this.p);
