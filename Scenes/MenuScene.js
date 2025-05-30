@@ -130,13 +130,13 @@ export class MenuScene extends IScene{
         this.t3.position.set(WIDTH / 2 + 100, 590);
         this.add(this.t3);
         MenuScene.instance.add(this.pose_image);
-        let func_to_scor =()=> {
-            SceneManager.instance.changeScene(SceneEnum.SCORE)
-        }
-        let go_score_button = new RectButton(this.p,300,100,func_to_scor)
-        go_score_button.position.x = 800
-        go_score_button.position.y = 600
-        MenuScene.instance.add(go_score_button)
+        // let func_to_scor =()=> {
+        //     SceneManager.instance.changeScene(SceneEnum.SCORE)
+        // }
+        // let go_score_button = new RectButton(this.p,300,100,func_to_scor)
+        // go_score_button.position.x = 800
+        // go_score_button.position.y = 600
+        // MenuScene.instance.add(go_score_button)
 
 
 
