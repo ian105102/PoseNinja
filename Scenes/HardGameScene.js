@@ -214,6 +214,8 @@ export class HardGameScene extends IScene{
         this.life = 3;
         this.Score =0;
         this.TimeText.text = "時間: " + this.time+"秒";
+        this.hpbar.currentHp = this.life;
+
         
     }
     _on_exit(){

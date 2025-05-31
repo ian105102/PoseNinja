@@ -1,5 +1,4 @@
 import { IScene } from "./IScene.js";
-import { RectButton } from "../Objects/DrawableObj/Button/RectButton.js"
 
 import { SceneEnum } from "../SceneEnum.js";
 import { SceneManager } from "../SceneManager.js";
