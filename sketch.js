@@ -30,7 +30,7 @@ const main_sketch = (p)=>{
 
     p.setup = () =>{
         console.log("setup")
-        for (let i = 1; i <= 8; i++) {
+        for (let i = 1; i <= 5; i++) {
             let data = p.loadJSON(`Data/easyPoseJson/pose_snapshot-${i}.json`);
             easyKeypointDataList.push(data);
         }
