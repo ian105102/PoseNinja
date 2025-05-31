@@ -55,6 +55,10 @@ export class TutorialScene extends IScene{
         this.back.width = 380;
         this.back.height = 380;
         this.add(this.back);
+        this.title = new DrawableText(this.p, "遊戲教學", 100);
+        this.title.textAlign = this.p.CENTER;
+        this.title.position.set(WIDTH / 2, HEIGHT / 5);
+        this.add(this.title);
 
         this.t1 = new DrawableText(this.p, "畫面中的忍者會呈現玩家的姿勢", 32);
         this.t1.position.set(WIDTH / 3 -50, 310);
