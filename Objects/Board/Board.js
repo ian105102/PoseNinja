@@ -335,15 +335,20 @@ export class Board extends IObject {
             x: offsetX + (1 - lm.x) * areaWidth,
             y: offsetY + lm.y * areaHeight
         });
-
+        let hitCount = 0;
         const lines = this.createSkeletonLines(FullSkeleton, toWorldPos);
 
         for (const board of this.getWallCell()) {
             const boxPos =  this.tileToWorld(board.x, board.y);
             if (this.checkCollision(lines, boxPos, boxWidth, boxHeight)) {
-                return true;
+                hitCount++;
+                if (hitCount >= 10) {
+                    
+                    return true; 
+                }
             }
         }
+        
         return false;
     }
 
