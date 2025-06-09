@@ -3,6 +3,8 @@
 import { WIDTH } from "../../G.js";
 import { HEIGHT } from "../../G.js";
 import { Cell } from './Cell.js';
+import { GetPoseData } from "../ScreenShot/GetPoseData.js";
+
 /*
     type: 1 = 正常, 0 = 障礙物
     BoardGenerator 負責生成棋盤格子，並隨機產生一塊板
@@ -10,7 +12,8 @@ import { Cell } from './Cell.js';
 
 */
 export class BoardGenerator {
-    constructor(p, keypointDataList) {
+    // constructor(p, keypointDataList) {
+    constructor(p, mode) {
         this.p = p;
         this.cols = 60;
         this.rows = 40;
@@ -22,7 +25,11 @@ export class BoardGenerator {
         this.cellW = this.pgWidth / this.cols;
         this.cellH = this.pgHeight / this.rows;
 
-        this.keypointDataList = keypointDataList;
+        // this.keypointDataList = keypointDataList;
+        this.getData = new GetPoseData(p);
+        this.mode = mode;
+        this.keypointDataList = this.getData.getStoredPose(this.mode);
+        console.log("this.keypointDataList: ", this.keypointDataList)
     
         this.torso = [[11, 12], [23, 24], [11, 23], [12, 24]]
         this.leftHand = [[11, 13], [13, 15]];
@@ -56,13 +63,19 @@ export class BoardGenerator {
                 this.Boards[i][j].type = 0; 
             }
         }
-        this.keypoints = this.keypointDataList[this.p.floor(this.p.random(this.keypointDataList.length))];
-        this.originalPts = Object.values(this.keypoints);
+
+        console.log("this.keypointDataList: ", this.keypointDataList)
+        let keypoints = this.keypointDataList[this.p.floor(this.p.random(this.keypointDataList.length))];
+        console.log("this.keypoints: ", keypoints)
+        this.originalPts = Object.values(keypoints);
 
         if (!Array.isArray(this.originalPts)) {
             console.error("關鍵點資料格式錯誤，請確認 JSON 結構");
             return;
         }
+
+
+        console.log("this.originalPts: ", this.originalPts)
 
         // 映射關鍵點至實際座標
         this.pts = this.originalPts.map(pt => {
@@ -146,6 +159,7 @@ export class BoardGenerator {
         this.drawFor(this.leftSole, 10);
         this.drawFor(this.rightSole, 11);
     }
+    
     generateTestBoard() {
         for (let i = 0; i < this.cols; i++) {
             for (let j = 0; j < this.rows; j++) {

@@ -30,14 +30,14 @@ const main_sketch = (p)=>{
 
     p.setup = () =>{
         console.log("setup")
-        for (let i = 1; i <= 5; i++) {
-            let data = p.loadJSON(`Data/easyPoseJson/pose_snapshot-${i}.json`);
-            easyKeypointDataList.push(data);
-        }
-        for (let i = 1; i <= 19; i++) {
-            let data = p.loadJSON(`Data/hardPoseJson/pose_snapshot-${i}.json`);
-            hardKeypointDataList.push(data);
-        }
+        // for (let i = 1; i <= 5; i++) {
+        //     let data = p.loadJSON(`Data/easyPoseJson/pose_snapshot-${i}.json`);
+        //     easyKeypointDataList.push(data);
+        // }
+        // for (let i = 1; i <= 19; i++) {
+        //     let data = p.loadJSON(`Data/hardPoseJson/pose_snapshot-${i}.json`);
+        //     hardKeypointDataList.push(data);
+        // }
         ASSETS.btn_easy =       p.loadImage("assets/easy.png");
         ASSETS.btn_hard =       p.loadImage("assets/hard.png");
         ASSETS.btn_rule =       p.loadImage("assets/rule.png");
@@ -47,6 +47,8 @@ const main_sketch = (p)=>{
         ASSETS.how          =   p.loadImage("assets/how.png");
         ASSETS.ninja        =   p.loadImage("assets/ninja.png");
         ASSETS.back        =    p.loadImage("assets/Back.png");
+        ASSETS.pose_data_1 =    p.loadImage("assets/poseData1.png");
+        ASSETS.pose_data_2 =    p.loadImage("assets/poseData2.png");
         ASSETS.sfx_knife      = p.loadSound("assets/Knife.MP3");
         ASSETS.sfx_openChest  = p.loadSound("assets/open_chest.MP3");
         ASSETS.sfx_shuriken   = p.loadSound("assets/shuriken.MP3");
@@ -71,7 +73,8 @@ const main_sketch = (p)=>{
         canvas.class("GameCanvas");
         pose_tracker = new PoseTracker(p)
         bgm_manager = new BgmManager(p)
-        scene_manager = new SceneManager(p, easyKeypointDataList, hardKeypointDataList)
+        // scene_manager = new SceneManager(p, easyKeypointDataList, hardKeypointDataList)
+        scene_manager = new SceneManager(p)
 
         p.is_left_pressing = false
         p.is_right_pressing = false
