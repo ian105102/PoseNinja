@@ -10,19 +10,21 @@ import { Board } from "./Board.js";
 
 
 export class BoardList extends IObject{
-    constructor(p, keypointDataList){
+    // constructor(p, keypointDataList){
+    constructor(p, mode){
         super(p);
         this.position.x = 0;
         this.position.y = 0;
         this.easyBoardList = [];
         this.reusableStack = [];
 
-        this.keypointDataList = keypointDataList;
+        // this.keypointDataList = keypointDataList;
         this.isLoop = false;
 
         this.boardAddSpeed = 0;
         this.generatorManaer = new GeneratorManager();
-        this.boardGenerator = new BoardGenerator(this.p, this.keypointDataList);
+        // this.boardGenerator = new BoardGenerator(this.p, this.keypointDataList);
+        this.boardGenerator = new BoardGenerator(this.p, mode);
     }
     clear(){
     

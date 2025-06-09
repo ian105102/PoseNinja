@@ -57,6 +57,7 @@ export class PoseTracker {
     this.is_left_hand_up = false
     this.is_righ_hand_up = false
     this.is_doub_hand_up = false
+    this.is_cross_hand = false
 
     this.PoseImage =this.p.createGraphics(WIDTH, HEIGHT);
 
@@ -67,11 +68,15 @@ export class PoseTracker {
   }
 
   get_is_righ_hand_up(){
-   return this.is_righ_hand_up
+    return this.is_righ_hand_up
   }
 
   get_is_doub_hand_up(){
     return this.is_doub_hand_up
+  }
+  
+  get_is_cross_hand(){
+    return this.is_cross_hand
   }
 
   _init(){
@@ -181,20 +186,26 @@ export class PoseTracker {
 
 
             
+            this.is_cross_hand = false
             this.is_doub_hand_up = false
-            if(this.is_left_hand_up && this.is_righ_hand_up){
+            if(this.is_left_hand_up && this.is_righ_hand_up && righ_hand.x > left_hand.x){
+              console.log("cross hand!")
+              this.is_cross_hand = true
+              this.is_doub_hand_up = false
+              this.is_left_hand_up = false
+              this.is_righ_hand_up = false
+            }
+            else if(this.is_left_hand_up && this.is_righ_hand_up){
               console.log("double hand up!")
               this.is_doub_hand_up = true
               this.is_left_hand_up = false
               this.is_righ_hand_up = false
+              this.is_cross_hand = false
               
             }
-
-            
             else if(this.is_left_hand_up){
               console.log("left hand up!")
             }
-
             else if(this.is_righ_hand_up){
               console.log("right hand up!")
             }
