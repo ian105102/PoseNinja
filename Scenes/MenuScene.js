@@ -17,6 +17,9 @@ import {BgmManager} from "../AudioController/BgmManager.js"
 import { FaceIdentify } from "../Objects/APIs/FaceIdentify.js";
 import { IndexedDBHelper } from "../Objects/APIs/IndexedDBHelper.js";
 
+import { LocalStorageController } from '../Data/LocalStorageController.js';
+import { imageToBase64 }      from '../Data/utils.js';
+
 export class MenuScene extends IScene{
     static instance = null
 
@@ -273,6 +276,17 @@ export class MenuScene extends IScene{
 
 
     _on_enter(){
+
+        // —— 擷取＋存頭像 —— 
+        const headImg = PoseTracker.get_instance(this.p).getHeadPortrait();
+        if (headImg) {
+        const b64 = imageToBase64(headImg);
+        LocalStorageController.savePortrait(b64);
+        console.log('頭像已儲存到 localStorage');
+        } else {
+        console.log('尚未偵測到頭像，請對鏡頭正面再試');
+        }
+
         this.bgmManager.playLoop(ASSETS.bgm_menu);
         console.log("MenuScene Entered");
  

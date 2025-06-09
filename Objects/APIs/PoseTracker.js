@@ -238,5 +238,26 @@ export class PoseTracker {
   static _isPointVisible(pt) {
       return pt.x >= 0 && pt.x <= 1 && pt.y >= 0 && pt.y <= 1;
   }
+  //擷取頭像
+  getHeadPortrait() {
+    const lm = this.getFullSkeleton();
+    if (!lm || lm.length === 0) return null;
+    // 以鼻子 (index 0) 當中心
+    const cx = lm[0].x * WIDTH;
+    const cy = lm[0].y * HEIGHT;
+    const size = 128;
 
+    // 拿到翻轉後含骨架的整張畫面
+    const gfx = this.getVideo();
+
+    // 翻轉後的真實位置
+    const fx = WIDTH - cx;
+    const fy = cy;
+    let sx = fx - size/2, sy = fy - size/2;
+    // 邊界檢查
+    sx = Math.max(0, Math.min(WIDTH - size, sx));
+    sy = Math.max(0, Math.min(HEIGHT - size, sy));
+
+    return gfx.get(sx, sy, size, size);
+  }
 }

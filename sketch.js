@@ -47,6 +47,9 @@ const main_sketch = (p)=>{
         ASSETS.game_bg = p.loadImage("assets/game_bg.png");
         ASSETS.maingame_background = p.loadImage("assets/maingamebackground.png");
         ASSETS.HpIcon = p.loadImage("assets/hp.png");
+        ASSETS.leaderboardScene = p.loadImage("assets/LeaderboardScene.png");
+        ASSETS.sword = p.loadImage("assets/sword.png");
+        ASSETS.leaderboardIcon = p.loadImage("assets/leaderboardIcon.png");
         ASSETS.font = p.loadFont("assets/ttf/Bakudai-Medium.ttf");
         ASSETS.score = p.loadImage("assets/Score.png");
         ASSETS.home = p.loadImage("assets/HOME.png");

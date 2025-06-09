@@ -1,7 +1,7 @@
-import { IScene } from "./IScene.js";
+    import { IScene } from "./IScene.js";
 
-import { SceneEnum } from "../SceneEnum.js";
-import { SceneManager } from "../SceneManager.js";
+    import { SceneEnum } from "../SceneEnum.js";
+    import { SceneManager } from "../SceneManager.js";
 
 import { SCORE_DB_NAME, WIDTH } from "../G.js"
 import { HEIGHT } from "../G.js"
@@ -18,14 +18,102 @@ import { BgmManager } from "../AudioController/BgmManager.js";
 import { FaceIdentify } from "../Objects/APIs/FaceIdentify.js";
 import { IndexedDBHelper } from "../Objects/APIs/IndexedDBHelper.js";
 
+    export class ScoreScene extends IScene{
+        static instance = null
 
-export class ScoreScene extends IScene{
-    static instance = null
+        constructor(p) {
+            if (ScoreScene.instance) {
+                
+                return ScoreScene.instance
+            }
+            super(p);
+            ScoreScene.instance = this;
+            ScoreScene.instance.init()
+            this.pose_handler = new PoseHandler(p);
+            this.prevRightUp  = false;
+            this.prevLeftUp   = false;
+            this.backOffsetY  = 0;
+            this.backOffsetY1  = 0;
+            this.func_to_Menu = () => {
+            SceneManager.instance.changeScene(SceneEnum.MENU);
+            };
+            // 切到排行榜
+            this.func_to_Leaderboard = () => {
+            SceneManager.instance.changeScene(SceneEnum.LEADERBOARD);
+            };
+        } 
+        
 
-    constructor(p) {
-        if (ScoreScene.instance) {
+        
+        //call after constructor
+        init(){
+            let instance = ScoreScene.instance;
+            this.bgmManager = BgmManager.get_instance(this.p);
+            this.bg = new DrawableImage(this.p);
+            this.bg.setImage(ASSETS.score);
+            this.bg.position.set(0, 0);
+            this.bg.width = WIDTH;
+            this.bg.height = HEIGHT;
+            instance.add(this.bg);
             
-            return ScoreScene.instance
+            this.home = new DrawableImage(this.p);
+            this.home.setImage(ASSETS.home);
+            this.home.position.set(485, 500);
+            this.home.width = 250;
+            this.home.height = 250;
+            instance.add(this.home);
+            
+            // let go_menu_button = new RectButton(this.p,200,70,func)
+
+            // go_menu_button.position.x = 540
+            // go_menu_button.position.y = 600
+
+            // ScoreScene.instance.add(go_menu_button)
+
+            // let text = new DrawableText(this.p,"結算畫面",50)
+            // text.position.x = WIDTH / 2
+            // text.position.y = HEIGHT / 8
+            // ScoreScene.instance.add(text)
+
+            this.t1 = new DrawableText(this.p, "右手舉起", 25);
+            this.t1.position.set(WIDTH /2 + 20 , 715);
+            instance.add(this.t1);
+
+
+            this.leaderboardIcon = new DrawableImage(this.p);
+            this.leaderboardIcon.setImage(ASSETS.leaderboardIcon);
+            this.leaderboardIcon.position.set(390, 480);
+            this.leaderboardIcon.width  = 160;
+            this.leaderboardIcon.height = 160;
+            instance.add(this.leaderboardIcon);
+
+            this.t2 = new DrawableText(this.p, "左手舉起", 25);
+            this.t2.position.set(WIDTH /2 - 120 , 715);
+            instance.add(this.t2);
+
+
+            this.pose_image = new DrawableImage(this.p);
+            this.pose_image.position.x = WIDTH/3 + 70;
+            this.pose_image.position.y = HEIGHT - HEIGHT/5 -20;
+            this.pose_image.width = WIDTH/4;
+            this.pose_image.height = HEIGHT/4;
+            this.pose_image.visible = false;
+            ScoreScene.instance.add(this.pose_image)        
+            this.func_to_Menu = ()=>{
+                SceneManager.instance.changeScene(SceneEnum.MENU)
+            }
+            this.fireworks = new Fireworks(this.p, this);
+            instance.add(this.fireworks);
+
+
+            this.ScoreText = new DrawableText(this.p,"",30)
+            this.ScoreText.position.x = WIDTH /2
+            this.ScoreText.position.y = HEIGHT /2
+            this.ScoreText.textAlign = "center";
+            instance.add(this.ScoreText)
+
+
+
         }
         super(p);
         ScoreScene.instance = this;
@@ -108,32 +196,69 @@ export class ScoreScene extends IScene{
         this.registerAllPlayers();//測試用的，之後請刪掉
         this.bgmManager.playLoop(ASSETS.bgm_score_view);
 
-        if(MenuScene.instance.gameType ==1){   
-            console.log(EasyGameScene.instance.allCount , EasyGameScene.instance.passCount);
-            this.ScoreText.text = "恭喜完成簡單模式:\n " + "通過率: " + (EasyGameScene.instance.allCount !== 0 ? (EasyGameScene.instance.passCount / EasyGameScene.instance.allCount * 100).toFixed(2) : "0.00") + "%";
-        }else if(MenuScene.instance.gameType ==2){
-            this.ScoreText.text = "恭喜完成困難模式:\n " + "分數為: " + HardGameScene.instance.Score;
+        // 2. 先讀已存下的頭像
+        const portraitBase64 = LocalStorageController.loadPortrait();
+
+        // 3. 根據模式決定 score 與 mode
+        let score, mode;
+        if (MenuScene.instance.gameType === 1) {
+            mode = "easy";
+            // 計算通過率 (數值)
+            score = EasyGameScene.instance.allCount === 0
+            ? 0
+            : (EasyGameScene.instance.passCount / EasyGameScene.instance.allCount * 100);
+            // 顯示文字（留兩位小數）
+            this.ScoreText.text = 
+            `恭喜完成簡單模式:\n通過率: ${score.toFixed(2)}%`;
+        } else {
+            mode = "hard";
+            score = HardGameScene.instance.Score;
+            this.ScoreText.text =
+            `恭喜完成困難模式:\n分數為: ${score}`;
         }
+
+        // 4. 寫入排行榜
+        LocalStorageController.addEntry({
+            name: "玩家",        // 如果有暱稱機制，改成對應的玩家名稱
+            score,
+            mode,
+            portrait: portraitBase64
+        });
+        console.log(`已將 ${mode} 模式、分數 ${score} 與頭像存入排行榜`);
+
+        // 5. Ace 音效結束後再 loop BGM
         const ace = ASSETS.ace;
         ace.addCue(ace.duration(), () => {
             this.bgmManager.playLoop(ASSETS.bgm_score_view);
         });
         ace.play();
-    }
-     _on_update(_delta){
-        // super.update(_delta);
-        this.pose_handler.update(_delta)
-        this.pose_image.src = PoseTracker.get_instance(this.p).getVideo();
-        const tracker = PoseTracker.get_instance(this.p);
-        const isRightUp   = tracker.get_is_righ_hand_up();
-        this.backOffsetY = this.p.lerp(this.backOffsetY, isRightUp ? -50 : 0, 0.1);
-        this.home.position.y = 500 + this.backOffsetY;
-        if (isRightUp && !this.prevRightUp) {
-            ASSETS.sfx_BHOME.play();
         }
-        this.prevRightUp  = isRightUp;
-        if(this.pose_handler.is_righ_counter_reached()){
-            this.func_to_Menu()
+
+        _on_update(_delta){
+            // 比如放在 ScoreScene.init() 最後
+            console.log(">> leaderboardIcon:", ASSETS.leaderboardIcon);
+
+            // super.update(_delta);
+            this.pose_handler.update(_delta)
+            this.pose_image.src = PoseTracker.get_instance(this.p).getVideo();
+            const tracker = PoseTracker.get_instance(this.p);
+            const isRightUp   = tracker.get_is_righ_hand_up();
+            const isLeftUp   = tracker.get_is_left_hand_up();
+            this.backOffsetY = this.p.lerp(this.backOffsetY, isRightUp ? -50 : 0, 0.1);
+            this.backOffsetY1 = this.p.lerp(this.backOffsetY1, isLeftUp ? -50 : 0, 0.1);
+            this.home.position.y = 520 + this.backOffsetY;
+            this.leaderboardIcon.position.y = 535 + this.backOffsetY1;
+            if (isRightUp && !this.prevRightUp || isLeftUp && !this.prevLeftUp) {
+                ASSETS.sfx_BHOME.play();
+            }
+            this.prevRightUp  = isRightUp;
+            this.prevLeftUp   = isLeftUp
+            if(this.pose_handler.is_righ_counter_reached()){
+                this.func_to_Menu()
+            }
+            if(this.pose_handler.is_left_counter_reached()){
+                this.func_to_Leaderboard()
+            }
         }
     }
     async  registerAllPlayers() {   //測試用的，之後請刪掉

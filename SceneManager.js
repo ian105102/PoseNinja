@@ -5,7 +5,7 @@ import { EasyGameScene } from "./Scenes/EasyGameScene.js";
 import { HardGameScene } from './Scenes/HardGameScene.js';
 import { PoseDataScene } from './Scenes/PoseDataScene.js';
 import { ScoreScene } from "./Scenes/ScoreScene.js";
-
+import { LeaderboardScene } from "./Scenes/LeaderboardScene.js";
 
 
 
@@ -28,7 +28,8 @@ export class SceneManager {
       // this.scenes.set(SceneEnum.HARD_GAME, new HardGameScene(p));
       this.scenes.set(SceneEnum.POSE_DATA, new PoseDataScene(p));
       this.scenes.set(SceneEnum.SCORE, new ScoreScene(p));
-      
+      this.scenes.set(SceneEnum.LEADERBOARD, new LeaderboardScene(p));
+
       this.currentScene = this.scenes.get(SceneEnum.MENU);
       this.currentScene._on_enter();
       SceneManager.instance = this
