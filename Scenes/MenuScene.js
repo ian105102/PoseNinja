@@ -106,7 +106,7 @@ export class MenuScene extends IScene{
         this.btn_open.position.set(WIDTH / 2 - 65, 550);
         this.btn_open.width = 170;
         this.btn_open.height = 170;
-        this.btn_open.isActive = false;
+        this.btn_open.visible = false;
         this.add(this.btn_open);
         
         // ✅ Hard 按鈕圖片
@@ -122,7 +122,7 @@ export class MenuScene extends IScene{
         this.btn_skeleton.position.set(600, 540);
         this.btn_skeleton.width = 200;
         this.btn_skeleton.height = 200;
-        this.btn_skeleton.isActive = false;
+        this.btn_skeleton.visible = false;
         this.add(this.btn_skeleton);
         
 
@@ -189,13 +189,13 @@ export class MenuScene extends IScene{
         
         this.add(this.title2);
 
-        // let func_to_scor =()=> {
-        //     SceneManager.instance.changeScene(SceneEnum.SCORE)
-        // }
-        // let go_score_button = new RectButton(this.p,300,100,func_to_scor)
-        // go_score_button.position.x = 800
-        // go_score_button.position.y = 600
-        // MenuScene.instance.add(go_score_button)
+        let func_to_scor =()=> {
+            SceneManager.instance.changeScene(SceneEnum.SCORE)
+        }
+        let go_score_button = new RectButton(this.p,300,100,func_to_scor)
+        go_score_button.position.x = 800
+        go_score_button.position.y = 600
+        MenuScene.instance.add(go_score_button)
 
 
 

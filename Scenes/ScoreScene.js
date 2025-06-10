@@ -225,18 +225,9 @@ import { IndexedDBHelper } from "../Objects/APIs/IndexedDBHelper.js";
             portrait: portraitBase64
         });
         console.log(`已將 ${mode} 模式、分數 ${score} 與頭像存入排行榜`);
-
-        // 5. Ace 音效結束後再 loop BGM
-        const ace = ASSETS.ace;
-        ace.addCue(ace.duration(), () => {
-            this.bgmManager.playLoop(ASSETS.bgm_score_view);
-        });
-        ace.play();
         }
 
         _on_update(_delta){
-            // 比如放在 ScoreScene.init() 最後
-            console.log(">> leaderboardIcon:", ASSETS.leaderboardIcon);
 
             // super.update(_delta);
             this.pose_handler.update(_delta)

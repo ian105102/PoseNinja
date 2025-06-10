@@ -6,7 +6,8 @@ import { LocalStorageController } from "../Data/LocalStorageController.js";
 import { SceneEnum }              from "../SceneEnum.js";
 import { SceneManager }           from "../SceneManager.js";
 import { WIDTH, HEIGHT, ASSETS }  from "../G.js";
-
+import { PoseTracker } from "../Objects/APIs/PoseTracker.js";
+import { PoseHandler } from "../Objects/APIs/PoseHandler.js";
 export class LeaderboardScene extends IScene {
   static instance = null;
 
@@ -14,6 +15,12 @@ export class LeaderboardScene extends IScene {
     if (LeaderboardScene.instance) return LeaderboardScene.instance;
     super(p);
     LeaderboardScene.instance = this;
+    this.pose_handler = new PoseHandler(p);
+      this.pose_image   = new DrawableImage(this.p);
+    this.prevRightUp = false;
+    this.func_to_Menu = () => {
+      SceneManager.instance.changeScene(SceneEnum.MENU);
+    };
     this.init();
   }
 
@@ -36,7 +43,7 @@ export class LeaderboardScene extends IScene {
 
     // 左側：簡單模式
     this.easyTitle = new DrawableText(this.p, "簡單模式", 36);
-    this.easyTitle.position.set(WIDTH*0.25, 140);
+    this.easyTitle.position.set(WIDTH*0.25 + 50, 140);
     this.easyTitle.textAlign = this.p.CENTER;
     this.add(this.easyTitle);
 
@@ -79,15 +86,24 @@ export class LeaderboardScene extends IScene {
       this.hardRows.push({ img: hImg, txt: hTxt });
     }
 
-    // ← 返回
-    this.back = new DrawableText(this.p, "← 返回", 28);
-    this.back.position.set(40, HEIGHT - 40);
-    this.back.textAlign = this.p.LEFT;
-    this.back.isInteractive = true;
-    this.back.onClick = () => {
-      SceneManager.instance.changeScene(SceneEnum.MENU);
-    };
-    this.add(this.back);
+    this.unsword = new DrawableImage(this.p);
+    this.unsword.setImage(ASSETS.unsword);
+    this.unsword.position.set(430, 150);
+    this.unsword.width = 250;
+    this.unsword.height = 375;
+    this.add(this.unsword);
+
+    this.sword = new DrawableImage(this.p);
+    this.sword.setImage(ASSETS.sword);
+    this.sword.position.set(430, 150);
+    this.sword.width = 275;
+    this.sword.height = 412;
+    this.sword.visible = false;
+    this.add(this.sword);
+
+    this.t1 = new DrawableText(this.p, "右手舉起\n回到主畫面", 25);
+    this.t1.position.set(WIDTH /2 - 50, 500);
+    this.add(this.t1);
   }
 
   _on_enter() {
@@ -129,5 +145,18 @@ export class LeaderboardScene extends IScene {
   }
 
   _on_update(_delta) {
+    this.pose_handler.update(_delta)
+    this.pose_image.src = PoseTracker.get_instance(this.p).getVideo();
+    const tracker = PoseTracker.get_instance(this.p);
+    const isRightUp  = tracker.get_is_righ_hand_up();
+    if (isRightUp && !this.prevRightUp) {
+      ASSETS.ace.play();
+    }
+    this.prevRightUp = isRightUp;
+    this.unsword.visible = !isRightUp;
+    this.sword.visible =  isRightUp;
+    if(this.pose_handler.is_righ_counter_reached()){
+      this.func_to_Menu()
+    }
   }
 }

@@ -49,6 +49,7 @@ const main_sketch = (p)=>{
         ASSETS.HpIcon = p.loadImage("assets/hp.png");
         ASSETS.leaderboardScene = p.loadImage("assets/LeaderboardScene.png");
         ASSETS.sword = p.loadImage("assets/sword.png");
+        ASSETS.unsword = p.loadImage("assets/unsword.png");
         ASSETS.leaderboardIcon = p.loadImage("assets/leaderboardIcon.png");
         ASSETS.font = p.loadFont("assets/ttf/Bakudai-Medium.ttf");
         ASSETS.score = p.loadImage("assets/Score.png");
