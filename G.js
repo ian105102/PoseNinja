@@ -21,6 +21,7 @@ export const ASSETS = {
     leaderboardIcon: null,
     sword          : null,
     unsword          : null,
+    sfx_sword:    null,
     sfx_knife:    null,
     sfx_shuriken: null,
     sfx_openChest:null,

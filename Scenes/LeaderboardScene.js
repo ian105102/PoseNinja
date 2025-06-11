@@ -150,7 +150,7 @@ export class LeaderboardScene extends IScene {
     const tracker = PoseTracker.get_instance(this.p);
     const isRightUp  = tracker.get_is_righ_hand_up();
     if (isRightUp && !this.prevRightUp) {
-      ASSETS.ace.play();
+      ASSETS.sfx_sword.play();
     }
     this.prevRightUp = isRightUp;
     this.unsword.visible = !isRightUp;
