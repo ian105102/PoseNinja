@@ -29,6 +29,7 @@ export class PoseTracker {
     this.flag = true
     this.p = p
     this.buffer = this.p.createGraphics(WIDTH, HEIGHT);
+    this.head = this.p.createGraphics(WIDTH, HEIGHT);
     if (PoseTracker.#instance) {
       return PoseTracker.#instance;
     }
@@ -238,6 +239,17 @@ export class PoseTracker {
   static _isPointVisible(pt) {
       return pt.x >= 0 && pt.x <= 1 && pt.y >= 0 && pt.y <= 1;
   }
+
+  gethead() {
+
+      this.head.push();
+      this.head.translate(WIDTH, 0);
+      this.head.scale(-1, 1); // 水平翻轉
+      this.head.image(this.video, 0, 0, WIDTH, HEIGHT);
+      this.head.pop();
+      return this.head;
+    
+  }
   //擷取頭像
   getHeadPortrait() {
     const lm = this.getFullSkeleton();
@@ -245,14 +257,14 @@ export class PoseTracker {
     // 以鼻子 (index 0) 當中心
     const cx = lm[0].x * WIDTH;
     const cy = lm[0].y * HEIGHT;
-    const size = 128;
+    const size = 512;
 
     // 拿到翻轉後含骨架的整張畫面
-    const gfx = this.getVideo();
+    const gfx = this.gethead();
 
     // 翻轉後的真實位置
     const fx = WIDTH - cx;
-    const fy = cy;
+    const fy = cy - 100;
     let sx = fx - size/2, sy = fy - size/2;
     // 邊界檢查
     sx = Math.max(0, Math.min(WIDTH - size, sx));

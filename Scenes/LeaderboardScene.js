@@ -60,7 +60,7 @@ export class LeaderboardScene extends IScene {
       // 簡單模式
       const eImg = new DrawableImage(this.p);
       eImg.position.set(WIDTH*0.15, 200 + i*80);
-      eImg.width  = eImg.height = 96;
+      eImg.width  = eImg.height = 128;
       eImg.visible = false;
       this.add(eImg);
 
@@ -73,13 +73,13 @@ export class LeaderboardScene extends IScene {
 
       // 困難模式
       const hImg = new DrawableImage(this.p);
-      hImg.position.set(WIDTH*0.65, 200 + i*80);
-      hImg.width  = hImg.height = 96;
+      hImg.position.set(WIDTH*0.65 - 50, 190 + i*128);
+      hImg.width  = hImg.height = 128;
       hImg.visible = false;
       this.add(hImg);
 
       const hTxt = new DrawableText(this.p, "", 24);
-      hTxt.position.set(WIDTH*0.75, 200 + i*80 + 8);
+      hTxt.position.set(WIDTH*0.75, 250 + i*128);
       hTxt.textAlign = this.p.LEFT;
       this.add(hTxt);
 
@@ -117,7 +117,7 @@ export class LeaderboardScene extends IScene {
     this.easyRows.forEach((row, i) => {
       const entry = easyList[i];
       if (entry) {
-        row.txt.text = `${i+1}. ${entry.name} — ${entry.score}`;
+        row.txt.text = `第${i+1}名. ${entry.name} — ${entry.score}`;
         if (entry.portrait) {
           row.img.src     = this.p.loadImage(entry.portrait);
           row.img.visible = true;
@@ -132,7 +132,7 @@ export class LeaderboardScene extends IScene {
     this.hardRows.forEach((row, i) => {
       const entry = hardList[i];
       if (entry) {
-        row.txt.text = `${i+1}. ${entry.name} — ${entry.score}`;
+        row.txt.text = `第${i+1}名: ${entry.score}`;
         if (entry.portrait) {
           row.img.src     = this.p.loadImage(entry.portrait);
           row.img.visible = true;
