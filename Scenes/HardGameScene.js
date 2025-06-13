@@ -210,6 +210,7 @@ export class HardGameScene extends IScene{
     }
 
     _on_enter(){
+         SceneManager.instance.changeScene(SceneEnum.SCORE)
         this.generatorManager.start(this.GameFlow());
         this.bgmManager.playLoop(ASSETS.bgm_HardMode);
         this.time = 0;
