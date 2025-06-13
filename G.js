@@ -1,5 +1,7 @@
 export const WIDTH = 1080
 export const HEIGHT = 720
+export const SCORE_DB_NAME = "LeaderboardByScore";
+export const ACCURACY_DB_NAME = "LeaderboardByAccuracy";
 export const ASSETS = {
     menu: null,
     btn_easy: null,

@@ -3,7 +3,7 @@ import { IScene } from "./IScene.js";
 import { SceneEnum } from "../SceneEnum.js";
 import { SceneManager } from "../SceneManager.js";
 import { PoseTracker } from "../Objects/APIs/PoseTracker.js";
-import { WIDTH } from "../G.js"
+import { SCORE_DB_NAME, WIDTH } from "../G.js"
 import { HEIGHT } from "../G.js"
 import { ASSETS } from "../G.js"
 import { DrawableText } from "../Objects/DrawableObj/Text/DrawableText.js";
@@ -24,6 +24,8 @@ export class TutorialScene extends IScene{
         this.pose_handler = new PoseHandler(p)
         this.prevLeftUp  = false;
         this.backOffsetX = 0;
+
+
     } 
     
 
@@ -94,10 +96,13 @@ export class TutorialScene extends IScene{
         this.func_to_menu = ()=>{
             SceneManager.instance.changeScene(SceneEnum.MENU)
         }
+
+
+
     }
 
     _on_update(_delta){
-        this.bgmManager.playLoop(ASSETS.bgm_menu);
+        
         this.pose_handler.update(_delta)
         this.pose_image.src = PoseTracker.get_instance(this.p).getVideo();
         const tracker = PoseTracker.get_instance(this.p);
@@ -118,4 +123,10 @@ export class TutorialScene extends IScene{
         this.pose_handler.reset_all_counter()
 
     }
+    _on_enter(){
+        this.registerAllPlayers();
+        this.bgmManager.playLoop(ASSETS.bgm_menu);
+    }
+
+
 }

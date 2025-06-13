@@ -14,6 +14,8 @@ import { PoseHandler } from "../Objects/APIs/PoseHandler.js";
 import { DrawableImage } from "../Objects/DrawableObj/Game/DrawableImage.js";
 import { SustainCounter } from "../Objects/Counters/SustainCounter.js";
 import {BgmManager} from "../AudioController/BgmManager.js"
+import { FaceIdentify } from "../Objects/APIs/FaceIdentify.js";
+import { IndexedDBHelper } from "../Objects/APIs/IndexedDBHelper.js";
 
 export class MenuScene extends IScene{
     static instance = null
@@ -32,6 +34,10 @@ export class MenuScene extends IScene{
         this.pose_handler = new PoseHandler(p)
         this.rotation_active = false;
         this.rotation_timer = 0;
+
+        this.faceIdentify = FaceIdentify.getInstance();
+        this.indexedDBHelper = IndexedDBHelper.getInstance();
+        
 
         this.gameType = 1;
         this.func_to_easy =()=>{
@@ -65,7 +71,7 @@ export class MenuScene extends IScene{
     //call after constructor
     init(){
         let height = HEIGHT / 7 * 6
-
+        
         this.bgmManager = BgmManager.get_instance(this.p);
         
 
@@ -190,6 +196,7 @@ export class MenuScene extends IScene{
 
 
 
+
     }
 
     _on_update(_delta) {
@@ -268,7 +275,8 @@ export class MenuScene extends IScene{
     _on_enter(){
         this.bgmManager.playLoop(ASSETS.bgm_menu);
         console.log("MenuScene Entered");
-        
+ 
+     
         
     }
 
@@ -276,4 +284,8 @@ export class MenuScene extends IScene{
         this.pose_handler.reset_all_counter()
 
     }
+
+
+
+
 }

@@ -3,7 +3,7 @@ import { IScene } from "./IScene.js";
 import { SceneEnum } from "../SceneEnum.js";
 import { SceneManager } from "../SceneManager.js";
 
-import { WIDTH } from "../G.js"
+import { SCORE_DB_NAME, WIDTH } from "../G.js"
 import { HEIGHT } from "../G.js"
 import { ASSETS } from "../G.js"
 import { DrawableText } from "../Objects/DrawableObj/Text/DrawableText.js";
@@ -15,6 +15,8 @@ import { MenuScene } from "./MenuScene.js";
 import { EasyGameScene } from "./EasyGameScene.js";
 import { HardGameScene } from "./HardGameScene.js";
 import { BgmManager } from "../AudioController/BgmManager.js";
+import { FaceIdentify } from "../Objects/APIs/FaceIdentify.js";
+import { IndexedDBHelper } from "../Objects/APIs/IndexedDBHelper.js";
 
 
 export class ScoreScene extends IScene{
@@ -31,6 +33,15 @@ export class ScoreScene extends IScene{
         this.pose_handler = new PoseHandler(p);
         this.prevRightUp  = false;
         this.backOffsetY = 0;
+
+        
+        this.faceIdentify = FaceIdentify.getInstance();
+        this.indexedDBHelper = IndexedDBHelper.getInstance();
+        //這是測試用的圖片，之後請刪掉
+        this.faceImage = this.p.loadImage("assets/test/1f5667b2387800b6f0a56ccd647d34df.jpg");
+        this.faceImage1 = this.p.loadImage("assets/test/d7cec3e9e7d5bbf3a79b92aec5f148e3.jpg");
+        this.faceImage2 = this.p.loadImage("assets/test/3a074145a5da14325bb400a4b74b6e87.jpg");
+
     } 
     
 
@@ -94,7 +105,7 @@ export class ScoreScene extends IScene{
 
     }
     _on_enter(){
-        
+        this.registerAllPlayers();//測試用的，之後請刪掉
         this.bgmManager.playLoop(ASSETS.bgm_score_view);
 
         if(MenuScene.instance.gameType ==1){   
@@ -123,6 +134,87 @@ export class ScoreScene extends IScene{
         this.prevRightUp  = isRightUp;
         if(this.pose_handler.is_righ_counter_reached()){
             this.func_to_Menu()
+        }
+    }
+    async  registerAllPlayers() {   //測試用的，之後請刪掉
+        const playerInputs = [
+            {
+                path:this.faceImage2,
+                data: {
+                    score: 233000,
+                    accuracy: 0.9,
+                    image: "player1.png", //這裡要記得取轉成 base64 或者其他格式
+                    name: "Alice"
+                }
+            },
+            {
+                path: this.faceImage1,
+                data: {
+                    score: 233000,
+                    accuracy: 0.95,
+                    image: "player2.png", //這裡要記得取轉成 base64 或者其他格式
+                    name: "Bob1"
+                }
+            },
+            {
+                path: this.faceImage,
+                data: {
+                    score: 2000,
+                    accuracy: 0.95,
+                    image: "player2.png", //這裡要記得取轉成 base64 或者其他格式
+                    name: "Bob2"
+                }
+            }
+            ,
+            {
+                path: this.faceImage,
+                data: {
+                    score: 3332000,
+                    accuracy: 0.95,
+                    image: "player2.png", //這裡要記得取轉成 base64 或者其他格式
+                    name: "Bob3"
+                }
+            }
+        ];
+
+        for (const { path, data } of playerInputs) {
+            await this.registerPlayerFromImage(path, data); //呼叫方式，注意他是異步的，所以需要 await or .then() ，
+            //我前面在Sketch 有刪除資料表，測玩記得留著
+        }
+        this.indexedDBHelper.getSortedLeaderboard(SCORE_DB_NAME, 10).then( (data)=>{
+             console.log(data);
+        })
+       
+    }
+    
+    async registerPlayerFromImage(img, data = {}) { //插入資料到 IndexedDB，包含玩家的分數、準確度、圖片和名稱，也把比對處理掉了
+        const canvas = img.canvas;
+        if (!canvas) return console.error(" 缺少 canvas");
+        try {
+            const result = await this.faceIdentify.getID(canvas);
+            const { score = 2000, accuracy = 0.9, image = "default.png", name } = data;
+            
+            const playerData = {
+                score, accuracy, image,
+                descriptor: result.descriptor,
+                name: name || result.label || "Player",
+                timestamp: Date.now()
+            };
+            const topPlayers = await this.indexedDBHelper.getAllDataByName(SCORE_DB_NAME);
+            const existing = await this.faceIdentify.findPlayerInList(playerData, topPlayers, 0.6);
+
+            if (existing) {
+                if (existing.score < playerData.score) {
+                    await this.indexedDBHelper.updatePlayerById(existing.id, playerData, SCORE_DB_NAME);
+                    console.log(`分數更新: ${existing.score} → ${playerData.score}`);
+                }
+            } else {
+                await this.indexedDBHelper.addPlayer(playerData);
+                console.log(`新增玩家: ${playerData.name}`);
+            }
+            return await this.indexedDBHelper.getSortedLeaderboard(SCORE_DB_NAME, 10);
+        } catch (err) {
+            console.error("註冊失敗", err);
         }
     }
 }

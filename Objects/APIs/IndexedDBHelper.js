@@ -1,3 +1,5 @@
+import { ACCURACY_DB_NAME, SCORE_DB_NAME } from "../../G.js";
+
 export class IndexedDBHelper {
     static #instance = null; // 私有靜態實例
 
@@ -24,11 +26,11 @@ export class IndexedDBHelper {
 
             request.onupgradeneeded = (event) => {
                 const db = event.target.result;
-                if (!db.objectStoreNames.contains('LeaderboardByScore')) {
-                    db.createObjectStore('LeaderboardByScore', { keyPath: 'id', autoIncrement: true });
+                if (!db.objectStoreNames.contains(SCORE_DB_NAME)) {
+                    db.createObjectStore(SCORE_DB_NAME, { keyPath: 'id', autoIncrement: true });
                 }
-                if (!db.objectStoreNames.contains('LeaderboardByAccuracy')) {
-                    db.createObjectStore('LeaderboardByAccuracy', { keyPath: 'id', autoIncrement: true });
+                if (!db.objectStoreNames.contains(ACCURACY_DB_NAME)) {
+                    db.createObjectStore(ACCURACY_DB_NAME, { keyPath: 'id', autoIncrement: true });
                 }
             };
 
@@ -42,13 +44,8 @@ export class IndexedDBHelper {
             };
         });
     }
-    async addPlayer(data, mode = 'both') {
-        if (mode === 'score' || mode === 'both') {
-            await this.#addToDB('LeaderboardByScore', data);
-        }
-        if (mode === 'accuracy' || mode === 'both') {
-            await this.#addToDB('LeaderboardByAccuracy', data);
-        }
+    async addPlayer(data, mode = SCORE_DB_NAME) {
+        await this.#addToDB(mode, data);
     }
 
     #addToDB(storeName, data) {
@@ -61,16 +58,17 @@ export class IndexedDBHelper {
         });
     }
 
-    async getSortedLeaderboard(mode = 'LeaderboardByScore', limit = 10) {
-        const storeName = mode === 'accuracy' ? 'LeaderboardByAccuracy' : 'LeaderboardByScore';
+    async getSortedLeaderboard(mode = SCORE_DB_NAME, limit = 10) {
+        const storeName = mode === ACCURACY_DB_NAME ? ACCURACY_DB_NAME : SCORE_DB_NAME;
+        const sortField = storeName === ACCURACY_DB_NAME ? 'accuracy' : 'score';
+
         const data = await this.#getAll(storeName);
-        const sorted = data.sort((a, b) => b[mode] - a[mode]);
+        const sorted = data.sort((a, b) => b[sortField] - a[sortField]);
 
         return sorted.slice(0, limit);
     }
-    getAllDataByName(mode = 'LeaderboardByScore') {
-        const storeName = mode === 'accuracy' ? 'LeaderboardByAccuracy' : 'LeaderboardByScore';
-        return this.#getAll(storeName).then(data => data.map(entry => entry.name));
+    getAllDataByName(mode = SCORE_DB_NAME) {
+        return this.#getAll(mode);
     }
 
     #getAll(storeName) {
@@ -83,9 +81,27 @@ export class IndexedDBHelper {
             request.onerror = (e) => reject(e.target.error);
         });
     }
+    async updatePlayerById(id, newData, mode = SCORE_DB_NAME) {
+        const updateStore = async (storeName) => {
+            return new Promise((resolve, reject) => {
+                const tx = this.db.transaction([storeName], 'readwrite');
+                const store = tx.objectStore(storeName);
+                const request = store.put({ ...newData, id });
 
+                request.onsuccess = () => resolve();
+                request.onerror = (e) => reject(e.target.error);
+            });
+        };
+
+        if (mode === SCORE_DB_NAME ) {
+            await updateStore(SCORE_DB_NAME);
+        }
+        if (mode === ACCURACY_DB_NAME) {
+            await updateStore(ACCURACY_DB_NAME);
+        }
+    }
     async clearAllData() {
-            const storeNames = ['LeaderboardByScore', 'LeaderboardByAccuracy'];
+            const storeNames = [SCORE_DB_NAME,ACCURACY_DB_NAME];
 
             for (const storeName of storeNames) {
                 await new Promise((resolve, reject) => {
@@ -98,9 +114,8 @@ export class IndexedDBHelper {
                 });
             }
         }
-    async isDuplicateFace(inputDescriptor, threshold = 0.6, mode = 'score') {
-        const storeName = mode === 'accuracy' ? 'LeaderboardByAccuracy' : 'LeaderboardByScore';
-        const allData = await this.#getAll(storeName);
+    async isDuplicateFace(inputDescriptor, threshold = 0.6, mode = SCORE_DB_NAME) {
+        const allData = await this.#getAll(mode);
 
         for (const entry of allData) {
             if (!entry.descriptor) continue;

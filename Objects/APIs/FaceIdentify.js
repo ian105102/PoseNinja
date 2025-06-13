@@ -44,65 +44,70 @@ export class FaceIdentify {
 
 
 
-  async identifyFromDescriptors(input, playerList, threshold = 0.6) {
-    if(playerList.length === 0) { return false; }
+async identifyFromDescriptors(input, playerList, threshold = 0.6) {
+  if (playerList.length === 0) return null;
 
-    const res = await faceapi
-      .detectSingleFace(input, new faceapi.TinyFaceDetectorOptions())
-      .withFaceLandmarks()
-      .withFaceDescriptor();
+  const res = await faceapi
+    .detectSingleFace(input, new faceapi.TinyFaceDetectorOptions())
+    .withFaceLandmarks()
+    .withFaceDescriptor();
 
-    if (!res) throw new Error('No face detected');
+  if (!res) throw new Error('No face detected');
 
+  const targetDescriptor = res.descriptor;
+  const currentKey = JSON.stringify(playerList);
 
-    const targetDescriptor = res.descriptor;
+  if (!this.faceMatcher || this._lastPlayerListKey !== currentKey) {
+    const labeledDescriptors = playerList.map(player => {
+      if (!player.descriptor || player.descriptor.length !== 128) {
+        throw new Error(`Invalid descriptor for player ${player.name}`);
+      }
+      const descriptorArray = new Float32Array(player.descriptor);
+      return new faceapi.LabeledFaceDescriptors(player.name || 'unknown', [descriptorArray]);
+    });
 
-    const currentKey = JSON.stringify(playerList);
-    if (!this.faceMatcher || this._lastPlayerListKey !== currentKey) {
-      const labeledDescriptors = playerList.map(player => {
-        if (!player.descriptor || player.descriptor.length !== 128) {
-          throw new Error(`Invalid descriptor for player ${player.name}`);
-        }
-        const descriptorArray = new Float32Array(player.descriptor);
-        return new faceapi.LabeledFaceDescriptors(player.name || 'unknown', [descriptorArray]);
-      });
-
-      this.faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, threshold);
-      this._lastPlayerListKey = currentKey;
-    }
-
-    // 🔍 步驟 3：比對 input descriptor 是否有在 playerList 裡
-    const bestMatch = this.faceMatcher.findBestMatch(targetDescriptor);
-    return bestMatch.label !== 'unknown';
+    this.faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, threshold);
+    this._lastPlayerListKey = currentKey;
   }
 
+  const bestMatch = this.faceMatcher.findBestMatch(targetDescriptor);
+  if (bestMatch.label === 'unknown') return null;
+
+  // 回傳對應的 player 資料
+  return playerList.find(player => player.name === bestMatch.label) || null;
+}
 
 
-  isPlayerInList(targetPlayer, playerList, threshold = 0.6) {
-    if(playerList.length === 0) { return false; }
-    if (!targetPlayer.descriptor || targetPlayer.descriptor.length !== 128) {
-      throw new Error('Invalid descriptor for targetPlayer');
-    }
 
-    const currentKey = JSON.stringify(playerList);
-    if (!this.faceMatcher || this._lastPlayerListKey !== currentKey) {
-      const labeledDescriptors = playerList.map(player => {
-        if (!player.descriptor || player.descriptor.length !== 128) {
-          throw new Error(`Invalid descriptor for player ${player.name}`);
-        }
-        const descriptorArray = new Float32Array(player.descriptor);
-        return new faceapi.LabeledFaceDescriptors(player.name || 'unknown', [descriptorArray]);
-      });
-
-      this.faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, threshold);
-      this._lastPlayerListKey = currentKey;
-    }
-
-    const targetDescriptor = new Float32Array(targetPlayer.descriptor);
-    const bestMatch = this.faceMatcher.findBestMatch(targetDescriptor);
-
-    return bestMatch.label !== 'unknown';
+findPlayerInList(targetPlayer, playerList, threshold = 0.6) {
+  if (playerList.length === 0) return null;
+  if (!targetPlayer.descriptor || targetPlayer.descriptor.length !== 128) {
+    throw new Error('Invalid descriptor for targetPlayer');
   }
+
+  const currentKey = JSON.stringify(playerList);
+
+  if (!this.faceMatcher || this._lastPlayerListKey !== currentKey) {
+    const labeledDescriptors = playerList.map(player => {
+      if (!player.descriptor || player.descriptor.length !== 128) {
+        throw new Error(`Invalid descriptor for player ${player.name}`);
+      }
+      const descriptorArray = new Float32Array(player.descriptor);
+      return new faceapi.LabeledFaceDescriptors(player.name || 'unknown', [descriptorArray]);
+    });
+
+    this.faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, threshold);
+    this._lastPlayerListKey = currentKey;
+  }
+
+  const targetDescriptor = new Float32Array(targetPlayer.descriptor);
+  const bestMatch = this.faceMatcher.findBestMatch(targetDescriptor);
+
+  if (bestMatch.label === 'unknown') return null;
+
+  // 回傳對應的 player 資料
+  return playerList.find(player => player.name === bestMatch.label) || null;
+}
 
 
 
