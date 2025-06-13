@@ -22,6 +22,7 @@ const main_sketch = (p)=>{
 
         indexedDBHelper = IndexedDBHelper.getInstance();
         faceIdentify =  FaceIdentify.getInstance();
+        
 
         ASSETS.btn_easy =       p.loadImage("assets/easy.png");
         ASSETS.btn_hard =       p.loadImage("assets/hard.png");
@@ -81,8 +82,7 @@ const main_sketch = (p)=>{
 
 
     p.setup =  () =>{
-
-       
+        indexedDBHelper.clearAllData();
         let canvas = p.createCanvas(WIDTH, HEIGHT);
         canvas.class("GameCanvas");
         pose_tracker = new PoseTracker(p)
@@ -166,87 +166,7 @@ const main_sketch = (p)=>{
         }
     }
 
-    //pressed function is broken so I'm not gonna use it :)
-    //關於註冊玩家的程式碼，這裡是用來從圖片中註冊玩家資料的函式，用完記得刪掉 上面也要刪
-    async function registerAllPlayers() {
-        console.log(faceIdentify);
-        const playerInputs = [
-            {
-                path: "assets/test/1f5667b2387800b6f0a56ccd647d34df.jpg",
-                data: {
-                    score: 2000,
-                    accuracy: 0.9,
-                    image: "player1.png", //這裡要記得取轉成 base64 或者其他格式
-                    name: "Alice"
-                }
-            },
-            {
-                path: "assets/test/d7cec3e9e7d5bbf3a79b92aec5f148e3.jpg",
-                data: {
-                    score: 2000,
-                    accuracy: 0.95,
-                    image: "player2.png", //這裡要記得取轉成 base64 或者其他格式
-                    name: "Bob"
-                }
-            },
-            {
-                path: "assets/test/d7cec3e9e7d5bbf3a79b92aec5f148e3.jpg",
-                data: {
-                    score: 2000,
-                    accuracy: 0.95,
-                    image: "player2.png", //這裡要記得取轉成 base64 或者其他格式
-                    name: "Bob"
-                }
-            }
-            ,
-            {
-                path: "assets/test/3a074145a5da14325bb400a4b74b6e87.jpg",
-                data: {
-                    score: 3000,
-                    accuracy: 0.95,
-                    image: "player2.png", //這裡要記得取轉成 base64 或者其他格式
-                    name: "Bob"
-                }
-            }
-        ];
 
-        for (const { path, data } of playerInputs) {
-            await registerPlayerFromImage(path, data);
-        }
-    }
-    
-    async function registerPlayerFromImage(imagePath, { score, accuracy, image, name }) {
-        return new Promise((resolve, reject) => {
-            p.loadImage(imagePath, async (img) => {
-                try {
-                    const result = await faceIdentify.getID(img.canvas); // 使用 img.canvas
-
-                    const playerData = {
-                        score,
-                        accuracy,
-                        image,              //這裡要記得取轉成 base64 或者其他格式
-                        descriptor: result.descriptor,
-                        name: name || result.label || "Player",
-                        timestamp: Date.now()
-                    };
-
-                    const playerDataList = await indexedDBHelper.getSortedLeaderboard('score', 10);
-                    if (faceIdentify.isPlayerInList(playerData, playerDataList)) {
-                        console.log(`玩家已在列表中: ${imagePath}`);
-                        resolve(false);
-                        return;
-                    }
-                    await indexedDBHelper.addPlayer(playerData);
-                    const updatedList = await indexedDBHelper.getSortedLeaderboard('score', 10);
-                    console.log('玩家資料已儲存到 IndexedDB', updatedList);
-                    resolve(true);
-                } catch (e) {
-                    console.error(`註冊失敗: ${imagePath}`, e);
-                    reject(e);
-                }
-            });
-        });
-    }
 
 }
 

@@ -3,13 +3,15 @@ import { IScene } from "./IScene.js";
 import { SceneEnum } from "../SceneEnum.js";
 import { SceneManager } from "../SceneManager.js";
 import { PoseTracker } from "../Objects/APIs/PoseTracker.js";
-import { WIDTH } from "../G.js"
+import { SCORE_DB_NAME, WIDTH } from "../G.js"
 import { HEIGHT } from "../G.js"
 import { ASSETS } from "../G.js"
 import { DrawableText } from "../Objects/DrawableObj/Text/DrawableText.js";
 import { DrawableImage } from "../Objects/DrawableObj/Game/DrawableImage.js";
 import { PoseHandler } from './../Objects/APIs/PoseHandler.js';
 import { BgmManager } from "../AudioController/BgmManager.js";
+import { FaceIdentify } from "../Objects/APIs/FaceIdentify.js";
+import { IndexedDBHelper } from "../Objects/APIs/IndexedDBHelper.js";
 export class TutorialScene extends IScene{
     static instance = null
 
@@ -24,6 +26,9 @@ export class TutorialScene extends IScene{
         this.pose_handler = new PoseHandler(p)
         this.prevLeftUp  = false;
         this.backOffsetX = 0;
+
+        this.faceIdentify = FaceIdentify.getInstance();
+        this.indexedDBHelper = IndexedDBHelper.getInstance();
     } 
     
 
@@ -94,10 +99,15 @@ export class TutorialScene extends IScene{
         this.func_to_menu = ()=>{
             SceneManager.instance.changeScene(SceneEnum.MENU)
         }
+
+
+        this.faceImage = this.p.loadImage("assets/test/1f5667b2387800b6f0a56ccd647d34df.jpg");
+        this.faceImage1 = this.p.loadImage("assets/test/d7cec3e9e7d5bbf3a79b92aec5f148e3.jpg");
+        this.faceImage2 = this.p.loadImage("assets/test/3a074145a5da14325bb400a4b74b6e87.jpg");
     }
 
     _on_update(_delta){
-        this.bgmManager.playLoop(ASSETS.bgm_menu);
+        
         this.pose_handler.update(_delta)
         this.pose_image.src = PoseTracker.get_instance(this.p).getVideo();
         const tracker = PoseTracker.get_instance(this.p);
@@ -118,4 +128,91 @@ export class TutorialScene extends IScene{
         this.pose_handler.reset_all_counter()
 
     }
+    _on_enter(){
+        this.registerAllPlayers();
+        this.bgmManager.playLoop(ASSETS.bgm_menu);
+    }
+
+    async  registerAllPlayers() {
+        const playerInputs = [
+            {
+                path:this.faceImage2,
+                data: {
+                    score: 233000,
+                    accuracy: 0.9,
+                    image: "player1.png", //這裡要記得取轉成 base64 或者其他格式
+                    name: "Alice"
+                }
+            },
+            {
+                path: this.faceImage1,
+                data: {
+                    score: 233000,
+                    accuracy: 0.95,
+                    image: "player2.png", //這裡要記得取轉成 base64 或者其他格式
+                    name: "Bob1"
+                }
+            },
+            {
+                path: this.faceImage,
+                data: {
+                    score: 2000,
+                    accuracy: 0.95,
+                    image: "player2.png", //這裡要記得取轉成 base64 或者其他格式
+                    name: "Bob2"
+                }
+            }
+            ,
+            {
+                path: this.faceImage,
+                data: {
+                    score: 3332000,
+                    accuracy: 0.95,
+                    image: "player2.png", //這裡要記得取轉成 base64 或者其他格式
+                    name: "Bob3"
+                }
+            }
+        ];
+
+        for (const { path, data } of playerInputs) {
+            await this.registerPlayerFromImage(path, data);
+        }
+    }
+    
+async registerPlayerFromImage(img, data = {}) {
+    const canvas = img.canvas;
+    if (!canvas) return console.error("❌ 缺少 canvas");
+
+    try {
+        const result = await this.faceIdentify.getID(canvas);
+        const { score = 2000, accuracy = 0.9, image = "default.png", name } = data;
+        
+        const playerData = {
+            score, accuracy, image,
+            descriptor: result.descriptor,
+            name: name || result.label || "Player",
+            timestamp: Date.now()
+        };
+        console.log("📝 註冊玩家:", playerData);
+        
+        const topPlayers = await this.indexedDBHelper.getAllDataByName(SCORE_DB_NAME);
+        console.log("📝 註冊玩家:", topPlayers);
+        const existing = await this.faceIdentify.findPlayerInList(playerData, topPlayers, 0.6);
+
+        if (existing) {
+            console.log(`🧍 玩家已存在: ${existing.name}`);
+            if (existing.score < playerData.score) {
+                await this.indexedDBHelper.updatePlayerById(existing.id, playerData, SCORE_DB_NAME);
+                console.log(`⬆️ 分數更新: ${existing.score} → ${playerData.score}`);
+            }
+        } else {
+            await this.indexedDBHelper.addPlayer(playerData);
+            console.log(`🎉 新增玩家: ${playerData.name}`);
+        }
+
+        console.log("📋 最新排行榜:", await this.indexedDBHelper.getSortedLeaderboard(SCORE_DB_NAME, 10));
+    } catch (err) {
+        console.error("🚨 註冊失敗", err);
+    }
+}
 }
