@@ -60,6 +60,14 @@ const main_sketch = (p)=>{
         faceIdentify.loadModels();
 
 
+        for (let i = 1; i <= 5; i++) {
+            let data = p.loadJSON(`Data/easyPoseJson/pose_snapshot-${i}.json`);
+            easyKeypointDataList.push(data);
+        }
+        for (let i = 1; i <= 19; i++) {
+            let data = p.loadJSON(`Data/hardPoseJson/pose_snapshot-${i}.json`);
+            hardKeypointDataList.push(data);
+        }
         
     }
 
@@ -76,17 +84,8 @@ const main_sketch = (p)=>{
 
 
     p.setup =  () =>{
-        
-        let result
 
-        for (let i = 1; i <= 5; i++) {
-            let data = p.loadJSON(`Data/easyPoseJson/pose_snapshot-${i}.json`);
-            easyKeypointDataList.push(data);
-        }
-        for (let i = 1; i <= 19; i++) {
-            let data = p.loadJSON(`Data/hardPoseJson/pose_snapshot-${i}.json`);
-            hardKeypointDataList.push(data);
-        }
+
         let canvas = p.createCanvas(WIDTH, HEIGHT);
         canvas.class("GameCanvas");
         pose_tracker = new PoseTracker(p)
