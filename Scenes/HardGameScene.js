@@ -22,13 +22,14 @@ import { BgmManager } from "../AudioController/BgmManager.js"
 export class HardGameScene extends IScene{
     static instance = null
 
-    constructor(p, hardKeypointDataList) {
+    // constructor(p, hardKeypointDataList) {
+    constructor(p) {
         if (HardGameScene.instance) {
             
             return HardGameScene.instance
         }
         super(p);
-        this.keypointDataList = hardKeypointDataList;
+        // this.keypointDataList = hardKeypointDataList;
         HardGameScene.instance = this;
         HardGameScene.instance.init()
         
@@ -77,7 +78,8 @@ export class HardGameScene extends IScene{
         this.Background.src = this.CreateBackground(this.bg) ;
         instance.add(this.Background);
 
-        this.boardList = new BoardList(this.p, this.keypointDataList);
+        // this.boardList = new BoardList(this.p, this.keypointDataList);
+        this.boardList = new BoardList(this.p, "hard_pose_snapshot");
         instance.add(this.boardList);
         this.poseTracker = PoseTracker.get_instance(this.p);
         this.poseDrawer =new PoseDrawer(this.p); 

@@ -19,13 +19,13 @@ const main_sketch = (p)=>{
     let faceIdentify;
     p.preload =  () =>{
 
+
         indexedDBHelper = new IndexedDBHelper();
         indexedDBHelper.init().then(() => {
             console.log("IndexedDB initialized successfully");
             indexedDBHelper.clearAllData();
         })
-    
-        ASSETS.btn_easy =       p.loadImage("assets/easy.png");
+            ASSETS.btn_easy =       p.loadImage("assets/easy.png");
         ASSETS.btn_hard =       p.loadImage("assets/hard.png");
         ASSETS.btn_rule =       p.loadImage("assets/rule.png");
         ASSETS.bg_menu =        p.loadImage("assets/Menu.png");
@@ -34,6 +34,8 @@ const main_sketch = (p)=>{
         ASSETS.how          =   p.loadImage("assets/how.png");
         ASSETS.ninja        =   p.loadImage("assets/ninja.png");
         ASSETS.back        =    p.loadImage("assets/Back.png");
+        ASSETS.pose_data_1 =    p.loadImage("assets/poseData1.png");
+        ASSETS.pose_data_2 =    p.loadImage("assets/poseData2.png");
         ASSETS.sfx_knife      = p.loadSound("assets/Knife.MP3");
         ASSETS.sfx_openChest  = p.loadSound("assets/open_chest.MP3");
         ASSETS.sfx_shuriken   = p.loadSound("assets/shuriken.MP3");
@@ -58,8 +60,12 @@ const main_sketch = (p)=>{
         faceIdentify.loadModels();
 
 
-
+        
     }
+
+
+
+
     let scene_manager;
     let pose_tracker;
     let bgm_manager;
@@ -85,6 +91,10 @@ const main_sketch = (p)=>{
         canvas.class("GameCanvas");
         pose_tracker = new PoseTracker(p)
         bgm_manager = new BgmManager(p)
+
+        // scene_manager = new SceneManager(p, easyKeypointDataList, hardKeypointDataList)
+        scene_manager = new SceneManager(p)
+
 
 
         scene_manager = new SceneManager(p, easyKeypointDataList, hardKeypointDataList)

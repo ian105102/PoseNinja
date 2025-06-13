@@ -48,7 +48,16 @@ export class MenuScene extends IScene{
         this.func_to_tuto =()=>{
             SceneManager.instance.changeScene(SceneEnum.TUTORIAL)
         }
-        
+
+        this.func_to_posedata =()=>{
+            
+            // ⛔ 清除上一次的儲存資料
+            localStorage.removeItem("easy_pose_snapshot");
+            localStorage.removeItem("hard_pose_snapshot");
+            console.log("🧹 已清除舊的 easy_pose_snapshot");
+            console.log("🧹 已清除舊的 hard_pose_snapshot");
+            SceneManager.instance.changeScene(SceneEnum.POSE_DATA)
+        }
     } 
     
 
@@ -108,6 +117,23 @@ export class MenuScene extends IScene{
         this.add(this.btn_skeleton);
         
 
+        // ✅ 新增資料集按鈕圖片
+        this.btn_pose_data = new DrawableImage(this.p);
+        this.btn_pose_data.setImage(ASSETS.pose_data_1);
+        this.btn_pose_data.position.set(630, 580);
+        this.btn_pose_data.width = 120;
+        this.btn_pose_data.height = 100;
+        this.add(this.btn_pose_data);
+
+        
+        this.btn_pose_skeleton = new DrawableImage(this.p);
+        this.btn_pose_skeleton.setImage(ASSETS.pose_data_2);
+        this.btn_pose_skeleton.position.set(950, 20);
+        this.btn_pose_skeleton.width = 120;
+        this.btn_pose_skeleton.height = 100;
+        this.btn_pose_skeleton.isActive = false;
+        this.add(this.btn_pose_skeleton);
+
         
         for (let i = 0; i < 10; i++) {
             const kite = new Shuriken(this.p);
@@ -121,6 +147,7 @@ export class MenuScene extends IScene{
         this.pose_image.position.y = HEIGHT - HEIGHT/4 - 20;
         this.pose_image.width = WIDTH/4;
         this.pose_image.height = HEIGHT/4;
+        MenuScene.instance.add(this.pose_image);
 
         this.t1 = new DrawableText(this.p, "左手舉起", 30);
         this.t1.position.set(WIDTH / 3 - 110, 590);
@@ -135,8 +162,10 @@ export class MenuScene extends IScene{
         this.t3 = new DrawableText(this.p, "右手舉起", 30);
         this.t3.position.set(WIDTH / 2 + 100, 590);
         this.add(this.t3);
-        MenuScene.instance.add(this.pose_image);
 
+        this.t4 = new DrawableText(this.p, "自建資料集", 20);
+        this.t4.position.set(965, 150);
+        this.add(this.t4);
 
         this.title = new DrawableText(this.p, "姿勢忍者", 150);
         this.title.position.set(WIDTH /2, 150);
@@ -167,11 +196,13 @@ export class MenuScene extends IScene{
         this.btn_hard.position.set(630, 600 + Math.sin(this.p.millis() * 0.001) * 10);
         this.btn_rule.position.set(WIDTH / 2 - 63, 580 + Math.sin(this.p.millis() * 0.001) * 10);
         this.btn_easy.position.set(WIDTH / 3 - 50, 646.5+ Math.sin(this.p.millis() * 0.001) * 10);
+        this.btn_pose_data.position.set(950, 20 + Math.sin(this.p.millis() * 0.001) * 10);
         const tracker = PoseTracker.get_instance(this.p);
         this.pose_handler.update(_delta);
         const isLeftUp   = tracker.get_is_left_hand_up();
         const isRightUp  = tracker.get_is_righ_hand_up();
         const bothUp     = tracker.get_is_doub_hand_up();
+        const crossHand  = tracker.get_is_cross_hand();
          // —— 偵測 rising edge，剛舉起就播一次音效 —— //
         if (isLeftUp && !this.prevLeftUp) {
             ASSETS.sfx_shuriken.play();
@@ -182,14 +213,26 @@ export class MenuScene extends IScene{
         if (bothUp && !this.prevBothUp) {
             ASSETS.sfx_openChest.play();
         }
+        // 需加入自建資料集音效(cross)
+
         // 更新前一幀狀態
         this.prevLeftUp  = isLeftUp;
         this.prevRightUp = isRightUp;
         this.prevBothUp  = bothUp;
+        this.prevCrossHand  = crossHand;
+        
+
         this.btn_rule.isActive = !bothUp;
         this.btn_open.isActive =  bothUp;
         this.btn_hard.isActive = !isRightUp;
         this.btn_skeleton.isActive =  isRightUp;
+        this.btn_pose_data.isActive = !crossHand;
+        this.btn_pose_skeleton.isActive =  crossHand;
+
+        if (this.pose_handler.is_cross_counter_reached()) {
+            this.func_to_posedata();
+        }
+
         if (this.pose_handler.is_doub_counter_reached()) {
             this.func_to_tuto();
         }

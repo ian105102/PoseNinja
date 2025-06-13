@@ -10,6 +10,8 @@ export const ASSETS = {
     how         : null,
     ninja         :null,
     back          :null,
+    pose_data_1     : null,
+    pose_data_2     : null,
     home          :null,
     score         :null,
     game          :null,

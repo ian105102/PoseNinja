@@ -7,6 +7,7 @@ export class PoseHandler{
         this.left_hand_sustain_counter = new SustainCounter(3.0)
         this.righ_hand_sustain_counter = new SustainCounter(3.0)
         this.doub_hand_sustain_counter = new SustainCounter(3.0)
+        this.cross_hand_sustain_counter = new SustainCounter(3.0)
     }
 
 
@@ -16,6 +17,7 @@ export class PoseHandler{
         this.left_hand_sustain_counter.update(_delta,this.tracker.get_is_left_hand_up())
         this.righ_hand_sustain_counter.update(_delta,this.tracker.get_is_righ_hand_up())
         this.doub_hand_sustain_counter.update(_delta,this.tracker.get_is_doub_hand_up())
+        this.cross_hand_sustain_counter.update(_delta,this.tracker.get_is_cross_hand())
 
        // console.log("val_time ",this.doub_hand_sustain_counter.val_time)
     }
@@ -23,6 +25,7 @@ export class PoseHandler{
         this.left_hand_sustain_counter.reset()
         this.righ_hand_sustain_counter.reset()
         this.doub_hand_sustain_counter.reset()
+        this.cross_hand_sustain_counter.reset()
 
     }
 
@@ -38,4 +41,9 @@ export class PoseHandler{
     is_doub_counter_reached(){
         return this.doub_hand_sustain_counter.get_result_and_reset()
     }
+
+    is_cross_counter_reached(){
+        return this.cross_hand_sustain_counter.get_result_and_reset()
+    }
+
 }
