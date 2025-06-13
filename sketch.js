@@ -25,7 +25,7 @@ const main_sketch = (p)=>{
             console.log("IndexedDB initialized successfully");
             indexedDBHelper.clearAllData();
         })
-            ASSETS.btn_easy =       p.loadImage("assets/easy.png");
+        ASSETS.btn_easy =       p.loadImage("assets/easy.png");
         ASSETS.btn_hard =       p.loadImage("assets/hard.png");
         ASSETS.btn_rule =       p.loadImage("assets/rule.png");
         ASSETS.bg_menu =        p.loadImage("assets/Menu.png");
