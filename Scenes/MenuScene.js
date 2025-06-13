@@ -64,8 +64,6 @@ export class MenuScene extends IScene{
     
     //call after constructor
     init(){
-        console.log("ASSERACE",ASSETS.ace)
-
         let height = HEIGHT / 7 * 6
 
         this.bgmManager = BgmManager.get_instance(this.p);
