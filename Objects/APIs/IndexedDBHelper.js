@@ -1,16 +1,19 @@
 export class IndexedDBHelper {
     static #instance = null; // 私有靜態實例
 
-    static async getInstance() {
+    static getInstance() {
         if (!IndexedDBHelper.#instance) {
             const helper = new IndexedDBHelper();
-            await helper.init();
+            helper.init();
             IndexedDBHelper.#instance = helper;
         }
         return IndexedDBHelper.#instance;
     }
 
     constructor(dbName = 'GameDB') {
+        if (IndexedDBHelper.#instance) {
+            throw new Error("Singleton class cannot be instantiated more than once.");
+        }
         this.dbName = dbName;
         this.db = null;
     }

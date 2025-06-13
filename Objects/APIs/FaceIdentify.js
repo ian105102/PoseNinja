@@ -3,7 +3,11 @@
 export class FaceIdentify {
   static #instance = null;
   static getInstance() {
-    if (!FaceIdentify.#instance) FaceIdentify.#instance = new FaceIdentify();
+    if (!FaceIdentify.#instance) {
+      FaceIdentify.#instance = new FaceIdentify();
+        FaceIdentify.#instance.loadModels();
+    }
+      
     return FaceIdentify.#instance;
   }
 
@@ -74,31 +78,31 @@ export class FaceIdentify {
 
 
 
-isPlayerInList(targetPlayer, playerList, threshold = 0.6) {
-  if(playerList.length === 0) { return false; }
-  if (!targetPlayer.descriptor || targetPlayer.descriptor.length !== 128) {
-    throw new Error('Invalid descriptor for targetPlayer');
+  isPlayerInList(targetPlayer, playerList, threshold = 0.6) {
+    if(playerList.length === 0) { return false; }
+    if (!targetPlayer.descriptor || targetPlayer.descriptor.length !== 128) {
+      throw new Error('Invalid descriptor for targetPlayer');
+    }
+
+    const currentKey = JSON.stringify(playerList);
+    if (!this.faceMatcher || this._lastPlayerListKey !== currentKey) {
+      const labeledDescriptors = playerList.map(player => {
+        if (!player.descriptor || player.descriptor.length !== 128) {
+          throw new Error(`Invalid descriptor for player ${player.name}`);
+        }
+        const descriptorArray = new Float32Array(player.descriptor);
+        return new faceapi.LabeledFaceDescriptors(player.name || 'unknown', [descriptorArray]);
+      });
+
+      this.faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, threshold);
+      this._lastPlayerListKey = currentKey;
+    }
+
+    const targetDescriptor = new Float32Array(targetPlayer.descriptor);
+    const bestMatch = this.faceMatcher.findBestMatch(targetDescriptor);
+
+    return bestMatch.label !== 'unknown';
   }
-
-  const currentKey = JSON.stringify(playerList);
-  if (!this.faceMatcher || this._lastPlayerListKey !== currentKey) {
-    const labeledDescriptors = playerList.map(player => {
-      if (!player.descriptor || player.descriptor.length !== 128) {
-        throw new Error(`Invalid descriptor for player ${player.name}`);
-      }
-      const descriptorArray = new Float32Array(player.descriptor);
-      return new faceapi.LabeledFaceDescriptors(player.name || 'unknown', [descriptorArray]);
-    });
-
-    this.faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, threshold);
-    this._lastPlayerListKey = currentKey;
-  }
-
-  const targetDescriptor = new Float32Array(targetPlayer.descriptor);
-  const bestMatch = this.faceMatcher.findBestMatch(targetDescriptor);
-
-  return bestMatch.label !== 'unknown';
-}
 
 
 

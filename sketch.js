@@ -13,18 +13,16 @@ const main_sketch = (p)=>{
     /// <reference types="p5" />
     //const game_scene = new GameScene(p)
 
-    let easyKeypointDataList = [];
-    let hardKeypointDataList = [];
-    let indexedDBHelper;
-    let faceIdentify;
-    p.preload =  () =>{
+        let easyKeypointDataList = [];
+        let hardKeypointDataList = [];
+        let indexedDBHelper;
+        let faceIdentify;
+        p.preload =  () =>{
 
 
-        indexedDBHelper = new IndexedDBHelper();
-        indexedDBHelper.init().then(() => {
-            console.log("IndexedDB initialized successfully");
-            indexedDBHelper.clearAllData();
-        })
+        indexedDBHelper = IndexedDBHelper.getInstance();
+        faceIdentify =  FaceIdentify.getInstance();
+
         ASSETS.btn_easy =       p.loadImage("assets/easy.png");
         ASSETS.btn_hard =       p.loadImage("assets/hard.png");
         ASSETS.btn_rule =       p.loadImage("assets/rule.png");
@@ -56,10 +54,9 @@ const main_sketch = (p)=>{
         ASSETS.bgm_menu = p.loadSound("assets/Bgm/MainMenu.mp3");
         ASSETS.bgm_score_view = p.loadSound("assets/Bgm/ScoreView.mp3");
         
-        faceIdentify = new FaceIdentify();
-        faceIdentify.loadModels();
+        
 
-
+     
         for (let i = 1; i <= 5; i++) {
             let data = p.loadJSON(`Data/easyPoseJson/pose_snapshot-${i}.json`);
             easyKeypointDataList.push(data);
@@ -85,7 +82,7 @@ const main_sketch = (p)=>{
 
     p.setup =  () =>{
 
-
+       
         let canvas = p.createCanvas(WIDTH, HEIGHT);
         canvas.class("GameCanvas");
         pose_tracker = new PoseTracker(p)
@@ -105,7 +102,7 @@ const main_sketch = (p)=>{
     
         p.window_width = WIDTH
         p.window_height = HEIGHT
-
+        //registerAllPlayers();
 
     }
 
@@ -170,13 +167,9 @@ const main_sketch = (p)=>{
     }
 
     //pressed function is broken so I'm not gonna use it :)
-    
-}
-
-new p5(main_sketch)
-/*
-關於註冊玩家的程式碼，這裡是用來從圖片中註冊玩家資料的函式。
+    //關於註冊玩家的程式碼，這裡是用來從圖片中註冊玩家資料的函式，用完記得刪掉 上面也要刪
     async function registerAllPlayers() {
+        console.log(faceIdentify);
         const playerInputs = [
             {
                 path: "assets/test/1f5667b2387800b6f0a56ccd647d34df.jpg",
@@ -218,11 +211,7 @@ new p5(main_sketch)
         ];
 
         for (const { path, data } of playerInputs) {
-            try {
-                await registerPlayerFromImage(path, data);
-            } catch (e) {
-                console.warn('註冊失敗:', path);
-            }
+            await registerPlayerFromImage(path, data);
         }
     }
     
@@ -247,7 +236,6 @@ new p5(main_sketch)
                         resolve(false);
                         return;
                     }
-
                     await indexedDBHelper.addPlayer(playerData);
                     const updatedList = await indexedDBHelper.getSortedLeaderboard('score', 10);
                     console.log('玩家資料已儲存到 IndexedDB', updatedList);
@@ -259,5 +247,9 @@ new p5(main_sketch)
             });
         });
     }
-*/
+
+}
+
+new p5(main_sketch)
+
 
