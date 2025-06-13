@@ -24,6 +24,8 @@ export class PoseTracker {
     }
   }
   constructor(p) {
+    
+
     this.flag = true
     this.p = p
     this.buffer = this.p.createGraphics(WIDTH, HEIGHT);
