@@ -43,10 +43,15 @@ const main_sketch = (p)=>{
         ASSETS.sfx_shuriken   = p.loadSound("assets/shuriken.MP3");
         ASSETS.sfx_return     = p.loadSound("assets/return.MP3");
         ASSETS.sfx_BHOME      = p.loadSound("assets/B_HOME.MP3"); 
+        ASSETS.sfx_sword      = p.loadSound("assets/SWORD.MP3"); 
         ASSETS.font_huninn =    p.loadFont("assets/jf-openhuninn-2.1.ttf");
         ASSETS.game_bg = p.loadImage("assets/game_bg.png");
         ASSETS.maingame_background = p.loadImage("assets/maingamebackground.png");
         ASSETS.HpIcon = p.loadImage("assets/hp.png");
+        ASSETS.leaderboardScene = p.loadImage("assets/LeaderboardScene.png");
+        ASSETS.sword = p.loadImage("assets/sword.png");
+        ASSETS.unsword = p.loadImage("assets/unsword.png");
+        ASSETS.leaderboardIcon = p.loadImage("assets/leaderboardIcon.png");
         ASSETS.font = p.loadFont("assets/ttf/Bakudai-Medium.ttf");
         ASSETS.score = p.loadImage("assets/Score.png");
         ASSETS.home = p.loadImage("assets/HOME.png");
@@ -77,7 +82,12 @@ const main_sketch = (p)=>{
 
 
     p.setup =  () =>{
-        indexedDBHelper.clearAllData();
+        FaceIdentify.getInstance()
+        .loadModels('/Objects/APIs/models')
+        .then(() => console.log('Face-API 模型載入完成'))
+        .catch(err => console.error('Face-API 模型載入失敗：', err));
+
+        // indexedDBHelper.clearAllData();
         let canvas = p.createCanvas(WIDTH, HEIGHT);
         canvas.class("GameCanvas");
         pose_tracker = new PoseTracker(p)

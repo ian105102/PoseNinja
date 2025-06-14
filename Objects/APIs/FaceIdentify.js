@@ -17,10 +17,15 @@ export class FaceIdentify {
   }
 
   async loadModels(modelUrl = '/Objects/APIs/models') {
+    // await Promise.all([
+    //   faceapi.loadTinyFaceDetectorModel(modelUrl),
+    //   faceapi.loadFaceLandmarkModel(modelUrl),
+    //   faceapi.loadFaceRecognitionModel(modelUrl),
+    // ]);
     await Promise.all([
-      faceapi.loadTinyFaceDetectorModel(modelUrl),
-      faceapi.loadFaceLandmarkModel(modelUrl),
-      faceapi.loadFaceRecognitionModel(modelUrl),
+      faceapi.nets.tinyFaceDetector.loadFromUri(modelUrl),
+      faceapi.nets.faceLandmark68Net.loadFromUri(modelUrl),
+      faceapi.nets.faceRecognitionNet.loadFromUri(modelUrl),
     ]);
     this.modelsLoaded = true;
   }
@@ -28,8 +33,17 @@ export class FaceIdentify {
   async getID(imageElement, threshold = 0.6) {
     if (!this.modelsLoaded) throw new Error('Models not loaded');
 
+    // const res = await faceapi
+    //   .detectSingleFace(imageElement, new faceapi.TinyFaceDetectorOptions())
+    //   .withFaceLandmarks()
+    //   .withFaceDescriptor();
+    const options = new faceapi.TinyFaceDetectorOptions({
+      inputSize: 160,       // 介於 128~224，依實測速度/準確度調整
+      scoreThreshold: 0.4,  // 預設 0.5，調低一點比較容易抓到臉
+    });
+    // 2. 用 TinyFaceDetector 偵測 + Landmark + Descriptor
     const res = await faceapi
-      .detectSingleFace(imageElement, new faceapi.TinyFaceDetectorOptions())
+      .detectSingleFace(imageElement, options)
       .withFaceLandmarks()
       .withFaceDescriptor();
     if (!res) throw new Error('No face detected');
