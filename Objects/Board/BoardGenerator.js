@@ -13,7 +13,7 @@ import { GetPoseData } from "../ScreenShot/GetPoseData.js";
 */
 export class BoardGenerator {
     // constructor(p, keypointDataList) {
-    constructor(p, mode) {
+    constructor(p, mode, prekeypointsdata) {
         this.p = p;
         this.cols = 60;
         this.rows = 40;
@@ -28,8 +28,7 @@ export class BoardGenerator {
         // this.keypointDataList = keypointDataList;
         this.getData = new GetPoseData(p);
         this.mode = mode;
-        this.keypointDataList = this.getData.getStoredPose(this.mode);
-        console.log("this.keypointDataList: ", this.keypointDataList)
+        this.prekeypointsdata = prekeypointsdata;
     
         this.torso = [[11, 12], [23, 24], [11, 23], [12, 24]]
         this.leftHand = [[11, 13], [13, 15]];
@@ -58,6 +57,13 @@ export class BoardGenerator {
     LIFE: 3
     });
     generatePoseBoard() {
+        this.keypointDataList = this.getData.getStoredPose(this.mode);
+        console.log("123 this.keypointDataList: ", this.keypointDataList)
+        if (!this.keypointDataList || this.keypointDataList.length === 0) {
+            this.keypointDataList = this.prekeypointsdata;
+        }
+        console.log("this.prekeypointsdata: ", this.prekeypointsdata)
+
         for (let i = 0; i < this.cols; i++) {
             for (let j = 0; j < this.rows; j++) {
                 this.Boards[i][j].type = 0; 

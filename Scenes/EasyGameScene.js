@@ -19,14 +19,14 @@ import { BgmManager } from "../AudioController/BgmManager.js"
 export class EasyGameScene extends IScene{
     static instance = null
 
-    // constructor(p, easykeypointDataList) {
-    constructor(p) {
+    constructor(p, easykeypointDataList) {
+    // constructor(p) {
         if (EasyGameScene.instance) {
             return EasyGameScene.instance
         }
         super(p);
         
-        // this.keypointDataList = easykeypointDataList;
+        this.keypointDataList = easykeypointDataList;
 
         EasyGameScene.instance = this;
         EasyGameScene.instance.init();
@@ -71,8 +71,10 @@ export class EasyGameScene extends IScene{
         // go_score_button.position.y = 600
         // instance.add(go_score_button)
         
+        
+
         // this.boardList = new BoardList(this.p, this.keypointDataList);
-        this.boardList = new BoardList(this.p, "easy_pose_snapshot");
+        this.boardList = new BoardList(this.p, "easy_pose_snapshot", this.keypointDataList);
         instance.add(this.boardList);
 
         this.poseTracker = PoseTracker.get_instance(this.p);
