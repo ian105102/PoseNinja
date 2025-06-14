@@ -175,6 +175,10 @@ export class MenuScene extends IScene{
         this.t4.position.set(965, 150);
         this.add(this.t4);
 
+        this.t5 = new DrawableText(this.p, "雙手交叉", 20);
+        this.t5.position.set(975, 180);
+        this.add(this.t5);
+
         this.title = new DrawableText(this.p, "姿勢忍者", 150);
         this.title.position.set(WIDTH /2, 150);
         this.title.strokeWeight = 10;
