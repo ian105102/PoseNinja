@@ -138,7 +138,7 @@ export class MenuScene extends IScene{
         this.btn_pose_skeleton.position.set(950, 20);
         this.btn_pose_skeleton.width = 120;
         this.btn_pose_skeleton.height = 100;
-        this.btn_pose_skeleton.isActive = false;
+        this.btn_pose_skeleton.visible = false;
         this.add(this.btn_pose_skeleton);
 
         
@@ -230,12 +230,12 @@ export class MenuScene extends IScene{
         this.prevCrossHand  = crossHand;
         
 
-        this.btn_rule.isActive = !bothUp;
-        this.btn_open.isActive =  bothUp;
-        this.btn_hard.isActive = !isRightUp;
-        this.btn_skeleton.isActive =  isRightUp;
-        this.btn_pose_data.isActive = !crossHand;
-        this.btn_pose_skeleton.isActive =  crossHand;
+        this.btn_rule.visible = !bothUp;
+        this.btn_open.visible =  bothUp;
+        this.btn_hard.visible = !isRightUp;
+        this.btn_skeleton.visible =  isRightUp;
+        this.btn_pose_data.visible = !crossHand;
+        this.btn_pose_skeleton.visible =  crossHand;
 
         if (this.pose_handler.is_cross_counter_reached()) {
             this.func_to_posedata();
