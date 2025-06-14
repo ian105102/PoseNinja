@@ -211,6 +211,18 @@ export class MenuScene extends IScene{
         const isRightUp  = tracker.get_is_righ_hand_up();
         const bothUp     = tracker.get_is_doub_hand_up();
         const crossHand  = tracker.get_is_cross_hand();
+
+
+        if (!this.hasSavedPortrait) {
+            const headImg = PoseTracker.get_instance(this.p).getHeadPortrait();
+            if (headImg) {
+                const b64 = imageToBase64(headImg);
+                LocalStorageController.savePortrait(b64);
+                console.log('第一次頭像已儲存到 localStorage');
+                this.hasSavedPortrait = true;      // 之後就不會再跑
+            }
+        }
+
          // —— 偵測 rising edge，剛舉起就播一次音效 —— //
         if (isLeftUp && !this.prevLeftUp) {
             ASSETS.sfx_shuriken.play();
