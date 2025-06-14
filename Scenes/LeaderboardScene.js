@@ -2,7 +2,6 @@
 import { IScene }                 from "./IScene.js";
 import { DrawableText }           from "../Objects/DrawableObj/Text/DrawableText.js";
 import { DrawableImage }          from "../Objects/DrawableObj/Game/DrawableImage.js";
-import { LocalStorageController } from "../Data/LocalStorageController.js";
 import { SceneEnum }              from "../SceneEnum.js";
 import { SceneManager }           from "../SceneManager.js";
 import { WIDTH, HEIGHT, ASSETS }  from "../G.js";
@@ -107,41 +106,6 @@ export class LeaderboardScene extends IScene {
   }
 
   _on_enter() {
-    const list = LocalStorageController.loadLeaderboard();
-
-    // 分出兩組
-    const easyList = list.filter(e => e.mode === 'easy');
-    const hardList = list.filter(e => e.mode === 'hard');
-
-    // 顯示簡單模式前 5 筆
-    this.easyRows.forEach((row, i) => {
-      const entry = easyList[i];
-      if (entry) {
-        row.txt.text = `第${i+1}名. ${entry.name} — ${entry.score}`;
-        if (entry.portrait) {
-          row.img.src     = this.p.loadImage(entry.portrait);
-          row.img.visible = true;
-        } else row.img.visible = false;
-      } else {
-        row.txt.text    = "";
-        row.img.visible = false;
-      }
-    });
-
-    // 顯示困難模式前 5 筆
-    this.hardRows.forEach((row, i) => {
-      const entry = hardList[i];
-      if (entry) {
-        row.txt.text = `第${i+1}名: ${entry.score}`;
-        if (entry.portrait) {
-          row.img.src     = this.p.loadImage(entry.portrait);
-          row.img.visible = true;
-        } else row.img.visible = false;
-      } else {
-        row.txt.text    = "";
-        row.img.visible = false;
-      }
-    });
   }
 
   _on_update(_delta) {
