@@ -180,12 +180,11 @@ export class ScoreScene extends IScene{
     _on_enter(){
         this.registerAllPlayers();//測試用的，之後請刪掉
         this.bgmManager.playLoop(ASSETS.bgm_score_view);
-        if (MenuScene.instance.gameType === 1) {
-            this.ScoreText.text = 
-            `恭喜完成簡單模式:\n通過率: ${score.toFixed(2)}%`;
-        } else {
-            this.ScoreText.text =
-            `恭喜完成困難模式:\n分數為: ${score}`;
+        if(MenuScene.instance.gameType ==1){   
+            console.log(EasyGameScene.instance.allCount , EasyGameScene.instance.passCount);
+            this.ScoreText.text = "恭喜完成簡單模式:\n " + "通過率: " + (EasyGameScene.instance.allCount !== 0 ? (EasyGameScene.instance.passCount / EasyGameScene.instance.allCount * 100).toFixed(2) : "0.00") + "%";
+        }else if(MenuScene.instance.gameType ==2){
+            this.ScoreText.text = "恭喜完成困難模式:\n " + "分數為: " + HardGameScene.instance.Score;
         }
     }
 
