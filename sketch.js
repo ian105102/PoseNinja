@@ -43,6 +43,7 @@ const main_sketch = (p)=>{
         ASSETS.sfx_shuriken   = p.loadSound("assets/shuriken.MP3");
         ASSETS.sfx_return     = p.loadSound("assets/return.MP3");
         ASSETS.sfx_BHOME      = p.loadSound("assets/B_HOME.MP3"); 
+        ASSETS.sfx_sword      = p.loadSound("assets/SWORD.MP3"); 
         ASSETS.font_huninn =    p.loadFont("assets/jf-openhuninn-2.1.ttf");
         ASSETS.game_bg = p.loadImage("assets/game_bg.png");
         ASSETS.maingame_background = p.loadImage("assets/maingamebackground.png");
