@@ -10,11 +10,14 @@ import { IndexedDBHelper } from "./Objects/APIs/IndexedDBHelper.js"
 import { FaceIdentify } from "./Objects/APIs/FaceIdentify.js"
 
 const main_sketch = (p)=>{
+    
     /// <reference types="p5" />
     //const game_scene = new GameScene(p)
 
         let easyKeypointDataList = [];
         let hardKeypointDataList = [];
+        // localStorage.removeItem("easy_pose_snapshot");
+        // localStorage.removeItem("hard_pose_snapshot");
         let indexedDBHelper;
         let faceIdentify;
         p.preload =  () =>{
@@ -58,14 +61,6 @@ const main_sketch = (p)=>{
         
 
      
-        for (let i = 1; i <= 5; i++) {
-            let data = p.loadJSON(`Data/easyPoseJson/pose_snapshot-${i}.json`);
-            easyKeypointDataList.push(data);
-        }
-        for (let i = 1; i <= 19; i++) {
-            let data = p.loadJSON(`Data/hardPoseJson/pose_snapshot-${i}.json`);
-            hardKeypointDataList.push(data);
-        }
         
     }
 
@@ -89,9 +84,20 @@ const main_sketch = (p)=>{
         bgm_manager = new BgmManager(p)
 
         // scene_manager = new SceneManager(p, easyKeypointDataList, hardKeypointDataList)
-        scene_manager = new SceneManager(p)
+        // scene_manager = new SceneManager(p)
 
 
+        for (let i = 1; i <= 5; i++) {
+            let data = p.loadJSON(`Data/easyPoseJson/pose_snapshot-${i}.json`);
+            easyKeypointDataList.push(data);
+        }
+        for (let i = 1; i <= 19; i++) {
+            let data = p.loadJSON(`Data/hardPoseJson/pose_snapshot-${i}.json`);
+            hardKeypointDataList.push(data);
+        }
+
+        console.log("easyKeypointDataList: ", easyKeypointDataList);
+        console.log("hardKeypointDataList: ", hardKeypointDataList);
 
         scene_manager = new SceneManager(p, easyKeypointDataList, hardKeypointDataList)
         p.is_left_pressing = false
