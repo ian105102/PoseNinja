@@ -82,7 +82,12 @@ const main_sketch = (p)=>{
 
 
     p.setup =  () =>{
-        indexedDBHelper.clearAllData();
+        FaceIdentify.getInstance()
+        .loadModels('/Objects/APIs/models')
+        .then(() => console.log('Face-API 模型載入完成'))
+        .catch(err => console.error('Face-API 模型載入失敗：', err));
+
+        // indexedDBHelper.clearAllData();
         let canvas = p.createCanvas(WIDTH, HEIGHT);
         canvas.class("GameCanvas");
         pose_tracker = new PoseTracker(p)

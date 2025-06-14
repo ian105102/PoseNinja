@@ -59,13 +59,13 @@ export class LeaderboardScene extends IScene {
     for (let i = 0; i < 5; i++) {
       // 簡單模式
       const eImg = new DrawableImage(this.p);
-      eImg.position.set(WIDTH*0.15, 200 + i*80);
+      eImg.position.set(WIDTH*0.25 - 120, 190 + i*128);
       eImg.width  = eImg.height = 128;
       eImg.visible = false;
       this.add(eImg);
 
       const eTxt = new DrawableText(this.p, "", 24);
-      eTxt.position.set(WIDTH*0.25, 200 + i*80 + 8);
+      eTxt.position.set(WIDTH*0.25 + 30, 250 + i*128 + 8);
       eTxt.textAlign = this.p.LEFT;
       this.add(eTxt);
 
@@ -111,14 +111,14 @@ export class LeaderboardScene extends IScene {
     const db = await IndexedDBHelper.getInstance();
 
     // 2) 各取前 5 筆：score → 簡單模式、accuracy → 困難模式
-    const easyList = await db.getSortedLeaderboard(SCORE_DB_NAME, 5);
-    const hardList = await db.getSortedLeaderboard(ACCURACY_DB_NAME, 5);
+    const easyList = await db.getSortedLeaderboard(ACCURACY_DB_NAME, 5);
+    const hardList = await db.getSortedLeaderboard(SCORE_DB_NAME, 5);
 
     // 3) 填入簡單模式
     this.easyRows.forEach((row, i) => {
       if (i < easyList.length) {
         const entry = easyList[i];
-        row.txt.text = `第${i+1}名：${entry.name} — ${entry.score.toFixed(2)}`;
+        row.txt.text = `第${i+1}名： ${entry.accuracy.toFixed(2)}`;
         if (entry.image) {
           this.p.loadImage(entry.image, img => {
             img.resize(row.img.width, row.img.height);
@@ -138,7 +138,7 @@ export class LeaderboardScene extends IScene {
     this.hardRows.forEach((row, i) => {
       if (i < hardList.length) {
         const entry = hardList[i];
-        row.txt.text = `第${i+1}名：${entry.name} — ${entry.accuracy.toFixed(2)}`;
+        row.txt.text = `第${i+1}名： ${entry.score.toFixed(2)}`;
         if (entry.image) {
           this.p.loadImage(entry.image, img => {
             img.resize(row.img.width, row.img.height);

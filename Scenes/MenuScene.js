@@ -6,9 +6,7 @@ import { SceneManager } from "../SceneManager.js";
 
 import { PoseTracker } from "../Objects/APIs/PoseTracker.js";
 import { Shuriken } from "../Objects/DrawableObj/Game/Shuriken.js";
-import { WIDTH } from "../G.js"
-import { HEIGHT } from "../G.js"
-import { ASSETS } from "../G.js"
+import { WIDTH, HEIGHT, ASSETS, SCORE_DB_NAME, ACCURACY_DB_NAME } from "../G.js";
 import { DrawableText } from "../Objects/DrawableObj/Text/DrawableText.js";
 import { PoseHandler } from "../Objects/APIs/PoseHandler.js";
 import { DrawableImage } from "../Objects/DrawableObj/Game/DrawableImage.js";
@@ -66,6 +64,8 @@ export class MenuScene extends IScene{
             console.log("🧹 已清除舊的 hard_pose_snapshot");
             SceneManager.instance.changeScene(SceneEnum.POSE_DATA)
         }
+        this.hasSavedPortrait = false;
+        this._debugAppended = false;
     } 
     
 
@@ -198,10 +198,9 @@ export class MenuScene extends IScene{
 
 
 
-
     }
 
-    _on_update(_delta) {
+    async _on_update(_delta) {
         this.btn_hard.position.set(630, 600 + Math.sin(this.p.millis() * 0.001) * 10);
         this.btn_rule.position.set(WIDTH / 2 - 63, 580 + Math.sin(this.p.millis() * 0.001) * 10);
         this.btn_easy.position.set(WIDTH / 3 - 50, 646.5+ Math.sin(this.p.millis() * 0.001) * 10);
@@ -215,14 +214,45 @@ export class MenuScene extends IScene{
 
 
         if (!this.hasSavedPortrait) {
+            // 1. 從 PoseTracker 拿到 p5.Image
             const headImg = PoseTracker.get_instance(this.p).getHeadPortrait();
-            if (headImg) {
+            // 確認 headImg 及其 canvas 屬性都存在
+            if (!headImg) return;
+            //debug用
+            // if (!this._debugAppended) {
+            //     const cv = headImg.canvas;
+            //     cv.style.border   = '3px solid red';
+            //     cv.style.position = 'fixed';
+            //     cv.style.top      = '10px';
+            //     cv.style.right    = '10px';
+            //     cv.style.width    = '128px';  // 顯示尺寸可調
+            //     cv.style.height   = '128px';
+            //     document.body.appendChild(cv);
+            //     this._debugAppended = true;   // 只掛一次
+            // }
+           try {
+                this.hasSavedPortrait  = true;
+                // 1. 轉成 Base64（後面顯示或存檔用）
                 const b64 = imageToBase64(headImg);
-                LocalStorageController.savePortrait(b64);
-                console.log('第一次頭像已儲存到 localStorage');
-                this.hasSavedPortrait = true;      // 之後就不會再跑
+                // 2. 取得 descriptor 和 label
+                const faceApi = FaceIdentify.getInstance();
+                const { descriptor, label } = await faceApi.getID(headImg.canvas);
+
+                // 3. **只存在記憶體裡**，ScoreScene 再來讀用
+                this.playerPortraitB64 = b64;
+                this.playerDescriptor  = descriptor;
+                this.playerLabel       = label;
+                
+
+                console.log("已擷取新玩家資料：", label);
+                } catch (err) {
+                console.error("擷取頭像資料失敗：", err);
+                }
             }
-        }
+
+
+    
+
 
          // —— 偵測 rising edge，剛舉起就播一次音效 —— //
         if (isLeftUp && !this.prevLeftUp) {
@@ -290,8 +320,7 @@ export class MenuScene extends IScene{
 
         this.bgmManager.playLoop(ASSETS.bgm_menu);
         console.log("MenuScene Entered");
- 
-     
+        this.hasSavedPortrait  = false;
         
     }
 
