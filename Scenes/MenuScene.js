@@ -16,6 +16,7 @@ import { SustainCounter } from "../Objects/Counters/SustainCounter.js";
 import {BgmManager} from "../AudioController/BgmManager.js"
 import { FaceIdentify } from "../Objects/APIs/FaceIdentify.js";
 import { IndexedDBHelper } from "../Objects/APIs/IndexedDBHelper.js";
+import { imageToBase64 }      from '../Data/utils.js';
 
 
 export class MenuScene extends IScene{
