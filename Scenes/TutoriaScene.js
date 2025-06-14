@@ -124,7 +124,6 @@ export class TutorialScene extends IScene{
 
     }
     _on_enter(){
-        this.registerAllPlayers();
         this.bgmManager.playLoop(ASSETS.bgm_menu);
     }
 
