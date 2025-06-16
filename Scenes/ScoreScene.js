@@ -146,10 +146,10 @@ export class ScoreScene extends IScene{
             : HardGameScene.instance.Score;
 
         // --- 1. 用 isDuplicateFace 比距離 ---
-        const { isDuplicate, existing, distance } =
-            await db.isDuplicateFace(descriptor, 0.4 /* threshold */, mode);
+        // const { isDuplicate, existing, distance } =
+        //     await db.isDuplicateFace(descriptor, 0.4 /* threshold */, mode);
 
-        if (isDuplicate) {
+        if (false) {
             console.log(
             `舊玩家( id=${existing.id} )，距離 ${distance.toFixed(3)} → 更新最高${isEasy?"accuracy":"score"}`
             );

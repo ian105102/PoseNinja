@@ -120,13 +120,27 @@ export class LeaderboardScene extends IScene {
         const entry = easyList[i];
         row.txt.text = `第${i+1}名： ${entry.accuracy.toFixed(2)}`;
         if (entry.image) {
-          this.p.loadImage(entry.image, img => {
-            img.resize(row.img.width, row.img.height);
-            row.img.src     = img;
-            row.img.visible = true;
-          });
+          this.p.loadImage(
+            entry.image, 
+            img => {
+              img.resize(row.img.width, row.img.height);
+              row.img.src = img;
+              row.img.visible = true;
+            },
+            err => {
+              console.warn("圖片載入失敗，使用預設圖片", err);
+              const fallback = ASSETS.head_img.resize(row.img.width, row.img.height);
+              row.img.src = fallback;
+              row.img.visible = true;
+            }
+          );    
         } else {
-          row.img.visible = false;
+          // 沒有 image 的情況下，也使用預設圖片
+          console.warn("圖片載入失敗，使用預設圖片");
+          const fallback = ASSETS.head_img;
+          fallback.resize(row.img.width, row.img.height);
+          row.img.src = fallback;
+          row.img.visible = true;
         }
       } else {
         row.txt.text    = "";
@@ -140,13 +154,27 @@ export class LeaderboardScene extends IScene {
         const entry = hardList[i];
         row.txt.text = `第${i+1}名： ${entry.score.toFixed(2)}`;
         if (entry.image) {
-          this.p.loadImage(entry.image, img => {
-            img.resize(row.img.width, row.img.height);
-            row.img.src     = img;
-            row.img.visible = true;
-          });
+          this.p.loadImage(
+            entry.image, 
+            img => {
+              img.resize(row.img.width, row.img.height);
+              row.img.src = img;
+              row.img.visible = true;
+            },
+            err => {
+              console.warn("圖片載入失敗，使用預設圖片", err);
+              const fallback = ASSETS.head_img.resize(row.img.width, row.img.height);
+              row.img.src = fallback;
+              row.img.visible = true;
+            }
+          );    
         } else {
-          row.img.visible = false;
+          // 沒有 image 的情況下，也使用預設圖片
+          console.warn("圖片載入失敗，使用預設圖片");
+          const fallback = ASSETS.head_img;
+          fallback.resize(row.img.width, row.img.height);
+          row.img.src = fallback;
+          row.img.visible = true;
         }
       } else {
         row.txt.text    = "";

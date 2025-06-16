@@ -39,5 +39,6 @@ export const ASSETS = {
     bgm_HardMode : null,
     bgm_menu : null,
     bgm_score_view :null,
+    head_img: null,
 
 };
