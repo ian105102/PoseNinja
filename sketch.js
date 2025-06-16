@@ -17,7 +17,7 @@ const main_sketch = (p)=>{
         let easyKeypointDataList = [];
         let hardKeypointDataList = [];
         // localStorage.removeItem("easy_pose_snapshot");
-        // localStorage.removeItem("hard_pose_snapshot");
+        
         let indexedDBHelper;
         let faceIdentify;
         p.preload =  () =>{
@@ -25,7 +25,7 @@ const main_sketch = (p)=>{
 
         indexedDBHelper = IndexedDBHelper.getInstance();
         faceIdentify =  FaceIdentify.getInstance();
-        
+        indexedDBHelper.clearAllData();
 
         ASSETS.btn_easy =       p.loadImage("assets/easy.png");
         ASSETS.btn_hard =       p.loadImage("assets/hard.png");
@@ -61,8 +61,9 @@ const main_sketch = (p)=>{
         ASSETS.bgm_EazyMode = p.loadSound("assets/Bgm/EazyMode.mp3");
         ASSETS.bgm_HardMode = p.loadSound("assets/Bgm/HardMode.mp3");
         ASSETS.bgm_menu = p.loadSound("assets/Bgm/MainMenu.mp3");
-        ASSETS.bgm_score_view = p.loadSound("assets/Bgm/ScoreView.mp3");
         
+        ASSETS.bgm_score_view = p.loadSound("assets/Bgm/ScoreView.mp3");
+        ASSETS.head_img = p.loadImage("assets/bbe77a40-4951-47ba-b97c-2adcd86c935f.png");
         
 
      
