@@ -56,7 +56,7 @@ export class LeaderboardScene extends IScene {
     // 各 5 列：頭像 + 文字
     this.easyRows = [];
     this.hardRows = [];
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 3; i++) {
       // 簡單模式
       const eImg = new DrawableImage(this.p);
       eImg.position.set(WIDTH*0.25 - 120, 190 + i*128);

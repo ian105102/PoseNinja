@@ -136,50 +136,45 @@ export class ScoreScene extends IScene{
         }
 
         // --- 1. 準備要寫入資料庫的各種參數 ---
-        const db         = IndexedDBHelper.getInstance();
-        const faceApi    = FaceIdentify.getInstance();
-        // 這三個欄位要在 MenuScene 拿到人臉時就先存到 MenuScene.instance
+        const db       = IndexedDBHelper.getInstance();
         const descriptor = MenuScene.instance.playerDescriptor;
         const label      = MenuScene.instance.playerLabel;
         const imageB64   = MenuScene.instance.playerPortraitB64;
-        // 決定要寫到哪個 store
-        const mode       = isEasy ? ACCURACY_DB_NAME : SCORE_DB_NAME;
-        // 寫入值：簡單模式存 accuracy，困難模式存 score
-        const value      = isEasy
-        ? (EasyGameScene.instance.passCount / EasyGameScene.instance.allCount)
-        : HardGameScene.instance.Score;
+        const mode    = isEasy ? ACCURACY_DB_NAME : SCORE_DB_NAME;
+        const value   = isEasy
+            ? (EasyGameScene.instance.passCount / EasyGameScene.instance.allCount)
+            : HardGameScene.instance.Score;
 
-        // --- 2. 先拿出所有該 store 的資料，比對 descriptor 臨近性 ---
-        const allPlayers = await db.getAllDataByName(mode);
-        const existing   = faceApi.findPlayerInList(
-        { descriptor },
-        allPlayers,
-        0.6
-        );
+        // --- 1. 用 isDuplicateFace 比距離 ---
+        const { isDuplicate, existing, distance } =
+            await db.isDuplicateFace(descriptor, 0.4 /* threshold */, mode);
 
-        if (existing) {
-        // 3a. 舊玩家 → 更新最高值
-        const field = isEasy ? "accuracy" : "score";
-        const updated = {
+        if (isDuplicate) {
+            console.log(
+            `舊玩家( id=${existing.id} )，距離 ${distance.toFixed(3)} → 更新最高${isEasy?"accuracy":"score"}`
+            );
+            // 2a. 更新舊玩家
+            const field = isEasy ? "accuracy" : "score";
+            await db.updatePlayerById(existing.id, {
             ...existing,
+            // 如果你還想保留舊最高分：
             [field]: Math.max(existing[field], value),
-            image: imageB64,
+            image:     imageB64,
             timestamp: Date.now()
-        };
-        await db.updatePlayerById(existing.id, updated, mode);
+            }, mode);
 
         } else {
-        // 3b. 新玩家 → 新增一筆
-        await db.addPlayer({
-            name:       label,
+            console.log(`新人玩家 (距離最小 ≥ 阈值)，新增一筆`);
+            // 2b. 新玩家
+            await db.addPlayer({
+            name:      label,
             descriptor,
-            image:      imageB64,
-            timestamp:  Date.now(),
-            // 記得動態 key
+            image:     imageB64,
+            timestamp: Date.now(),
             ...(isEasy 
-            ? { accuracy: value } 
-            : { score:    value })
-        }, mode);
+                ? { accuracy: value } 
+                : { score:    value })
+            }, mode);
         }
     }
 

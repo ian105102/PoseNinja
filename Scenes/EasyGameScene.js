@@ -137,7 +137,7 @@ export class EasyGameScene extends IScene{
         while (true) {
             this.time++;
             this.TimeText.text = "時間: " + this.time+"/120秒";
-            if(this.time >= 120){
+            if(this.time >= 20){
                 SceneManager.instance.changeScene(SceneEnum.SCORE);
             }
             yield *this.timer.delay(1000); // 每秒更新一次

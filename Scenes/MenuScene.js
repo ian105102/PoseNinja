@@ -203,7 +203,43 @@ export class MenuScene extends IScene{
 
 
     }
+    async getimage(){
+        if (!this.hasSavedPortrait) {
+        // 1. 從 PoseTracker 拿到 p5.Image
+        const headImg = PoseTracker.get_instance(this.p).getHeadPortrait();
+        // 確認 headImg 及其 canvas 屬性都存在
+        if (!headImg) return;
+        //debug用
+        if (!this._debugAppended) {
+            const cv = headImg.canvas;
+            cv.style.border   = '3px solid red';
+            cv.style.position = 'fixed';
+            cv.style.top      = '10px';
+            cv.style.right    = '10px';
+            cv.style.width    = '128px';  // 顯示尺寸可調
+            cv.style.height   = '128px';
+            document.body.appendChild(cv);
+            this._debugAppended = true;   // 只掛一次
+        }
+        try {
+            this.hasSavedPortrait  = true;
+            // 1. 轉成 Base64（後面顯示或存檔用）
+            const b64 = imageToBase64(headImg);
+            // 2. 取得 descriptor 和 label
+            const faceApi = FaceIdentify.getInstance();
+            const { descriptor, label } = await faceApi.getID(headImg.canvas);
 
+            // 3. **只存在記憶體裡**，ScoreScene 再來讀用
+            this.playerPortraitB64 = b64;
+            this.playerDescriptor  = descriptor;
+            this.playerLabel       = label;
+            
+            console.log("已擷取新玩家資料：", label);
+            } catch (err) {
+            console.error("擷取頭像資料失敗：", err);
+            }
+        }
+    }
     async _on_update(_delta) {
         this.btn_hard.position.set(630, 600 + Math.sin(this.p.millis() * 0.001) * 10);
         this.btn_rule.position.set(WIDTH / 2 - 63, 580 + Math.sin(this.p.millis() * 0.001) * 10);
@@ -215,48 +251,6 @@ export class MenuScene extends IScene{
         const isRightUp  = tracker.get_is_righ_hand_up();
         const bothUp     = tracker.get_is_doub_hand_up();
         const crossHand  = tracker.get_is_cross_hand();
-
-
-        if (!this.hasSavedPortrait) {
-            // 1. 從 PoseTracker 拿到 p5.Image
-            const headImg = PoseTracker.get_instance(this.p).getHeadPortrait();
-            // 確認 headImg 及其 canvas 屬性都存在
-            if (!headImg) return;
-            //debug用
-            // if (!this._debugAppended) {
-            //     const cv = headImg.canvas;
-            //     cv.style.border   = '3px solid red';
-            //     cv.style.position = 'fixed';
-            //     cv.style.top      = '10px';
-            //     cv.style.right    = '10px';
-            //     cv.style.width    = '128px';  // 顯示尺寸可調
-            //     cv.style.height   = '128px';
-            //     document.body.appendChild(cv);
-            //     this._debugAppended = true;   // 只掛一次
-            // }
-           try {
-                this.hasSavedPortrait  = true;
-                // 1. 轉成 Base64（後面顯示或存檔用）
-                const b64 = imageToBase64(headImg);
-                // 2. 取得 descriptor 和 label
-                const faceApi = FaceIdentify.getInstance();
-                const { descriptor, label } = await faceApi.getID(headImg.canvas);
-
-                // 3. **只存在記憶體裡**，ScoreScene 再來讀用
-                this.playerPortraitB64 = b64;
-                this.playerDescriptor  = descriptor;
-                this.playerLabel       = label;
-                
-
-                console.log("已擷取新玩家資料：", label);
-                } catch (err) {
-                console.error("擷取頭像資料失敗：", err);
-                }
-            }
-
-
-    
-
 
          // —— 偵測 rising edge，剛舉起就播一次音效 —— //
         if (isLeftUp && !this.prevLeftUp) {
@@ -285,6 +279,7 @@ export class MenuScene extends IScene{
         this.btn_pose_skeleton.visible =  crossHand;
 
         if (this.pose_handler.is_cross_counter_reached()) {
+
             this.func_to_posedata();
         }
 
@@ -302,6 +297,7 @@ export class MenuScene extends IScene{
             this.btn_easy.rotation += 0.3;
             if (this.pose_handler.is_left_counter_reached()) {
                 this.rotation_active = false;
+                this.getimage();
                 this.func_to_easy();
             }
             return; 
@@ -314,6 +310,7 @@ export class MenuScene extends IScene{
         }
         
         if (this.pose_handler.is_righ_counter_reached()) {
+            this.getimage();
             this.func_to_hard();
         }
         
@@ -325,6 +322,7 @@ export class MenuScene extends IScene{
         this.bgmManager.playLoop(ASSETS.bgm_menu);
         console.log("MenuScene Entered");
         this.hasSavedPortrait  = false;
+        this._debugAppended = false;
         
     }
 
@@ -333,7 +331,6 @@ export class MenuScene extends IScene{
 
     }
 
-
-
+    
 
 }

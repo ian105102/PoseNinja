@@ -252,24 +252,50 @@ export class PoseTracker {
   }
   //擷取頭像
   getHeadPortrait() {
-    const lm = this.getFullSkeleton();
-    if (!lm || lm.length === 0) return null;
-    // 以鼻子 (index 0) 當中心
-    const cx = lm[0].x * WIDTH;
-    const cy = lm[0].y * HEIGHT;
-    const size = 512;
+  const lm = this.getFullSkeleton();
+  if (!lm || lm.length === 0) return null;
 
-    // 拿到翻轉後含骨架的整張畫面
-    const gfx = this.gethead();
+  // 取鼻尖跟雙眼 (以 Mediapipe Pose 為例)
+  const nose     = lm[0];
+  const leftEye  = lm[2];
+  const rightEye = lm[5];
 
-    // 翻轉後的真實位置
-    const fx = WIDTH - cx;
-    const fy = cy - 100;
-    let sx = fx - size/2, sy = fy - size/2;
-    // 邊界檢查
-    sx = Math.max(0, Math.min(WIDTH - size, sx));
-    sy = Math.max(0, Math.min(HEIGHT - size, sy));
+  // 轉成畫面座標 (pixel)
+  const nx = nose.x     * WIDTH;
+  const ny = nose.y     * HEIGHT;
+  const lx = leftEye.x  * WIDTH;
+  const ly = leftEye.y  * HEIGHT;
+  const rx = rightEye.x * WIDTH;
+  const ry = rightEye.y * HEIGHT;
 
-    return gfx.get(sx, sy, size, size);
-  }
+  // 眼睛中心
+  const ex = (lx + rx) / 2;
+  const ey = (ly + ry) / 2;
+
+  // 算眼距
+  const eyeDist = Math.hypot(rx - lx, ry - ly);
+
+  // 決定方框大小（可微調）
+  const boxSize = eyeDist * 4.5;
+
+  // —— 這裡做「水平翻轉」 —— //
+  // 如果 gethead() 已經是鏡像了，就要把原始 ex 轉成翻過去的 fx
+  const fx = WIDTH - ex;
+  const fy = ey;
+
+  // 左上角座標
+  let sx = fx - boxSize / 2;
+  let sy = fy - boxSize / 2;
+
+  // 邊界檢查
+  sx = Math.max(0, Math.min(WIDTH  - boxSize, sx));
+  sy = Math.max(0, Math.min(HEIGHT - boxSize, sy));
+
+  // 取出整張鏡像後的畫面
+  const gfx = this.gethead();
+
+  // 裁切並回傳
+  return gfx.get(sx, sy, boxSize, boxSize);
+}
+
 }

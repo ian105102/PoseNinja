@@ -114,7 +114,7 @@ export class IndexedDBHelper {
                 });
             }
         }
-    async isDuplicateFace(inputDescriptor, threshold = 0.6, mode = SCORE_DB_NAME) {
+    async isDuplicateFace(inputDescriptor, threshold = 0.4, mode = SCORE_DB_NAME) {
         const allData = await this.#getAll(mode);
 
         for (const entry of allData) {
