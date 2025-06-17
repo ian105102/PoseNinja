@@ -5,6 +5,7 @@ import { SceneEnum } from "../SceneEnum.js"
 
 import { ASSETS, WIDTH } from "../G.js"
 import { HEIGHT } from "../G.js"
+import { counter } from "../G.js"
 import { DrawableText } from "../Objects/DrawableObj/Text/DrawableText.js"
 
 import { DrawableImage } from "../Objects/DrawableObj/Game/DrawableImage.js"
@@ -123,8 +124,8 @@ export class EasyGameScene extends IScene{
         yield  *this.timer.delay(1000);
         this.CountdownText.isActive = false;
         this.generatorManager.start(this.TimerCount());
+        
         while (true) {
-
             let board = this.boardList.add_board(this.JudgePose.bind(this) , this.boardEnd.bind(this));
             this.judgePoseState.set(board, false); 
             yield  *this.timer.delay(5000); 
@@ -282,6 +283,8 @@ export class EasyGameScene extends IScene{
         this.time = 0;
         this.passCount = 0;
         this.allCount = 0;
+        this.ScoreText.text = "通過率: " + (this.allCount !== 0 ? (this.passCount / this.allCount * 100).toFixed(2) : "0.00") + "%";
+        this.TimeText.text = "時間: " + this.time+"/120秒";
     }
     _on_exit(){
         this.generatorManager.clearAll();

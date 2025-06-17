@@ -25,7 +25,7 @@ const main_sketch = (p)=>{
 
         indexedDBHelper = IndexedDBHelper.getInstance();
         faceIdentify =  FaceIdentify.getInstance();
-        indexedDBHelper.clearAllData();
+        // indexedDBHelper.clearAllData();
 
         ASSETS.btn_easy =       p.loadImage("assets/easy.png");
         ASSETS.btn_hard =       p.loadImage("assets/hard.png");
