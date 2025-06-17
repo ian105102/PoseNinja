@@ -34,7 +34,7 @@ export class MenuScene extends IScene{
         this.pose_handler = new PoseHandler(p)
         this.rotation_active = false;
         this.rotation_timer = 0;
-
+        this.prevcrosshand  = false;
         this.faceIdentify = FaceIdentify.getInstance();
         this.indexedDBHelper = IndexedDBHelper.getInstance();
         
@@ -262,6 +262,11 @@ export class MenuScene extends IScene{
         if (bothUp && !this.prevBothUp) {
             ASSETS.sfx_openChest.play();
         }
+        if(crossHand && !this.prevcrosshand ){
+            ASSETS.sfx_BHOME.play();
+        }
+
+        this.prevcrosshand   = crossHand
         // 需加入自建資料集音效(cross)
 
         // 更新前一幀狀態

@@ -8,6 +8,7 @@ import { WIDTH, HEIGHT, ASSETS, SCORE_DB_NAME, ACCURACY_DB_NAME } from "../G.js"
 import { PoseTracker } from "../Objects/APIs/PoseTracker.js";
 import { PoseHandler } from "../Objects/APIs/PoseHandler.js";
 import { IndexedDBHelper } from "../Objects/APIs/IndexedDBHelper.js";
+import { MenuScene } from "./MenuScene.js";
 export class LeaderboardScene extends IScene {
   static instance = null;
 
@@ -109,7 +110,7 @@ export class LeaderboardScene extends IScene {
   async _on_enter() {
      // 1) 拿到已初始化的 DB helper
     const db = await IndexedDBHelper.getInstance();
-
+    const label      = MenuScene.instance.playerLabel;
     // 2) 各取前 5 筆：score → 簡單模式、accuracy → 困難模式
     const easyList = await db.getSortedLeaderboard(ACCURACY_DB_NAME, 5);
     const hardList = await db.getSortedLeaderboard(SCORE_DB_NAME, 5);
@@ -118,7 +119,14 @@ export class LeaderboardScene extends IScene {
     this.easyRows.forEach((row, i) => {
       if (i < easyList.length) {
         const entry = easyList[i];
+        console.log("easyList[i] " + entry.name )
+        if(entry.name == label){
+          row.txt.fillColor = this.p.color(255,229,61);
+          row.txt.strokeColor = this.p.color(0);
+          row.txt.text = `第${i+1}名： ${entry.accuracy.toFixed(2)}`; 
+        }else{
         row.txt.text = `第${i+1}名： ${entry.accuracy.toFixed(2)}`;
+        }
         if (entry.image) {
           this.p.loadImage(
             entry.image, 
@@ -152,7 +160,13 @@ export class LeaderboardScene extends IScene {
     this.hardRows.forEach((row, i) => {
       if (i < hardList.length) {
         const entry = hardList[i];
-        row.txt.text = `第${i+1}名： ${entry.score.toFixed(2)}`;
+        if(entry.name == label){
+          row.txt.fillColor = this.p.color(255,229,61);
+          row.txt.strokeColor = this.p.color(0);
+          row.txt.text = `第${i+1}名： ${entry.score.toFixed(2)}`; 
+        }else{
+          row.txt.text = `第${i+1}名： ${entry.score.toFixed(2)}`;
+        }
         if (entry.image) {
           this.p.loadImage(
             entry.image, 

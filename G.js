@@ -40,5 +40,8 @@ export const ASSETS = {
     bgm_menu : null,
     bgm_score_view :null,
     head_img: null,
-
 };
+export var counter = {
+    easy: 0,
+    hard: 0,
+}

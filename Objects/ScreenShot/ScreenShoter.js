@@ -69,10 +69,11 @@ export class ScreenShoter extends IObject {
 
     _on_draw() {
         if (this.countdown > 0) {
-            this.p.fill(255, 255, 0);
+            this.p.fill(63, 72, 204);
+            this.p.stroke(0);
             this.p.textAlign(this.p.CENTER, this.p.CENTER);
             this.p.textSize(64);
-            this.p.text(this.countdown, this.p.width / 2, this.p.height / 2);
+            this.p.text(this.countdown + "\n倒數中~請擺出姿勢", this.p.width / 2, this.p.height / 2);
         }
 
         if (this.successMessageTimer > 0) {

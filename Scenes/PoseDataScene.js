@@ -12,6 +12,8 @@ import { PoseHandler } from './../Objects/APIs/PoseHandler.js';
 import { BgmManager } from "../AudioController/BgmManager.js";
 import { ScreenShoter } from "../Objects/ScreenShot/ScreenShoter.js";
 
+import { counter } from "../G.js"
+
 export class PoseDataScene extends IScene{
     static instance = null
 
@@ -22,11 +24,11 @@ export class PoseDataScene extends IScene{
         }
         super(p);
         PoseDataScene.instance = this;
-        PoseDataScene.instance.init()
+        this.init()
         this.pose_handler = new PoseHandler(p)
         this.prevLeftUp  = false;
         this.backOffsetX = 0;
-
+        this.prevcrosshand  = false;
         this.isPrtScing = false;    // 是否正在截圖
         this.hasResetPose = true;   // 重製截圖
         this.easyPoseCounter = 0;
@@ -34,6 +36,9 @@ export class PoseDataScene extends IScene{
 
         this.shoter = new ScreenShoter(p);
         this.add(this.shoter); // 加入到 drawable object list 中才能顯示 countdown
+
+        
+        this.backOffsetY = 0;
 
     } 
     
@@ -53,6 +58,13 @@ export class PoseDataScene extends IScene{
         this.bg.width = WIDTH;
         this.bg.height = HEIGHT;
         this.add(this.bg);
+
+        this.home = new DrawableImage(this.p);
+        this.home.setImage(ASSETS.home);
+        this.home.position.set(WIDTH/2, 0);
+        this.home.width = 150;
+        this.home.height = 150;
+        this.add(this.home);
 
         this.pose_image = new DrawableImage(this.p);
         this.pose_image.position.x = 65;
@@ -87,6 +99,14 @@ export class PoseDataScene extends IScene{
         const bothUp     = tracker.get_is_doub_hand_up();
         const crossHand  = tracker.get_is_cross_hand();
 
+        this.backOffsetY = this.p.lerp(this.backOffsetY, crossHand ? -20 : 0, 0.1);
+        this.home.position.y = 10 + this.backOffsetY;
+        
+        if(crossHand && !this.prevcrosshand ){
+            ASSETS.sfx_BHOME.play();
+        }
+
+        this.prevcrosshand   = crossHand
         
         if (this.pose_handler.is_cross_counter_reached()) {
             this.func_to_menu();
@@ -109,6 +129,7 @@ export class PoseDataScene extends IScene{
                     console.log("easy_keypoints: ", keypoints);
                     this.shoter.takeScreenshot(keypoints, "easy");
                     console.log("✅ easy pose 資料處理");
+                    counter.easy++;
                 });
 
             } else if (this.pose_handler.is_righ_counter_reached()) {
@@ -121,12 +142,10 @@ export class PoseDataScene extends IScene{
                     console.log("hard_keypoints: ", keypoints);
                     this.shoter.takeScreenshot(keypoints, "hard");
                     console.log("✅ hard pose 資料處理");
+                    counter.hard++;
                 });
             }
         }
-
-
-
         
         this.pose_image.src = tracker.getVideo();
 
@@ -135,6 +154,11 @@ export class PoseDataScene extends IScene{
 
     _on_exit(){
         
+    }
+
+    _on_enter(){
+        this.shoter.easyPoseData = [];
+        this.shoter.hardPoseData = [];
     }
 
     printStoredPose(dataName) {
